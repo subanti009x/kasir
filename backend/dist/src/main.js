@@ -3,12 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const path_1 = require("path");
 const app_module_1 = require("./app.module");
+const cors_1 = require("./config/cors");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.useStaticAssets((0, path_1.join)(process.cwd(), 'uploads'), {
+        prefix: '/uploads/',
+    });
     app.setGlobalPrefix('api');
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+        origin: (0, cors_1.getCorsOrigin)(),
         credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
@@ -18,8 +23,8 @@ async function bootstrap() {
         transformOptions: { enableImplicitConversion: true },
     }));
     const config = new swagger_1.DocumentBuilder()
-        .setTitle('KasirPro Cloud API')
-        .setDescription('Multi-tenant POS SaaS Platform API')
+        .setTitle('Admin Solutions Inovatif API')
+        .setDescription('Business Management & POS System Platform API')
         .setVersion('1.0')
         .addBearerAuth()
         .addTag('auth', 'Authentication endpoints')
@@ -40,7 +45,7 @@ async function bootstrap() {
     swagger_1.SwaggerModule.setup('api/docs', app, document);
     const port = process.env.PORT ?? 3000;
     await app.listen(port);
-    console.log(`🚀 KasirPro API running on http://localhost:${port}`);
+    console.log(`🚀 Admin Solutions Inovatif API running on http://localhost:${port}`);
     console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
 bootstrap();

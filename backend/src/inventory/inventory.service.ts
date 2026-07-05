@@ -1,10 +1,14 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInventoryLogDto, InventoryType } from './dto/inventory.dto';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class InventoryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationGateway,
+  ) {}
 
   async findAll(tenantId: string, productId?: string) {
     const where: any = { tenantId };
@@ -47,7 +51,7 @@ export class InventoryService {
       }
     }
 
-    const [log] = await this.prisma.$transaction([
+    const [log, updatedProduct] = await this.prisma.$transaction([
       this.prisma.inventoryLog.create({
         data: {
           type: dto.type,
@@ -66,6 +70,15 @@ export class InventoryService {
         data: { stock: { increment: stockDelta } },
       }),
     ]);
+
+    if (updatedProduct.stock <= updatedProduct.minStock) {
+      this.notifications.notifyLowStock(tenantId, {
+        id: updatedProduct.id,
+        name: updatedProduct.name,
+        stock: updatedProduct.stock,
+        minStock: updatedProduct.minStock,
+      });
+    }
 
     return log;
   }

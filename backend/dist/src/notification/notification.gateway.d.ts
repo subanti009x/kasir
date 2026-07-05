@@ -1,8 +1,11 @@
 import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 export declare class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+    private readonly jwtService;
     server: Server;
     private connectedClients;
+    constructor(jwtService: JwtService);
     handleConnection(client: Socket): void;
     handleDisconnect(client: Socket): void;
     sendToTenant(tenantId: string, event: string, data: any): void;

@@ -6,10 +6,6 @@ import { useAuth } from "@/lib/auth";
 import { inventoryApi, productApi } from "@/lib/api";
 import { Plus, X, Loader2, ArrowDownToLine, ArrowUpFromLine, RefreshCcw, Package } from "lucide-react";
 
-function formatCurrency(n: number) {
-  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
-}
-
 export default function InventoryPage() {
   const { token, canManage } = useAuth();
   const queryClient = useQueryClient();

@@ -1,0 +1,414 @@
+
+> backend@0.0.1 start:dev
+> nest start --watch
+
+[2J[3J[H[[90m11:36:08 AM[0m] Starting compilation in watch mode...
+
+[[90m11:36:30 AM[0m] Found 0 errors. Watching for file changes.
+
+[Nest] 24796  - 07/05/2026, 11:36:35 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] PrismaModule dependencies initialized +209ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] PassportModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] NotificationModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] JwtModule dependencies initialized +51ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] AppModule dependencies initialized +4ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] AuthModule dependencies initialized +3ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] SettingsModule dependencies initialized +4ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] ProductModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] CategoryModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] CustomerModule dependencies initialized +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] SupplierModule dependencies initialized +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] PurchaseOrderModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] ReportModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] InventoryModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [InstanceLoader] TransactionModule dependencies initialized +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] AppController {/api}: +509ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api, GET} route +4ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] AuthController {/api/auth}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/auth/login, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/auth/register, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] TenantController {/api/tenants}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants/stats, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants/plans, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, DELETE} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] UserController {/api/users}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users/me, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users/:id, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users/:id, PATCH} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/users/:id, DELETE} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] ProductController {/api/products}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products/:id, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products/:id, PATCH} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products/:id/image, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/products/:id, DELETE} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] CategoryController {/api/categories}: +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/categories, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/categories, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, DELETE} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] CustomerController {/api/customers}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/customers, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/customers, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, DELETE} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] SupplierController {/api/suppliers}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/suppliers, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/suppliers, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, DELETE} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] InventoryController {/api/inventory}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/inventory, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/inventory/low-stock, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/inventory, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] TransactionController {/api/transactions}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/transactions/checkout, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/transactions, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/transactions/:id, GET} route +2ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/transactions/:id/refund, PATCH} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] PurchaseOrderController {/api/purchase-orders}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders, POST} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/receive, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/cancel, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] ReportController {/api/reports}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/reports/dashboard, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/reports/sales, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RoutesResolver] SettingsController {/api/settings}: +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/settings, GET} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/settings, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/settings/logo, POST} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, GET} route +1ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, PATCH} route +0ms
+[Nest] 24796  - 07/05/2026, 11:36:36 AM     LOG [NestApplication] Nest application successfully started +190ms
+🚀 KasirPro API running on http://localhost:3000
+📚 Swagger docs at http://localhost:3000/api/docs
+[2J[3J[H[[90m11:57:47 AM[0m] File change detected. Starting incremental compilation...
+
+[[90m11:57:54 AM[0m] Found 0 errors. Watching for file changes.
+
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] PrismaModule dependencies initialized +132ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] PassportModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] JwtModule dependencies initialized +41ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] AppModule dependencies initialized +2ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] NotificationModule dependencies initialized +2ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] AuthModule dependencies initialized +4ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] SettingsModule dependencies initialized +2ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] TenantModule dependencies initialized +1ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] ProductModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] CategoryModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] CustomerModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] SupplierModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] PurchaseOrderModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] ReportModule dependencies initialized +0ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] InventoryModule dependencies initialized +1ms
+[Nest] 31104  - 07/05/2026, 11:57:58 AM     LOG [InstanceLoader] TransactionModule dependencies initialized +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] AppController {/api}: +491ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api, GET} route +6ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] AuthController {/api/auth}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/auth/login, POST} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/auth/register, POST} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] TenantController {/api/tenants}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants/stats, GET} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants/plans, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, GET} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants, POST} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, PATCH} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/tenants/:id, DELETE} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] UserController {/api/users}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users, GET} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users/me, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users/:id, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users/:id, PATCH} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/users/:id, DELETE} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] ProductController {/api/products}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products/:id, GET} route +3ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products, POST} route +6ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products/:id, PATCH} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products/:id/image, POST} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/products/:id, DELETE} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] CategoryController {/api/categories}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/categories, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/categories, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, PATCH} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/categories/:id, DELETE} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] CustomerController {/api/customers}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/customers, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/customers, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, PATCH} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/customers/:id, DELETE} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] SupplierController {/api/suppliers}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/suppliers, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/suppliers, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, PATCH} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, DELETE} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] InventoryController {/api/inventory}: +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/inventory, GET} route +4ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/inventory/low-stock, GET} route +6ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/inventory, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] TransactionController {/api/transactions}: +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/transactions/checkout, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/transactions, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/transactions/:id, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/transactions/:id/refund, PATCH} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] PurchaseOrderController {/api/purchase-orders}: +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders, GET} route +9ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id, GET} route +4ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/receive, PATCH} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/cancel, PATCH} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] ReportController {/api/reports}: +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/reports/dashboard, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/reports/sales, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RoutesResolver] SettingsController {/api/settings}: +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/settings, GET} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/settings, PATCH} route +2ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/settings/logo, POST} route +0ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, GET} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, PATCH} route +1ms
+[Nest] 31104  - 07/05/2026, 11:57:59 AM     LOG [NestApplication] Nest application successfully started +86ms
+🚀 KasirPro API running on http://localhost:3000
+📚 Swagger docs at http://localhost:3000/api/docs
+[2J[3J[H[[90m12:21:19 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:21:20 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:21:21 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:21:23 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:21:24 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:21:25 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:21:26 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:21:27 PM[0m] Found 0 errors. Watching for file changes.
+
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [NestFactory] Starting Nest application...
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] PrismaModule dependencies initialized +104ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] PassportModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] JwtModule dependencies initialized +17ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] JwtModule dependencies initialized +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] AppModule dependencies initialized +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] NotificationModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] AuthModule dependencies initialized +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] SettingsModule dependencies initialized +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] TenantModule dependencies initialized +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] ProductModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] CategoryModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] CustomerModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] SupplierModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] PurchaseOrderModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] ReportModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] InventoryModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [InstanceLoader] TransactionModule dependencies initialized +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] AppController {/api}: +173ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api, GET} route +10ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] AuthController {/api/auth}: +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/auth/login, POST} route +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/auth/register, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] TenantController {/api/tenants}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants/stats, GET} route +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants/plans, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants/:id, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants/:id, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/tenants/:id, DELETE} route +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] UserController {/api/users}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users/me, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users/:id, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users/:id, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/users/:id, DELETE} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] ProductController {/api/products}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products/:id, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products, POST} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products/:id, PATCH} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products/:id/image, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/products/:id, DELETE} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] CategoryController {/api/categories}: +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/categories, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/categories/:id, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/categories, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/categories/:id, PATCH} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/categories/:id, DELETE} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] CustomerController {/api/customers}: +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/customers, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/customers/:id, GET} route +3ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/customers, POST} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/customers/:id, PATCH} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/customers/:id, DELETE} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] SupplierController {/api/suppliers}: +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/suppliers, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/suppliers, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/suppliers/:id, DELETE} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] InventoryController {/api/inventory}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/inventory, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/inventory/low-stock, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/inventory, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] TransactionController {/api/transactions}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/transactions/checkout, POST} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/transactions, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/transactions/:id, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/transactions/:id/refund, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] PurchaseOrderController {/api/purchase-orders}: +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/purchase-orders, GET} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/purchase-orders, POST} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/receive, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/purchase-orders/:id/cancel, PATCH} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] ReportController {/api/reports}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/reports/dashboard, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/reports/sales, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RoutesResolver] SettingsController {/api/settings}: +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/settings, GET} route +4ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/settings, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/settings/logo, POST} route +2ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, GET} route +1ms
+[Nest] 30760  - 07/05/2026, 12:21:31 PM     LOG [RouterExplorer] Mapped {/api/settings/payment-methods, PATCH} route +0ms
+[Nest] 30760  - 07/05/2026, 12:21:32 PM     LOG [NestApplication] Nest application successfully started +69ms
+🚀 KasirPro API running on http://localhost:3000
+📚 Swagger docs at http://localhost:3000/api/docs
+[2J[3J[H[[90m12:22:39 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:22:43 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:22:43 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:22:46 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:22:46 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m12:22:49 PM[0m] Found 0 errors. Watching for file changes.
+
+[2J[3J[H[[90m12:22:54 PM[0m] File change detected. Starting incremental compilation...
+
+node:internal/modules/cjs/loader:1423
+  throw err;
+  ^
+
+Error: Cannot find module './report/report.module'
+Require stack:
+- D:\website kasir\backend\dist\src\app.module.js
+- D:\website kasir\backend\dist\src\main.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1420:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1058:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1063:22)
+    at Module._load (node:internal/modules/cjs/loader:1226:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1503:12)
+    at require (node:internal/modules/helpers:152:16)
+    at Object.<anonymous> (D:\website kasir\backend\src\app.module.ts:15:1)
+    at Module._compile (node:internal/modules/cjs/loader:1760:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'D:\\website kasir\\backend\\dist\\src\\app.module.js',
+    'D:\\website kasir\\backend\\dist\\src\\main.js'
+  ]
+}
+
+Node.js v25.2.1
+ERROR: The process with PID 16884 (child process of PID 16780) could not be terminated.
+Reason: There is no running instance of the task.
+ERROR: The process "16780" not found.
+node:child_process:1000
+    throw err;
+    ^
+
+Error: Command failed: taskkill /pid 16780 /T /F
+ERROR: The process with PID 16884 (child process of PID 16780) could not be terminated.
+Reason: There is no running instance of the task.
+
+    at genericNodeError (node:internal/errors:998:15)
+    at wrappedFn (node:internal/errors:543:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execSync (node:child_process:997:15)
+    at treeKillSync (D:\website kasir\backend\node_modules\@nestjs\cli\lib\utils\tree-kill.js:7:38)
+    at D:\website kasir\backend\node_modules\@nestjs\cli\actions\start.action.js:92:46
+    at Object.onWatchStatusChange (D:\website kasir\backend\node_modules\@nestjs\cli\lib\compiler\watch-compiler.js:82:17)
+    at D:\website kasir\backend\node_modules\typescript\lib\typescript.js:133916:30
+    at emitFilesAndReportErrors (D:\website kasir\backend\node_modules\typescript\lib\typescript.js:133737:5)
+    at result.afterProgramCreate (D:\website kasir\backend\node_modules\typescript\lib\typescript.js:133912:5) {
+  status: 255,
+  signal: null,
+  output: [
+    null,
+    Buffer(87) [Uint8Array] [
+       83,  85,  67,  67,  69,  83,  83,  58,  32,  84, 104, 101,
+       32, 112, 114, 111,  99, 101, 115, 115,  32, 119, 105, 116,
+      104,  32,  80,  73,  68,  32,  49,  54,  55,  56,  48,  32,
+       40,  99, 104, 105, 108, 100,  32, 112, 114, 111,  99, 101,
+      115, 115,  32, 111, 102,  32,  80,  73,  68,  32,  51,  51,
+       54,  48,  56,  41,  32, 104,  97, 115,  32,  98, 101, 101,
+      110,  32, 116, 101, 114, 109, 105, 110,  97, 116, 101, 100,
+       46,  13,  10
+    ],
+    Buffer(141) [Uint8Array] [
+       69,  82,  82,  79,  82,  58,  32,  84, 104, 101,  32, 112,
+      114, 111,  99, 101, 115, 115,  32, 119, 105, 116, 104,  32,
+       80,  73,  68,  32,  49,  54,  56,  56,  52,  32,  40,  99,
+      104, 105, 108, 100,  32, 112, 114, 111,  99, 101, 115, 115,
+       32, 111, 102,  32,  80,  73,  68,  32,  49,  54,  55,  56,
+       48,  41,  32,  99, 111, 117, 108, 100,  32, 110, 111, 116,
+       32,  98, 101,  32, 116, 101, 114, 109, 105, 110,  97, 116,
+      101, 100,  46,  13,  10,  82, 101,  97, 115, 111, 110,  58,
+       32,  84, 104, 101,
+      ... 41 more items
+    ]
+  ],
+  pid: 30968,
+  stdout: Buffer(87) [Uint8Array] [
+     83,  85,  67,  67,  69,  83,  83,  58,  32,  84, 104, 101,
+     32, 112, 114, 111,  99, 101, 115, 115,  32, 119, 105, 116,
+    104,  32,  80,  73,  68,  32,  49,  54,  55,  56,  48,  32,
+     40,  99, 104, 105, 108, 100,  32, 112, 114, 111,  99, 101,
+    115, 115,  32, 111, 102,  32,  80,  73,  68,  32,  51,  51,
+     54,  48,  56,  41,  32, 104,  97, 115,  32,  98, 101, 101,
+    110,  32, 116, 101, 114, 109, 105, 110,  97, 116, 101, 100,
+     46,  13,  10
+  ],
+  stderr: Buffer(141) [Uint8Array] [
+     69,  82,  82,  79,  82,  58,  32,  84, 104, 101,  32, 112,
+    114, 111,  99, 101, 115, 115,  32, 119, 105, 116, 104,  32,
+     80,  73,  68,  32,  49,  54,  56,  56,  52,  32,  40,  99,
+    104, 105, 108, 100,  32, 112, 114, 111,  99, 101, 115, 115,
+     32, 111, 102,  32,  80,  73,  68,  32,  49,  54,  55,  56,
+     48,  41,  32,  99, 111, 117, 108, 100,  32, 110, 111, 116,
+     32,  98, 101,  32, 116, 101, 114, 109, 105, 110,  97, 116,
+    101, 100,  46,  13,  10,  82, 101,  97, 115, 111, 110,  58,
+     32,  84, 104, 101,
+    ... 41 more items
+  ]
+}
+
+Node.js v25.2.1

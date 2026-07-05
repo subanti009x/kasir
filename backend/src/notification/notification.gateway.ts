@@ -6,11 +6,18 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { getCorsOrigin } from '../config/cors';
+
+type NotificationTokenPayload = {
+  sub: string;
+  tenantId?: string | null;
+};
 
 @Injectable()
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    origin: getCorsOrigin(),
     credentials: true,
   },
   namespace: '/notifications',
@@ -21,19 +28,41 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
 
   private connectedClients = new Map<string, Set<string>>();
 
+  constructor(private readonly jwtService: JwtService) {}
+
   handleConnection(client: Socket) {
-    const tenantId = client.handshake.query.tenantId as string;
+    const token = client.handshake.auth?.token;
+    if (typeof token !== 'string') {
+      client.disconnect(true);
+      return;
+    }
+
+    let payload: NotificationTokenPayload;
+    try {
+      payload = this.jwtService.verify<NotificationTokenPayload>(token);
+    } catch {
+      client.disconnect(true);
+      return;
+    }
+
+    const tenantId = payload.tenantId;
     if (tenantId) {
+      client.data.tenantId = tenantId;
       client.join(`tenant:${tenantId}`);
       if (!this.connectedClients.has(tenantId)) {
         this.connectedClients.set(tenantId, new Set());
       }
       this.connectedClients.get(tenantId)!.add(client.id);
+      client.emit('notification-ready', {
+        type: 'NOTIFICATION_READY',
+        message: 'Notification center connected',
+        timestamp: new Date().toISOString(),
+      });
     }
   }
 
   handleDisconnect(client: Socket) {
-    const tenantId = client.handshake.query.tenantId as string;
+    const tenantId = client.data.tenantId as string | undefined;
     if (tenantId && this.connectedClients.has(tenantId)) {
       this.connectedClients.get(tenantId)!.delete(client.id);
     }
@@ -56,7 +85,7 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   notifyTransaction(tenantId: string, transaction: { id: string; receiptId: string; total: number; paymentMethod: string }) {
     this.sendToTenant(tenantId, 'transaction', {
       type: 'TRANSACTION_COMPLETED',
-      message: `Transaction ${transaction.receiptId} completed — ${transaction.paymentMethod}`,
+      message: `Transaction ${transaction.receiptId} completed - ${transaction.paymentMethod}`,
       transaction,
       timestamp: new Date().toISOString(),
     });

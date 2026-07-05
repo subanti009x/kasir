@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, Min, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreateProductDto {
@@ -51,6 +51,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsString()
   categoryId?: string;
+
+  @ApiPropertyOptional({ enum: ['ACTIVE', 'INACTIVE', 'ARCHIVED'] })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { supplierApi } from "@/lib/api";
-import { Plus, Pencil, Trash2, X, Loader2, Truck } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Loader2 } from "lucide-react";
 
 export default function SuppliersPage() {
   const { token } = useAuth();

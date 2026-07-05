@@ -1,4 +1,11 @@
-const API_BASE = "/api";
+function getApiBase() {
+  if (typeof window === "undefined") return "/api";
+
+  const backendRoutePrefix =
+    process.env.NEXT_PUBLIC_BACKEND_ROUTE_PREFIX || (window.location.hostname.endsWith("vercel.app") ? "/_/backend" : "");
+
+  return `${backendRoutePrefix.replace(/\/$/, "")}/api`;
+}
 
 interface ApiOptions {
   method?: string;
@@ -20,7 +27,7 @@ export class ApiError extends Error {
 export async function api<T = unknown>(endpoint: string, options: ApiOptions = {}): Promise<T> {
   const { method = "GET", body, token, params } = options;
 
-  let url = `${API_BASE}${endpoint}`;
+  let url = `${getApiBase()}${endpoint}`;
   if (params) {
     const searchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
@@ -50,6 +57,24 @@ export async function api<T = unknown>(endpoint: string, options: ApiOptions = {
   return res.json();
 }
 
+export async function uploadFile<T = unknown>(endpoint: string, file: File, token: string, fieldName = "image"): Promise<T> {
+  const formData = new FormData();
+  formData.set(fieldName, file);
+
+  const res = await fetch(`${getApiBase()}${endpoint}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new ApiError(res.status, errorData.message || `API Error ${res.status}`, errorData);
+  }
+
+  return res.json();
+}
+
 // ---- Auth ----
 export const authApi = {
   login: (email: string, password: string) =>
@@ -65,6 +90,7 @@ export const productApi = {
   get: (token: string, id: string) => api<any>(`/products/${id}`, { token }),
   create: (token: string, data: any) => api<any>("/products", { method: "POST", body: data, token }),
   update: (token: string, id: string, data: any) => api<any>(`/products/${id}`, { method: "PATCH", body: data, token }),
+  uploadImage: (token: string, id: string, file: File) => uploadFile<any>(`/products/${id}/image`, file, token),
   delete: (token: string, id: string) => api(`/products/${id}`, { method: "DELETE", token }),
 };
 
@@ -134,6 +160,7 @@ export const reportApi = {
 export const settingsApi = {
   get: (token: string) => api<any>("/settings", { token }),
   update: (token: string, data: any) => api<any>("/settings", { method: "PATCH", body: data, token }),
+  uploadLogo: (token: string, file: File) => uploadFile<any>("/settings/logo", file, token, "logo"),
   paymentMethods: (token: string) => api<any[]>("/settings/payment-methods", { token }),
   updatePaymentMethod: (token: string, id: string, enabled: boolean) =>
     api("/settings/payment-methods", { method: "PATCH", body: { id, enabled }, token }),
@@ -158,4 +185,5 @@ export const tenantApi = {
   update: (token: string, id: string, data: any) => api<any>(`/tenants/${id}`, { method: "PATCH", body: data, token }),
   delete: (token: string, id: string) => api(`/tenants/${id}`, { method: "DELETE", token }),
   stats: (token: string) => api<any>("/tenants/stats", { token }),
+  plans: (token: string) => api<any[]>("/tenants/plans", { token }),
 };

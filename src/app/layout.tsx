@@ -6,7 +6,7 @@ import { Providers } from "../lib/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "KasirPro Cloud — Multi-Tenant POS SaaS",
+  title: "Admin Solutions Inovatif — Business Management & POS System",
   description: "Enterprise-grade Point of Sale platform for multiple SMEs with isolated data, RBAC, and real-time operations.",
 };
 

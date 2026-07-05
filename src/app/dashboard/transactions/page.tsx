@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { transactionApi } from "@/lib/api";
-import { Search, Loader2, Eye, RotateCcw, X } from "lucide-react";
+import { Loader2, Eye, RotateCcw, X } from "lucide-react";
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);

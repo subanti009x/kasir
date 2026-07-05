@@ -9,6 +9,7 @@ export declare class CreateProductDto {
     minStock?: number;
     image?: string;
     categoryId?: string;
+    status?: string;
 }
 declare const UpdateProductDto_base: import("@nestjs/common").Type<Partial<CreateProductDto>>;
 export declare class UpdateProductDto extends UpdateProductDto_base {

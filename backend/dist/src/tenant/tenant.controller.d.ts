@@ -9,7 +9,32 @@ export declare class TenantController {
         totalUsers: number;
         totalTransactions: number;
         totalRevenue: number;
+        plans: {
+            plan: string;
+            count: number;
+        }[];
     }>;
+    getPlans(): ({
+        id: string;
+        name: string;
+        monthlyPrice: number;
+        limits: {
+            products: number;
+            employees: number;
+            registers: number;
+        };
+        features: string[];
+    } | {
+        id: string;
+        name: string;
+        monthlyPrice: number;
+        limits: {
+            products: null;
+            employees: null;
+            registers: null;
+        };
+        features: string[];
+    })[];
     findAll(page?: number, limit?: number, status?: string): Promise<{
         data: ({
             _count: {
@@ -33,6 +58,8 @@ export declare class TenantController {
             taxRate: number;
             receiptTemplate: string | null;
             plan: string;
+            planStartedAt: Date;
+            planExpiresAt: Date | null;
         })[];
         total: number;
         page: number;
@@ -69,6 +96,8 @@ export declare class TenantController {
         taxRate: number;
         receiptTemplate: string | null;
         plan: string;
+        planStartedAt: Date;
+        planExpiresAt: Date | null;
     }>;
     create(dto: CreateTenantDto): Promise<{
         paymentMethods: {
@@ -93,6 +122,8 @@ export declare class TenantController {
         taxRate: number;
         receiptTemplate: string | null;
         plan: string;
+        planStartedAt: Date;
+        planExpiresAt: Date | null;
     }>;
     update(id: string, dto: UpdateTenantDto): Promise<{
         id: string;
@@ -110,6 +141,8 @@ export declare class TenantController {
         taxRate: number;
         receiptTemplate: string | null;
         plan: string;
+        planStartedAt: Date;
+        planExpiresAt: Date | null;
     }>;
     remove(id: string): Promise<{
         id: string;
@@ -127,5 +160,7 @@ export declare class TenantController {
         taxRate: number;
         receiptTemplate: string | null;
         plan: string;
+        planStartedAt: Date;
+        planExpiresAt: Date | null;
     }>;
 }

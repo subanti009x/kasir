@@ -48,6 +48,18 @@ let PurchaseOrderService = class PurchaseOrderService {
         });
         if (!supplier)
             throw new common_1.NotFoundException('Supplier not found');
+        const products = await this.prisma.product.findMany({
+            where: {
+                tenantId,
+                id: { in: dto.items.map((item) => item.productId) },
+            },
+            select: { id: true },
+        });
+        const productIds = new Set(products.map((product) => product.id));
+        const missingProduct = dto.items.find((item) => !productIds.has(item.productId));
+        if (missingProduct) {
+            throw new common_1.NotFoundException(`Product ${missingProduct.productId} not found in this tenant`);
+        }
         const poCount = await this.prisma.purchaseOrder.count({ where: { tenantId } });
         const orderNumber = `PO-${(poCount + 1).toString().padStart(5, '0')}`;
         const totalAmount = dto.items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);

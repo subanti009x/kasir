@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { reportApi, inventoryApi } from "@/lib/api";
 import {
-  CircleDollarSign, CalendarDays, ShoppingCart, Package, Users, AlertTriangle,
-  TrendingUp, ArrowUpRight, ArrowDownRight, Loader2,
+  CircleDollarSign, CalendarDays, Package, Users, AlertTriangle,
+  TrendingUp, Loader2,
 } from "lucide-react";
 
 function formatCurrency(n: number) {

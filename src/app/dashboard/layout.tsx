@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/lib/auth";
+import { getNotificationSocketConfig } from "@/lib/realtime";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
-  Settings, Store, ChevronDown, LogOut, Menu, X, Shield, Bell, User as UserIcon,
+  Settings, LogOut, Menu, X, Shield, Bell, User as UserIcon, CheckCheck, Trash2,
   FileBox,
 } from "lucide-react";
 
@@ -24,15 +26,91 @@ const navItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
+type AppNotification = {
+  id: string;
+  type: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+};
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, loading, logout, canManage, isSuperAdmin } = useAuth();
+  const { user, token, loading, logout, canManage, isSuperAdmin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
   }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const storageKey = `pos_notifications_${user.id}`;
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        setNotifications(JSON.parse(stored));
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || !token) return;
+
+    localStorage.setItem(`pos_notifications_${user.id}`, JSON.stringify(notifications.slice(0, 50)));
+  }, [notifications, user, token]);
+
+  useEffect(() => {
+    if (!user?.tenantId || !token) {
+      setSocketConnected(false);
+      return;
+    }
+
+    const socketConfig = getNotificationSocketConfig();
+    if (!socketConfig) {
+      setSocketConnected(false);
+      return;
+    }
+
+    const socket: Socket = io(`${socketConfig.url}/notifications`, {
+      path: socketConfig.path,
+      transports: ["websocket", "polling"],
+      auth: { token },
+      reconnection: true,
+    });
+
+    const addNotification = (eventType: string, payload: any) => {
+      setNotifications((current) => [
+        {
+          id: `${eventType}-${payload?.timestamp || Date.now()}-${Math.random().toString(36).slice(2)}`,
+          type: payload?.type || eventType,
+          message: payload?.message || "New notification",
+          timestamp: payload?.timestamp || new Date().toISOString(),
+          read: false,
+        },
+        ...current,
+      ].slice(0, 50));
+    };
+
+    socket.on("connect", () => setSocketConnected(true));
+    socket.on("disconnect", () => setSocketConnected(false));
+    socket.on("notification-ready", (payload) => addNotification("notification-ready", payload));
+    socket.on("low-stock", (payload) => addNotification("low-stock", payload));
+    socket.on("transaction", (payload) => addNotification("transaction", payload));
+    socket.on("payment", (payload) => addNotification("payment", payload));
+    socket.on("transaction-refunded", (payload) => addNotification("transaction-refunded", payload));
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user?.tenantId, token]);
 
   if (loading || !user) {
     return (
@@ -52,6 +130,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (item.href === "/dashboard/reports" && !canManage) return false;
     return true;
   });
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
+
+  function markAllRead() {
+    setNotifications((current) => current.map((notification) => ({ ...notification, read: true })));
+  }
+
+  function clearNotifications() {
+    setNotifications([]);
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -68,12 +155,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-lg bg-slate-950 text-sm font-bold text-white">
-              POS
+            <div className="grid size-10 place-items-center overflow-hidden rounded-lg bg-white border border-slate-200 p-0.5 shadow-sm">
+              <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-md" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-950">KasirPro Cloud</p>
-              <p className="text-xs text-slate-500">Multi-tenant SaaS</p>
+              <p className="text-sm font-bold text-slate-950">Admin Solutions Inovatif</p>
+              <p className="text-xs text-slate-500">Business Management & POS System</p>
             </div>
           </div>
           <button
@@ -158,6 +245,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <LogOut size={18} />
             Sign out
           </button>
+          <div className="mt-2 text-center text-[10px] text-slate-400">
+            Supported by RSI (Ray Solutions Inovatif)
+          </div>
         </div>
       </aside>
 
@@ -178,12 +268,74 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative grid size-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
-              <Bell size={18} />
-              <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                3
-              </span>
-            </button>
+            <div className="relative">
+              <button
+                className="relative grid size-10 place-items-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
+                onClick={() => setNotificationsOpen((open) => !open)}
+                aria-label="Open notifications"
+                aria-expanded={notificationsOpen}
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 grid min-h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
+                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-bold text-slate-950">Notifications</p>
+                      <p className={`text-xs ${socketConnected ? "text-emerald-600" : "text-amber-600"}`}>
+                        {user.tenantId ? (socketConnected ? "Live updates connected" : "Connecting live updates...") : "Platform account"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100" onClick={markAllRead} title="Mark all read">
+                        <CheckCheck size={15} />
+                      </button>
+                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-red-50 hover:text-red-600" onClick={clearNotifications} title="Clear notifications">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-10 text-center">
+                        <div className="mx-auto grid size-10 place-items-center rounded-lg bg-slate-100 text-slate-400">
+                          <Bell size={18} />
+                        </div>
+                        <p className="mt-3 text-sm font-semibold text-slate-700">No notifications yet</p>
+                        <p className="mt-1 text-xs text-slate-500">Sales, payments, refunds, and low stock alerts will appear here.</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {notifications.map((notification) => (
+                          <button
+                            key={notification.id}
+                            className="flex w-full gap-3 px-4 py-3 text-left hover:bg-slate-50"
+                            onClick={() => {
+                              setNotifications((current) => current.map((item) => item.id === notification.id ? { ...item, read: true } : item));
+                            }}
+                          >
+                            <span className={`mt-1 size-2 shrink-0 rounded-full ${notification.read ? "bg-slate-200" : "bg-teal-600"}`} />
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-sm font-semibold text-slate-900">{notification.message}</span>
+                              <span className="mt-1 block text-xs text-slate-500">
+                                {new Date(notification.timestamp).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })}
+                              </span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

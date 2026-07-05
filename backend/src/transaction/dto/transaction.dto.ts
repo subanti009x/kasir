@@ -12,10 +12,27 @@ export class TransactionItemDto {
   @Min(1)
   quantity: number;
 
-  @ApiProperty({ example: 32000 })
+  @ApiPropertyOptional({ example: 32000, description: 'Ignored by the API; server pricing is authoritative.' })
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  unitPrice: number;
+  unitPrice?: number;
+}
+
+export class TransactionPaymentDto {
+  @ApiProperty({ example: 'Cash' })
+  @IsString()
+  method: string;
+
+  @ApiProperty({ example: 50000 })
+  @IsNumber()
+  @Min(0)
+  amount: number;
+
+  @ApiPropertyOptional({ example: 'QRIS-REF-001' })
+  @IsOptional()
+  @IsString()
+  reference?: string;
 }
 
 export class CheckoutDto {
@@ -28,6 +45,13 @@ export class CheckoutDto {
   @ApiProperty({ example: 'QRIS' })
   @IsString()
   paymentMethod: string;
+
+  @ApiPropertyOptional({ type: [TransactionPaymentDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TransactionPaymentDto)
+  payments?: TransactionPaymentDto[];
 
   @ApiPropertyOptional({ example: 0 })
   @IsOptional()

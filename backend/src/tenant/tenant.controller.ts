@@ -19,6 +19,12 @@ export class TenantController {
     return this.tenantService.getStats();
   }
 
+  @Get('plans')
+  @Roles('SUPER_ADMIN')
+  getPlans() {
+    return this.tenantService.getPlans();
+  }
+
   @Get()
   @Roles('SUPER_ADMIN')
   @ApiQuery({ name: 'page', required: false })
@@ -33,6 +39,7 @@ export class TenantController {
   }
 
   @Get(':id')
+  @Roles('SUPER_ADMIN')
   findOne(@Param('id') id: string) {
     return this.tenantService.findOne(id);
   }

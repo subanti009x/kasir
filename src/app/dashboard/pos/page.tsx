@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
-import { productApi, transactionApi } from "@/lib/api";
-import { Search, Minus, Plus, Trash2, ShoppingCart, Printer, QrCode, Banknote, CreditCard, Wallet, Loader2, Check } from "lucide-react";
+import { productApi, settingsApi, transactionApi } from "@/lib/api";
+import { Search, Minus, Plus, Trash2, ShoppingCart, Printer, QrCode, Banknote, CreditCard, Wallet, Loader2, Check, SplitSquareHorizontal } from "lucide-react";
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
@@ -12,12 +12,24 @@ function formatCurrency(n: number) {
 
 type CartItem = { product: any; quantity: number };
 
+const paymentIcons: Record<string, typeof Banknote> = {
+  Cash: Banknote,
+  QRIS: QrCode,
+  "Bank Transfer": CreditCard,
+  "E-Wallet": Wallet,
+  "Split Payment": SplitSquareHorizontal,
+};
+
 export default function POSPage() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<Map<string, CartItem>>(new Map());
   const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [splitPayment, setSplitPayment] = useState(false);
+  const [cashAmount, setCashAmount] = useState("");
+  const [secondaryMethod, setSecondaryMethod] = useState("QRIS");
+  const [secondaryAmount, setSecondaryAmount] = useState("");
   const [receipt, setReceipt] = useState<any>(null);
 
   const { data: products = [], isLoading } = useQuery({
@@ -25,12 +37,38 @@ export default function POSPage() {
     queryFn: () => productApi.list(token!, search || undefined),
     enabled: !!token,
   });
+  const { data: settings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: () => settingsApi.get(token!),
+    enabled: !!token,
+  });
+  const { data: configuredPayments = [] } = useQuery({
+    queryKey: ["payment-methods"],
+    queryFn: () => settingsApi.paymentMethods(token!),
+    enabled: !!token,
+  });
+
+  const enabledPayments = useMemo(
+    () => configuredPayments.filter((method: any) => method.enabled),
+    [configuredPayments],
+  );
+
+  useEffect(() => {
+    if (enabledPayments.length > 0 && !enabledPayments.some((method: any) => method.name === paymentMethod)) {
+      setPaymentMethod(enabledPayments[0].name);
+    }
+    if (enabledPayments.length > 1 && !enabledPayments.some((method: any) => method.name === secondaryMethod)) {
+      setSecondaryMethod(enabledPayments.find((method: any) => method.name !== paymentMethod)?.name || enabledPayments[0].name);
+    }
+  }, [enabledPayments, paymentMethod, secondaryMethod]);
 
   const checkoutMutation = useMutation({
     mutationFn: (data: any) => transactionApi.checkout(token!, data),
     onSuccess: (data) => {
       setReceipt(data);
       setCart(new Map());
+      setCashAmount("");
+      setSecondaryAmount("");
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
@@ -42,13 +80,9 @@ export default function POSPage() {
       const next = new Map(prev);
       const existing = next.get(product.id);
       if (existing) {
-        if (existing.quantity < product.stock) {
-          next.set(product.id, { ...existing, quantity: existing.quantity + 1 });
-        }
-      } else {
-        if (product.stock > 0) {
-          next.set(product.id, { product, quantity: 1 });
-        }
+        if (existing.quantity < product.stock) next.set(product.id, { ...existing, quantity: existing.quantity + 1 });
+      } else if (product.stock > 0) {
+        next.set(product.id, { product, quantity: 1 });
       }
       return next;
     });
@@ -67,45 +101,60 @@ export default function POSPage() {
   }
 
   function removeFromCart(productId: string) {
-    setCart((prev) => { const next = new Map(prev); next.delete(productId); return next; });
-  }
-
-  const cartItems = Array.from(cart.values());
-  const subtotal = cartItems.reduce((sum, i) => sum + i.product.sellingPrice * i.quantity, 0);
-  const tax = subtotal * 0.11;
-  const total = subtotal + tax;
-
-  function handleCheckout() {
-    if (cartItems.length === 0) return;
-    checkoutMutation.mutate({
-      items: cartItems.map((i) => ({
-        productId: i.product.id,
-        quantity: i.quantity,
-        unitPrice: i.product.sellingPrice,
-      })),
-      paymentMethod,
+    setCart((prev) => {
+      const next = new Map(prev);
+      next.delete(productId);
+      return next;
     });
   }
 
-  const paymentMethods = [
-    { name: "Cash", icon: Banknote },
-    { name: "QRIS", icon: QrCode },
-    { name: "Bank Transfer", icon: CreditCard },
-    { name: "E-Wallet", icon: Wallet },
-  ];
+  const cartItems = Array.from(cart.values());
+  const subtotal = cartItems.reduce((sum, item) => sum + item.product.sellingPrice * item.quantity, 0);
+  const taxRate = Number(settings?.taxRate || 0);
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
+  const primaryAmount = splitPayment ? Number(cashAmount || 0) : Number(cashAmount || total);
+  const remainingAmount = Math.max(total - primaryAmount, 0);
+  const secondAmount = splitPayment ? Number(secondaryAmount || remainingAmount) : 0;
+  const paidAmount = splitPayment ? primaryAmount + secondAmount : primaryAmount;
+  const changeDue = Math.max(paidAmount - total, 0);
+
+  function handleCheckout() {
+    if (cartItems.length === 0 || paidAmount < total) return;
+
+    const base = {
+      items: cartItems.map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      })),
+      paymentMethod,
+      amountPaid: paidAmount,
+    };
+
+    checkoutMutation.mutate(
+      splitPayment
+        ? {
+            ...base,
+            payments: [
+              { method: paymentMethod, amount: primaryAmount },
+              { method: secondaryMethod, amount: secondAmount },
+            ].filter((payment) => payment.amount > 0),
+          }
+        : base,
+    );
+  }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_400px]">
-      {/* Product grid */}
+    <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
       <div>
         <div className="mb-4 flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
-              className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10"
+              className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10"
               placeholder="Search products, SKU, barcode..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
             />
           </div>
         </div>
@@ -114,28 +163,29 @@ export default function POSPage() {
           <div className="flex justify-center py-16"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            {products.map((p: any) => (
+            {products.map((product: any) => (
               <button
-                key={p.id}
-                className="group rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md disabled:opacity-50"
-                onClick={() => addToCart(p)}
-                disabled={p.stock === 0}
+                key={product.id}
+                className="group rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md disabled:opacity-50"
+                onClick={() => addToCart(product)}
+                disabled={product.stock === 0}
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-slate-900 group-hover:text-teal-700">{p.name}</p>
-                    <p className="mt-0.5 text-xs text-slate-500">{p.sku}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-900 group-hover:text-teal-700">{product.name}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">{product.sku}</p>
                   </div>
-                  {p.category && (
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
-                      {p.category.name}
-                    </span>
-                  )}
+                  {product.image && <img src={product.image} alt="" className="size-10 rounded-md object-cover" />}
                 </div>
+                {product.category && (
+                  <span className="mt-3 inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+                    {product.category.name}
+                  </span>
+                )}
                 <div className="mt-3 flex items-end justify-between">
-                  <p className="text-lg font-bold text-slate-950">{formatCurrency(p.sellingPrice)}</p>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${p.stock <= (p.minStock || 0) ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
-                    {p.stock} stock
+                  <p className="text-lg font-bold text-slate-950">{formatCurrency(product.sellingPrice)}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.stock <= (product.minStock || 0) ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
+                    {product.stock} stock
                   </span>
                 </div>
               </button>
@@ -144,9 +194,8 @@ export default function POSPage() {
         )}
       </div>
 
-      {/* Cart */}
       <div className="space-y-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-teal-700" />
             <h2 className="text-lg font-bold text-slate-950">Current Sale</h2>
@@ -155,10 +204,8 @@ export default function POSPage() {
             </span>
           </div>
 
-          <div className="mt-4 max-h-[40vh] space-y-2 overflow-y-auto">
-            {cartItems.length === 0 && (
-              <p className="py-8 text-center text-sm text-slate-400">Tap products to add to cart</p>
-            )}
+          <div className="mt-4 max-h-[34vh] space-y-2 overflow-y-auto">
+            {cartItems.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Tap products to add to cart</p>}
             {cartItems.map((item) => (
               <div key={item.product.id} className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
                 <div className="min-w-0 flex-1">
@@ -182,49 +229,67 @@ export default function POSPage() {
             ))}
           </div>
 
-          {/* Totals */}
           <div className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm">
             <div className="flex justify-between text-slate-600"><span>Subtotal</span><span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span></div>
-            <div className="flex justify-between text-slate-600"><span>Tax (11%)</span><span className="font-semibold text-slate-900">{formatCurrency(tax)}</span></div>
+            <div className="flex justify-between text-slate-600"><span>Tax ({taxRate}%)</span><span className="font-semibold text-slate-900">{formatCurrency(tax)}</span></div>
             <div className="flex justify-between pt-2 text-xl font-bold text-slate-950"><span>Total</span><span>{formatCurrency(total)}</span></div>
           </div>
 
-          {/* Payment methods */}
+          <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-700"><SplitSquareHorizontal size={16} /> Split payment</span>
+            <input type="checkbox" checked={splitPayment} onChange={(event) => setSplitPayment(event.target.checked)} />
+          </div>
+
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {paymentMethods.map((m) => (
-              <button
-                key={m.name}
-                className={`flex h-10 items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition ${
-                  paymentMethod === m.name
-                    ? "border-slate-950 bg-slate-950 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-                onClick={() => setPaymentMethod(m.name)}
-              >
-                <m.icon size={15} /> {m.name}
-              </button>
-            ))}
+            {enabledPayments.map((method: any) => {
+              const Icon = paymentIcons[method.name] || CreditCard;
+              return (
+                <button
+                  key={method.id}
+                  className={`flex h-10 items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition ${paymentMethod === method.name ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+                  onClick={() => setPaymentMethod(method.name)}
+                >
+                  <Icon size={15} /> {method.name}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-3 grid gap-3">
+            <label className="text-xs font-medium text-slate-600">
+              {splitPayment ? "Primary amount" : paymentMethod === "Cash" ? "Amount paid" : "Payment amount"}
+              <input type="number" min={0} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={cashAmount} placeholder={String(Math.ceil(total))} onChange={(event) => setCashAmount(event.target.value)} />
+            </label>
+            {splitPayment && (
+              <div className="grid grid-cols-[1fr_140px] gap-2">
+                <select className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryMethod} onChange={(event) => setSecondaryMethod(event.target.value)}>
+                  {enabledPayments.filter((method: any) => method.name !== paymentMethod).map((method: any) => <option key={method.id} value={method.name}>{method.name}</option>)}
+                </select>
+                <input type="number" min={0} className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryAmount} placeholder={String(Math.ceil(remainingAmount))} onChange={(event) => setSecondaryAmount(event.target.value)} />
+              </div>
+            )}
+            <div className="flex justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+              <span>Paid {formatCurrency(paidAmount)}</span>
+              <span>Change {formatCurrency(changeDue)}</span>
+            </div>
           </div>
 
           <button
-            className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-teal-700 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:bg-teal-600 disabled:bg-slate-300 disabled:shadow-none"
-            disabled={cartItems.length === 0 || checkoutMutation.isPending}
+            className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 text-sm font-bold text-white shadow-lg shadow-teal-700/20 transition hover:bg-teal-600 disabled:bg-slate-300 disabled:shadow-none"
+            disabled={cartItems.length === 0 || paidAmount < total || enabledPayments.length === 0 || checkoutMutation.isPending}
             onClick={handleCheckout}
           >
             {checkoutMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Printer size={18} />}
             Pay & Print Receipt
           </button>
 
-          {checkoutMutation.isError && (
-            <p className="mt-2 text-center text-xs text-red-600">{(checkoutMutation.error as any)?.message || "Checkout failed"}</p>
-          )}
+          {checkoutMutation.isError && <p className="mt-2 text-center text-xs text-red-600">{(checkoutMutation.error as any)?.message || "Checkout failed"}</p>}
         </div>
       </div>
 
-      {/* Receipt modal */}
       {receipt && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setReceipt(null)}>
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="text-center">
               <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-emerald-100">
                 <Check className="text-emerald-600" size={24} />
@@ -235,7 +300,7 @@ export default function POSPage() {
             <div className="mt-4 space-y-2">
               {receipt.items?.map((item: any) => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span>{item.product?.name} × {item.quantity}</span>
+                  <span>{item.product?.name} x {item.quantity}</span>
                   <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
                 </div>
               ))}
@@ -243,10 +308,13 @@ export default function POSPage() {
             <div className="mt-4 space-y-1 border-t pt-3 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(receipt.subtotal)}</span></div>
               <div className="flex justify-between"><span>Tax</span><span>{formatCurrency(receipt.tax)}</span></div>
+              <div className="flex justify-between"><span>Paid</span><span>{formatCurrency(receipt.amountPaid)}</span></div>
+              <div className="flex justify-between"><span>Change</span><span>{formatCurrency(receipt.changeDue)}</span></div>
               <div className="flex justify-between text-lg font-bold"><span>Total</span><span>{formatCurrency(receipt.total)}</span></div>
             </div>
             <div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
               <p>Payment: {receipt.paymentMethod}</p>
+              {receipt.payments?.map((payment: any) => <p key={payment.id}>{payment.method}: {formatCurrency(payment.amount)}</p>)}
               <p>Cashier: {receipt.cashier?.name}</p>
               <p>Date: {new Date(receipt.createdAt).toLocaleString("id-ID")}</p>
             </div>

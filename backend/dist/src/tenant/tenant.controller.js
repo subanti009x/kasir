@@ -28,6 +28,9 @@ let TenantController = class TenantController {
     getStats() {
         return this.tenantService.getStats();
     }
+    getPlans() {
+        return this.tenantService.getPlans();
+    }
     findAll(page, limit, status) {
         return this.tenantService.findAll(page || 1, limit || 20, status);
     }
@@ -53,6 +56,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], TenantController.prototype, "getStats", null);
 __decorate([
+    (0, common_1.Get)('plans'),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], TenantController.prototype, "getPlans", null);
+__decorate([
     (0, common_1.Get)(),
     (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
     (0, swagger_1.ApiQuery)({ name: 'page', required: false }),
@@ -67,6 +77,7 @@ __decorate([
 ], TenantController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, roles_decorator_1.Roles)('SUPER_ADMIN'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

@@ -1,16 +1,29 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class TransactionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationGateway,
+  ) {}
 
   async checkout(userId: string, tenantId: string, dto: CheckoutDto) {
-    return this.prisma.$transaction(async (tx) => {
+    const transaction = await this.prisma.$transaction(async (tx) => {
       // 1. Validate all products and calculate totals
       let subtotal = 0;
-      const validatedItems: { productId: string; quantity: number; unitPrice: number; subtotal: number; product: any }[] = [];
+      const validatedItems: { productId: string; quantity: number; unitPrice: number; subtotal: number; product: { id: string; name: string; stock: number; minStock: number } }[] = [];
+
+      if (dto.customerId) {
+        const customer = await tx.customer.findFirst({
+          where: { id: dto.customerId, tenantId },
+        });
+        if (!customer) {
+          throw new BadRequestException('Customer not found in this tenant');
+        }
+      }
 
       for (const item of dto.items) {
         const product = await tx.product.findFirst({
@@ -24,12 +37,13 @@ export class TransactionService {
           throw new BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
         }
 
-        const itemSubtotal = item.unitPrice * item.quantity;
+        const unitPrice = product.sellingPrice;
+        const itemSubtotal = unitPrice * item.quantity;
         subtotal += itemSubtotal;
         validatedItems.push({
           productId: item.productId,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
+          unitPrice,
           subtotal: itemSubtotal,
           product,
         });
@@ -52,15 +66,19 @@ export class TransactionService {
       const tax = taxableAmount * (taxRate / 100);
       const total = taxableAmount + tax;
 
-      // 4. Calculate change
-      const amountPaid = dto.amountPaid || total;
+      const payments = dto.payments?.length
+        ? dto.payments
+        : [{ method: dto.paymentMethod, amount: dto.amountPaid || total }];
+      const amountPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+      if (amountPaid < total) {
+        throw new BadRequestException('Payment amount is less than transaction total');
+      }
       const changeDue = Math.max(amountPaid - total, 0);
+      const paymentMethod = payments.length > 1 ? 'Split Payment' : payments[0].method;
 
-      // 5. Generate receipt ID
       const txCount = await tx.transaction.count({ where: { tenantId } });
       const receiptId = `REC-${Date.now().toString(36).toUpperCase()}-${(txCount + 1).toString().padStart(5, '0')}`;
 
-      // 6. Create transaction
       const transaction = await tx.transaction.create({
         data: {
           tenantId,
@@ -72,7 +90,7 @@ export class TransactionService {
           discountType: dto.discountType,
           tax,
           total,
-          paymentMethod: dto.paymentMethod,
+          paymentMethod,
           amountPaid,
           changeDue,
           status: 'COMPLETED',
@@ -85,15 +103,22 @@ export class TransactionService {
               subtotal: item.subtotal,
             })),
           },
+          payments: {
+            create: payments.map((payment) => ({
+              method: payment.method,
+              amount: payment.amount,
+              reference: payment.reference,
+            })),
+          },
         },
         include: {
           items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+          payments: true,
           cashier: { select: { id: true, name: true } },
           customer: { select: { id: true, name: true } },
         },
       });
 
-      // 7. Decrement stock and create inventory logs
       for (const item of validatedItems) {
         await tx.product.update({
           where: { id: item.productId },
@@ -112,7 +137,36 @@ export class TransactionService {
       }
 
       return transaction;
+    }, {
+      maxWait: 10000,
+      timeout: 20000,
     });
+
+    this.notifications.notifyTransaction(tenantId, {
+      id: transaction.id,
+      receiptId: transaction.receiptId,
+      total: transaction.total,
+      paymentMethod: transaction.paymentMethod,
+    });
+    this.notifications.notifyPayment(tenantId, {
+      receiptId: transaction.receiptId,
+      method: transaction.paymentMethod,
+      amount: transaction.amountPaid,
+    });
+
+    const lowStockItems = await this.prisma.product.findMany({
+      where: {
+        tenantId,
+        id: { in: transaction.items.map((item) => item.productId) },
+        status: 'ACTIVE',
+      },
+      select: { id: true, name: true, stock: true, minStock: true },
+    });
+    lowStockItems
+      .filter((product) => product.stock <= product.minStock)
+      .forEach((product) => this.notifications.notifyLowStock(tenantId, product));
+
+    return transaction;
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, startDate?: string, endDate?: string) {
@@ -148,6 +202,7 @@ export class TransactionService {
       include: {
         cashier: { select: { id: true, name: true } },
         customer: true,
+        payments: true,
         items: { include: { product: true } },
       },
     });
@@ -161,7 +216,7 @@ export class TransactionService {
       throw new BadRequestException('Transaction already refunded');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const refunded = await this.prisma.$transaction(async (tx) => {
       // Restore stock
       for (const item of transaction.items) {
         await tx.product.update({
@@ -185,5 +240,12 @@ export class TransactionService {
         data: { status: 'REFUNDED' },
       });
     });
+    this.notifications.sendToTenant(tenantId, 'transaction-refunded', {
+      type: 'TRANSACTION_REFUNDED',
+      message: `Transaction ${transaction.receiptId} refunded`,
+      transactionId: transaction.id,
+      timestamp: new Date().toISOString(),
+    });
+    return refunded;
   }
 }

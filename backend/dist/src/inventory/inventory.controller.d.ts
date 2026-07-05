@@ -17,8 +17,8 @@ export declare class InventoryController {
         type: string;
         note: string | null;
         quantity: number;
-        reference: string | null;
         productId: string;
+        reference: string | null;
     })[]>;
     getLowStock(user: any): Promise<{
         id: string;
@@ -43,7 +43,7 @@ export declare class InventoryController {
         type: string;
         note: string | null;
         quantity: number;
-        reference: string | null;
         productId: string;
+        reference: string | null;
     }>;
 }

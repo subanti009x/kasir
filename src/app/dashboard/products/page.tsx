@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { productApi, categoryApi } from "@/lib/api";
-import { Plus, Search, Pencil, Trash2, X, Loader2, Package } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, X, Loader2, Package, ImageUp } from "lucide-react";
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
@@ -17,27 +17,62 @@ export default function ProductsPage() {
   const [catFilter, setCatFilter] = useState("");
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" });
 
   const { data: products = [], isLoading } = useQuery({ queryKey: ["products", search, catFilter], queryFn: () => productApi.list(token!, search || undefined, catFilter || undefined), enabled: !!token });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: () => categoryApi.list(token!), enabled: !!token });
 
-  const createMut = useMutation({ mutationFn: (d: any) => productApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["products"] }); closeModal(); } });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => productApi.update(token!, id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["products"] }); closeModal(); } });
+  const createMut = useMutation({ mutationFn: (d: any) => productApi.create(token!, d), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => productApi.update(token!, id, data), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
+  const uploadImageMut = useMutation({ mutationFn: ({ id, file }: { id: string; file: File }) => productApi.uploadImage(token!, id, file), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
   const deleteMut = useMutation({ mutationFn: (id: string) => productApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
 
-  function openCreate() { setForm({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" }); setEditingProduct(null); setModal("create"); }
-  function openEdit(p: any) { setForm({ name: p.name, sku: p.sku, barcode: p.barcode || "", description: p.description || "", purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, stock: p.stock, minStock: p.minStock, categoryId: p.categoryId || "", status: p.status }); setEditingProduct(p); setModal("edit"); }
-  function closeModal() { setModal(null); setEditingProduct(null); }
+  function openCreate() { setForm({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" }); setEditingProduct(null); setImageFile(null); setFormError(""); setModal("create"); }
+  function openEdit(p: any) { setForm({ name: p.name, sku: p.sku, barcode: p.barcode || "", description: p.description || "", purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, stock: p.stock, minStock: p.minStock, categoryId: p.categoryId || "", status: p.status }); setEditingProduct(p); setImageFile(null); setFormError(""); setModal("edit"); }
+  function closeModal() { setModal(null); setEditingProduct(null); setImageFile(null); setFormError(""); }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const data = { ...form, purchasePrice: +form.purchasePrice, sellingPrice: +form.sellingPrice, stock: +form.stock, minStock: +form.minStock, categoryId: form.categoryId || undefined };
-    if (modal === "edit") updateMut.mutate({ id: editingProduct.id, data });
-    else createMut.mutate(data);
+  function productPayload(includeStatus: boolean) {
+    return {
+      name: form.name.trim(),
+      sku: form.sku.trim(),
+      barcode: form.barcode.trim() || undefined,
+      description: form.description.trim() || undefined,
+      purchasePrice: Number(form.purchasePrice),
+      sellingPrice: Number(form.sellingPrice),
+      stock: Number(form.stock || 0),
+      minStock: Number(form.minStock || 0),
+      categoryId: form.categoryId || undefined,
+      ...(includeStatus ? { status: form.status } : {}),
+    };
   }
 
-  const isSaving = createMut.isPending || updateMut.isPending;
+  async function saveProduct(product: any) {
+    if (imageFile) {
+      await uploadImageMut.mutateAsync({ id: product.id, file: imageFile });
+    }
+    closeModal();
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError("");
+
+    try {
+      if (modal === "edit") {
+        const product = await updateMut.mutateAsync({ id: editingProduct.id, data: productPayload(true) });
+        await saveProduct(product);
+      } else {
+        const product = await createMut.mutateAsync(productPayload(false));
+        await saveProduct(product);
+      }
+    } catch (error: any) {
+      setFormError(error?.message || "Failed to save product");
+    }
+  }
+
+  const isSaving = createMut.isPending || updateMut.isPending || uploadImageMut.isPending;
 
   return (
     <div className="space-y-4">
@@ -71,7 +106,14 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-slate-100">
               {products.map((p: any) => (
                 <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-semibold text-slate-900">{p.name}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-900">
+                    <div className="flex items-center gap-3">
+                      <div className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-slate-100 text-slate-400">
+                        {p.image ? <img src={p.image} alt="" className="h-full w-full object-cover" /> : <Package size={17} />}
+                      </div>
+                      <span>{p.name}</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-slate-500">{p.sku}</td>
                   <td className="px-4 py-3">{p.category ? <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold">{p.category.name}</span> : "—"}</td>
                   <td className="px-4 py-3 text-right">{formatCurrency(p.purchasePrice)}</td>
@@ -116,7 +158,13 @@ export default function ProductsPage() {
                 <div><label className="text-xs font-medium text-slate-600">Stock</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} /></div>
                 <div><label className="text-xs font-medium text-slate-600">Min Stock</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: +e.target.value })} /></div>
               </div>
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 p-3 text-sm text-slate-600 hover:border-teal-400 hover:bg-teal-50/40">
+                <ImageUp size={18} className="text-teal-700" />
+                <span className="flex-1 truncate">{imageFile ? imageFile.name : "Upload product image (PNG, JPG, WebP)"}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+              </label>
               <div><label className="text-xs font-medium text-slate-600">Description</label><textarea className="mt-1 w-full rounded-lg border border-slate-200 p-3 text-sm" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+              {formError && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">{formError}</p>}
               <button type="submit" disabled={isSaving} className="flex h-10 w-full items-center justify-center rounded-lg bg-slate-950 text-sm font-bold text-white disabled:opacity-50">
                 {isSaving ? <Loader2 className="animate-spin" size={18} /> : modal === "create" ? "Add Product" : "Save Changes"}
               </button>

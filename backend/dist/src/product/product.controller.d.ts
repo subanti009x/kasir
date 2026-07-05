@@ -1,5 +1,11 @@
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+type UploadedProductImage = {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+};
 export declare class ProductController {
     private readonly productService;
     constructor(productService: ProductService);
@@ -107,6 +113,33 @@ export declare class ProductController {
         image: string | null;
         categoryId: string | null;
     }>;
+    uploadImage(id: string, file: UploadedProductImage, user: any): Promise<{
+        category: {
+            id: string;
+            name: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string | null;
+            color: string | null;
+        } | null;
+    } & {
+        id: string;
+        name: string;
+        status: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        sku: string;
+        barcode: string | null;
+        purchasePrice: number;
+        sellingPrice: number;
+        stock: number;
+        minStock: number;
+        image: string | null;
+        categoryId: string | null;
+    }>;
     remove(id: string, user: any): Promise<{
         id: string;
         name: string;
@@ -125,3 +158,4 @@ export declare class ProductController {
         categoryId: string | null;
     }>;
 }
+export {};

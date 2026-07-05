@@ -44,6 +44,13 @@ let ProductService = class ProductService {
         return product;
     }
     async create(dto, tenantId) {
+        if (dto.categoryId) {
+            const category = await this.prisma.category.findFirst({
+                where: { id: dto.categoryId, tenantId },
+            });
+            if (!category)
+                throw new common_1.NotFoundException('Category not found in this tenant');
+        }
         return this.prisma.product.create({
             data: { ...dto, tenantId },
             include: { category: true },
@@ -51,6 +58,13 @@ let ProductService = class ProductService {
     }
     async update(id, dto, tenantId) {
         await this.findOne(id, tenantId);
+        if (dto.categoryId) {
+            const category = await this.prisma.category.findFirst({
+                where: { id: dto.categoryId, tenantId },
+            });
+            if (!category)
+                throw new common_1.NotFoundException('Category not found in this tenant');
+        }
         return this.prisma.product.update({
             where: { id },
             data: dto,
@@ -60,6 +74,24 @@ let ProductService = class ProductService {
     async remove(id, tenantId) {
         await this.findOne(id, tenantId);
         return this.prisma.product.delete({ where: { id } });
+    }
+    async uploadImage(id, tenantId, file) {
+        await this.findOne(id, tenantId);
+        if (!file) {
+            throw new common_1.BadRequestException('Image file is required');
+        }
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+            throw new common_1.BadRequestException('Only JPEG, PNG, and WebP product images are allowed');
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            throw new common_1.BadRequestException('Product image must be 2MB or smaller');
+        }
+        const image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+        return this.prisma.product.update({
+            where: { id },
+            data: { image },
+            include: { category: true },
+        });
     }
 };
 exports.ProductService = ProductService;

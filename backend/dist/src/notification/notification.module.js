@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationModule = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
 const notification_gateway_1 = require("./notification.gateway");
 let NotificationModule = class NotificationModule {
 };
@@ -15,6 +16,12 @@ exports.NotificationModule = NotificationModule;
 exports.NotificationModule = NotificationModule = __decorate([
     (0, common_1.Global)(),
     (0, common_1.Module)({
+        imports: [
+            jwt_1.JwtModule.register({
+                secret: process.env.JWT_SECRET || 'fallback-secret-for-dev',
+                signOptions: { expiresIn: '7d' },
+            }),
+        ],
         providers: [notification_gateway_1.NotificationGateway],
         exports: [notification_gateway_1.NotificationGateway],
     })

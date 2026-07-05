@@ -1,12 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Store, Eye, EyeOff, Loader2, ArrowRight, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowRight, UserPlus } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [stats, setStats] = useState([
+    { label: "Active SMEs", value: "248+" },
+    { label: "Daily Transactions", value: "12K+" },
+    { label: "Uptime", value: "99.98%" },
+  ]);
+
+  useEffect(() => {
+    fetch("/api/public-stats")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch public stats");
+        return res.json();
+      })
+      .then((data) => {
+        setStats([
+          { label: "Active SMEs", value: String(data.activeSMEs) },
+          { label: "Daily Transactions", value: data.dailyTransactions >= 1000 ? `${(data.dailyTransactions / 1000).toFixed(1)}K+` : String(data.dailyTransactions) },
+          { label: "Uptime", value: `${data.uptime}%` },
+        ]);
+      })
+      .catch((err) => {
+        console.warn("Could not fetch actual stats, using placeholders:", err);
+      });
+  }, []);
   const { login, register, user, loading: authLoading } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -56,12 +79,12 @@ export default function LoginPage() {
       <div className="hidden flex-col justify-between bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 p-12 lg:flex">
         <div>
           <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-xl bg-white/10 backdrop-blur-sm">
-              <Store className="text-teal-400" size={24} />
+            <div className="grid size-12 place-items-center overflow-hidden rounded-xl bg-white p-1 shadow-inner">
+              <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-lg" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">KasirPro Cloud</h1>
-              <p className="text-sm text-slate-400">Multi-Tenant POS SaaS</p>
+              <h1 className="text-xl font-bold text-white">Admin Solutions Inovatif</h1>
+              <p className="text-sm text-slate-400">Business Management & POS System</p>
             </div>
           </div>
         </div>
@@ -75,14 +98,10 @@ export default function LoginPage() {
           </h2>
           <p className="mt-4 max-w-lg text-lg leading-relaxed text-slate-400">
             Manage products, process transactions, track inventory, and view reports — all in one
-            secure, multi-tenant platform designed for Indonesian SMEs.
+            secure, Business Management & POS System designed for Indonesian SMEs.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
-            {[
-              { label: "Active SMEs", value: "248+" },
-              { label: "Daily Transactions", value: "12K+" },
-              { label: "Uptime", value: "99.98%" },
-            ].map((s) => (
+            {stats.map((s) => (
               <div key={s.label} className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
                 <p className="text-2xl font-bold text-white">{s.value}</p>
                 <p className="mt-1 text-xs text-slate-400">{s.label}</p>
@@ -90,17 +109,17 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-slate-600">© 2026 KasirPro Cloud. Built with Next.js, NestJS, Prisma, PostgreSQL.</p>
+        <p className="text-xs text-slate-600">© 2026 Admin Solutions Inovatif. Supported by RSI (Ray Solutions Inovatif)</p>
       </div>
 
       {/* Right - Form */}
       <div className="flex items-center justify-center bg-white p-6 lg:p-12">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-lg bg-slate-950">
-              <Store className="text-teal-400" size={20} />
+            <div className="grid size-10 place-items-center overflow-hidden rounded-lg bg-white border border-slate-200 p-0.5 shadow-sm">
+              <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-md" />
             </div>
-            <span className="text-lg font-bold">KasirPro Cloud</span>
+            <span className="text-lg font-bold">Admin Solutions Inovatif</span>
           </div>
 
           <h2 className="text-2xl font-bold text-slate-950">
@@ -109,7 +128,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-slate-500">
             {mode === "login"
               ? "Sign in to manage your business"
-              : "Register to start your business on KasirPro"}
+              : "Register to start your business on Admin Solutions Inovatif"}
           </p>
 
           {error && (
@@ -226,16 +245,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          {mode === "login" && (
-            <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold text-slate-600">Demo Accounts</p>
-              <div className="mt-2 space-y-1 text-xs text-slate-500">
-                <p><span className="font-medium text-slate-700">Super Admin:</span> admin@kasirpro.com / admin123</p>
-                <p><span className="font-medium text-slate-700">Owner:</span> ayu@nusantarabakery.com / owner123</p>
-                <p><span className="font-medium text-slate-700">Cashier:</span> raka@nusantarabakery.com / cashier123</p>
-              </div>
-            </div>
-          )}
+
         </div>
       </div>
     </main>

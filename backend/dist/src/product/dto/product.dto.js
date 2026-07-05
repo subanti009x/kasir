@@ -23,6 +23,7 @@ class CreateProductDto {
     minStock;
     image;
     categoryId;
+    status;
 }
 exports.CreateProductDto = CreateProductDto;
 __decorate([
@@ -85,6 +86,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "categoryId", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: ['ACTIVE', 'INACTIVE', 'ARCHIVED'] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateProductDto.prototype, "status", void 0);
 class UpdateProductDto extends (0, swagger_1.PartialType)(CreateProductDto) {
     status;
 }

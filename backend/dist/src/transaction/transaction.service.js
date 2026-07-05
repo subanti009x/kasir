@@ -12,15 +12,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const notification_gateway_1 = require("../notification/notification.gateway");
 let TransactionService = class TransactionService {
     prisma;
-    constructor(prisma) {
+    notifications;
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async checkout(userId, tenantId, dto) {
-        return this.prisma.$transaction(async (tx) => {
+        const transaction = await this.prisma.$transaction(async (tx) => {
             let subtotal = 0;
             const validatedItems = [];
+            if (dto.customerId) {
+                const customer = await tx.customer.findFirst({
+                    where: { id: dto.customerId, tenantId },
+                });
+                if (!customer) {
+                    throw new common_1.BadRequestException('Customer not found in this tenant');
+                }
+            }
             for (const item of dto.items) {
                 const product = await tx.product.findFirst({
                     where: { id: item.productId, tenantId, status: 'ACTIVE' },
@@ -31,12 +42,13 @@ let TransactionService = class TransactionService {
                 if (product.stock < item.quantity) {
                     throw new common_1.BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
                 }
-                const itemSubtotal = item.unitPrice * item.quantity;
+                const unitPrice = product.sellingPrice;
+                const itemSubtotal = unitPrice * item.quantity;
                 subtotal += itemSubtotal;
                 validatedItems.push({
                     productId: item.productId,
                     quantity: item.quantity,
-                    unitPrice: item.unitPrice,
+                    unitPrice,
                     subtotal: itemSubtotal,
                     product,
                 });
@@ -55,8 +67,15 @@ let TransactionService = class TransactionService {
             const taxableAmount = subtotal - discount;
             const tax = taxableAmount * (taxRate / 100);
             const total = taxableAmount + tax;
-            const amountPaid = dto.amountPaid || total;
+            const payments = dto.payments?.length
+                ? dto.payments
+                : [{ method: dto.paymentMethod, amount: dto.amountPaid || total }];
+            const amountPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+            if (amountPaid < total) {
+                throw new common_1.BadRequestException('Payment amount is less than transaction total');
+            }
             const changeDue = Math.max(amountPaid - total, 0);
+            const paymentMethod = payments.length > 1 ? 'Split Payment' : payments[0].method;
             const txCount = await tx.transaction.count({ where: { tenantId } });
             const receiptId = `REC-${Date.now().toString(36).toUpperCase()}-${(txCount + 1).toString().padStart(5, '0')}`;
             const transaction = await tx.transaction.create({
@@ -70,7 +89,7 @@ let TransactionService = class TransactionService {
                     discountType: dto.discountType,
                     tax,
                     total,
-                    paymentMethod: dto.paymentMethod,
+                    paymentMethod,
                     amountPaid,
                     changeDue,
                     status: 'COMPLETED',
@@ -83,9 +102,17 @@ let TransactionService = class TransactionService {
                             subtotal: item.subtotal,
                         })),
                     },
+                    payments: {
+                        create: payments.map((payment) => ({
+                            method: payment.method,
+                            amount: payment.amount,
+                            reference: payment.reference,
+                        })),
+                    },
                 },
                 include: {
                     items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+                    payments: true,
                     cashier: { select: { id: true, name: true } },
                     customer: { select: { id: true, name: true } },
                 },
@@ -107,7 +134,33 @@ let TransactionService = class TransactionService {
                 });
             }
             return transaction;
+        }, {
+            maxWait: 10000,
+            timeout: 20000,
         });
+        this.notifications.notifyTransaction(tenantId, {
+            id: transaction.id,
+            receiptId: transaction.receiptId,
+            total: transaction.total,
+            paymentMethod: transaction.paymentMethod,
+        });
+        this.notifications.notifyPayment(tenantId, {
+            receiptId: transaction.receiptId,
+            method: transaction.paymentMethod,
+            amount: transaction.amountPaid,
+        });
+        const lowStockItems = await this.prisma.product.findMany({
+            where: {
+                tenantId,
+                id: { in: transaction.items.map((item) => item.productId) },
+                status: 'ACTIVE',
+            },
+            select: { id: true, name: true, stock: true, minStock: true },
+        });
+        lowStockItems
+            .filter((product) => product.stock <= product.minStock)
+            .forEach((product) => this.notifications.notifyLowStock(tenantId, product));
+        return transaction;
     }
     async findAll(tenantId, page = 1, limit = 20, startDate, endDate) {
         const where = { tenantId };
@@ -140,6 +193,7 @@ let TransactionService = class TransactionService {
             include: {
                 cashier: { select: { id: true, name: true } },
                 customer: true,
+                payments: true,
                 items: { include: { product: true } },
             },
         });
@@ -152,7 +206,7 @@ let TransactionService = class TransactionService {
         if (transaction.status === 'REFUNDED') {
             throw new common_1.BadRequestException('Transaction already refunded');
         }
-        return this.prisma.$transaction(async (tx) => {
+        const refunded = await this.prisma.$transaction(async (tx) => {
             for (const item of transaction.items) {
                 await tx.product.update({
                     where: { id: item.productId },
@@ -174,11 +228,19 @@ let TransactionService = class TransactionService {
                 data: { status: 'REFUNDED' },
             });
         });
+        this.notifications.sendToTenant(tenantId, 'transaction-refunded', {
+            type: 'TRANSACTION_REFUNDED',
+            message: `Transaction ${transaction.receiptId} refunded`,
+            transactionId: transaction.id,
+            timestamp: new Date().toISOString(),
+        });
+        return refunded;
     }
 };
 exports.TransactionService = TransactionService;
 exports.TransactionService = TransactionService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_gateway_1.NotificationGateway])
 ], TransactionService);
 //# sourceMappingURL=transaction.service.js.map

@@ -13,10 +13,13 @@ exports.InventoryService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const inventory_dto_1 = require("./dto/inventory.dto");
+const notification_gateway_1 = require("../notification/notification.gateway");
 let InventoryService = class InventoryService {
     prisma;
-    constructor(prisma) {
+    notifications;
+    constructor(prisma, notifications) {
         this.prisma = prisma;
+        this.notifications = notifications;
     }
     async findAll(tenantId, productId) {
         const where = { tenantId };
@@ -53,7 +56,7 @@ let InventoryService = class InventoryService {
                 throw new common_1.BadRequestException(`Adjustment would result in negative stock for ${product.name}`);
             }
         }
-        const [log] = await this.prisma.$transaction([
+        const [log, updatedProduct] = await this.prisma.$transaction([
             this.prisma.inventoryLog.create({
                 data: {
                     type: dto.type,
@@ -72,6 +75,14 @@ let InventoryService = class InventoryService {
                 data: { stock: { increment: stockDelta } },
             }),
         ]);
+        if (updatedProduct.stock <= updatedProduct.minStock) {
+            this.notifications.notifyLowStock(tenantId, {
+                id: updatedProduct.id,
+                name: updatedProduct.name,
+                stock: updatedProduct.stock,
+                minStock: updatedProduct.minStock,
+            });
+        }
         return log;
     }
     async getLowStock(tenantId) {
@@ -103,6 +114,7 @@ let InventoryService = class InventoryService {
 exports.InventoryService = InventoryService;
 exports.InventoryService = InventoryService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        notification_gateway_1.NotificationGateway])
 ], InventoryService);
 //# sourceMappingURL=inventory.service.js.map

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CheckoutDto = exports.TransactionItemDto = void 0;
+exports.CheckoutDto = exports.TransactionPaymentDto = exports.TransactionItemDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
@@ -31,14 +31,39 @@ __decorate([
     __metadata("design:type", Number)
 ], TransactionItemDto.prototype, "quantity", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 32000 }),
+    (0, swagger_1.ApiPropertyOptional)({ example: 32000, description: 'Ignored by the API; server pricing is authoritative.' }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], TransactionItemDto.prototype, "unitPrice", void 0);
+class TransactionPaymentDto {
+    method;
+    amount;
+    reference;
+}
+exports.TransactionPaymentDto = TransactionPaymentDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Cash' }),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TransactionPaymentDto.prototype, "method", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 50000 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], TransactionPaymentDto.prototype, "amount", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'QRIS-REF-001' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], TransactionPaymentDto.prototype, "reference", void 0);
 class CheckoutDto {
     items;
     paymentMethod;
+    payments;
     discount;
     discountType;
     customerId;
@@ -58,6 +83,14 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CheckoutDto.prototype, "paymentMethod", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ type: [TransactionPaymentDto] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => TransactionPaymentDto),
+    __metadata("design:type", Array)
+], CheckoutDto.prototype, "payments", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 0 }),
     (0, class_validator_1.IsOptional)(),

@@ -25,6 +25,8 @@ model Tenant {
   receiptTemplate String?  @db.Text
   status          String   @default("ACTIVE") // ACTIVE, SUSPENDED, TRIAL
   plan            String   @default("BASIC")  // BASIC, GROWTH, ENTERPRISE
+  planStartedAt   DateTime @default(now())
+  planExpiresAt   DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -37,8 +39,26 @@ model Tenant {
   inventoryLogs   InventoryLog[]
   purchaseOrders  PurchaseOrder[]
   paymentMethods  PaymentMethod[]
+  planHistory      SubscriptionPlanHistory[]
 
   @@index([status])
+  @@index([plan])
+}
+
+model SubscriptionPlanHistory {
+  id          String   @id @default(uuid())
+  plan        String
+  previousPlan String?
+  note        String?
+  startsAt    DateTime @default(now())
+  expiresAt   DateTime?
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@index([tenantId])
   @@index([plan])
 }
 
@@ -246,6 +266,7 @@ model Transaction {
   customer      Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
 
   items         TransactionItem[]
+  payments      TransactionPayment[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -254,6 +275,20 @@ model Transaction {
   @@index([tenantId, createdAt])
   @@index([cashierId])
   @@index([customerId])
+}
+
+model TransactionPayment {
+  id            String   @id @default(uuid())
+  method        String
+  amount        Float
+  reference     String?
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+
+  @@index([transactionId])
 }
 
 model TransactionItem {

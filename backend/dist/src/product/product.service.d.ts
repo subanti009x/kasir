@@ -1,5 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+type UploadedProductImage = {
+    originalname: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+};
 export declare class ProductService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -124,4 +130,32 @@ export declare class ProductService {
         image: string | null;
         categoryId: string | null;
     }>;
+    uploadImage(id: string, tenantId: string, file: UploadedProductImage): Promise<{
+        category: {
+            id: string;
+            name: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string | null;
+            color: string | null;
+        } | null;
+    } & {
+        id: string;
+        name: string;
+        status: string;
+        tenantId: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        sku: string;
+        barcode: string | null;
+        purchasePrice: number;
+        sellingPrice: number;
+        stock: number;
+        minStock: number;
+        image: string | null;
+        categoryId: string | null;
+    }>;
 }
+export {};

@@ -1,17 +1,24 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { AppModule } from './app.module';
+import { getCorsOrigin } from './config/cors';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Global prefix
   app.setGlobalPrefix('api');
 
   // CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+    origin: getCorsOrigin(),
     credentials: true,
   });
 
@@ -27,8 +34,8 @@ async function bootstrap() {
 
   // Swagger / OpenAPI documentation
   const config = new DocumentBuilder()
-    .setTitle('KasirPro Cloud API')
-    .setDescription('Multi-tenant POS SaaS Platform API')
+    .setTitle('Admin Solutions Inovatif API')
+    .setDescription('Business Management & POS System Platform API')
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('auth', 'Authentication endpoints')
@@ -51,7 +58,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`🚀 KasirPro API running on http://localhost:${port}`);
+  console.log(`🚀 Admin Solutions Inovatif API running on http://localhost:${port}`);
   console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
 bootstrap();

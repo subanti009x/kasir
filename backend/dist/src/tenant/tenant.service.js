@@ -75,10 +75,29 @@ let TenantService = class TenantService {
         });
     }
     async update(id, dto) {
-        await this.findOne(id);
-        return this.prisma.tenant.update({
-            where: { id },
-            data: dto,
+        const tenant = await this.findOne(id);
+        const planChanged = dto.plan && dto.plan !== tenant.plan;
+        return this.prisma.$transaction(async (tx) => {
+            const updated = await tx.tenant.update({
+                where: { id },
+                data: {
+                    ...dto,
+                    ...(planChanged ? { planStartedAt: new Date() } : {}),
+                },
+            });
+            if (planChanged) {
+                await tx.subscriptionPlanHistory.create({
+                    data: {
+                        tenantId: id,
+                        plan: dto.plan,
+                        previousPlan: tenant.plan,
+                        note: 'Plan changed by Super Admin',
+                        startsAt: updated.planStartedAt,
+                        expiresAt: updated.planExpiresAt,
+                    },
+                });
+            }
+            return updated;
         });
     }
     async remove(id) {
@@ -86,11 +105,15 @@ let TenantService = class TenantService {
         return this.prisma.tenant.delete({ where: { id } });
     }
     async getStats() {
-        const [totalTenants, activeTenants, totalUsers, totalTransactions] = await Promise.all([
+        const [totalTenants, activeTenants, totalUsers, totalTransactions, plans] = await Promise.all([
             this.prisma.tenant.count(),
             this.prisma.tenant.count({ where: { status: 'ACTIVE' } }),
             this.prisma.user.count(),
             this.prisma.transaction.count(),
+            this.prisma.tenant.groupBy({
+                by: ['plan'],
+                _count: true,
+            }),
         ]);
         const revenueResult = await this.prisma.transaction.aggregate({
             _sum: { total: true },
@@ -101,7 +124,33 @@ let TenantService = class TenantService {
             totalUsers,
             totalTransactions,
             totalRevenue: revenueResult._sum.total || 0,
+            plans: plans.map((plan) => ({ plan: plan.plan, count: plan._count })),
         };
+    }
+    getPlans() {
+        return [
+            {
+                id: 'BASIC',
+                name: 'Basic',
+                monthlyPrice: 99000,
+                limits: { products: 500, employees: 5, registers: 1 },
+                features: ['Product and inventory management', 'Cash and QRIS payments', 'Basic reports'],
+            },
+            {
+                id: 'GROWTH',
+                name: 'Growth',
+                monthlyPrice: 249000,
+                limits: { products: 5000, employees: 25, registers: 5 },
+                features: ['Advanced reports', 'Purchase orders', 'Low-stock notifications', 'Split payments'],
+            },
+            {
+                id: 'ENTERPRISE',
+                name: 'Enterprise',
+                monthlyPrice: 799000,
+                limits: { products: null, employees: null, registers: null },
+                features: ['Priority support', 'Custom receipt templates', 'Unlimited outlets', 'High-volume operations'],
+            },
+        ];
     }
 };
 exports.TenantService = TenantService;

@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
+import { NotificationGateway } from '../notification/notification.gateway';
 export declare class TransactionService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notifications;
+    constructor(prisma: PrismaService, notifications: NotificationGateway);
     checkout(userId: string, tenantId: string, dto: CheckoutDto): Promise<{
         customer: {
             id: string;
@@ -18,14 +20,22 @@ export declare class TransactionService {
             id: string;
             subtotal: number;
             quantity: number;
-            productId: string;
             unitPrice: number;
             transactionId: string;
+            productId: string;
         })[];
         cashier: {
             id: string;
             name: string;
         };
+        payments: {
+            id: string;
+            createdAt: Date;
+            transactionId: string;
+            reference: string | null;
+            method: string;
+            amount: number;
+        }[];
     } & {
         id: string;
         status: string;
@@ -39,9 +49,9 @@ export declare class TransactionService {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;
@@ -61,9 +71,9 @@ export declare class TransactionService {
                 id: string;
                 subtotal: number;
                 quantity: number;
-                productId: string;
                 unitPrice: number;
                 transactionId: string;
+                productId: string;
             })[];
             cashier: {
                 id: string;
@@ -82,9 +92,9 @@ export declare class TransactionService {
             tax: number;
             amountPaid: number;
             changeDue: number;
+            note: string | null;
             receiptId: string;
             discountType: string | null;
-            note: string | null;
             cashierId: string;
             customerId: string | null;
         })[];
@@ -126,14 +136,22 @@ export declare class TransactionService {
             id: string;
             subtotal: number;
             quantity: number;
-            productId: string;
             unitPrice: number;
             transactionId: string;
+            productId: string;
         })[];
         cashier: {
             id: string;
             name: string;
         };
+        payments: {
+            id: string;
+            createdAt: Date;
+            transactionId: string;
+            reference: string | null;
+            method: string;
+            amount: number;
+        }[];
     } & {
         id: string;
         status: string;
@@ -147,9 +165,9 @@ export declare class TransactionService {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;
@@ -166,9 +184,9 @@ export declare class TransactionService {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;

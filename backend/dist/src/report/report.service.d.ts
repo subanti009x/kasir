@@ -38,9 +38,9 @@ export declare class ReportService {
             tax: number;
             amountPaid: number;
             changeDue: number;
+            note: string | null;
             receiptId: string;
             discountType: string | null;
-            note: string | null;
             cashierId: string;
             customerId: string | null;
         })[];

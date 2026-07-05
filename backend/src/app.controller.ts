@@ -9,4 +9,9 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('public-stats')
+  getPublicStats() {
+    return this.appService.getPublicStats();
+  }
 }

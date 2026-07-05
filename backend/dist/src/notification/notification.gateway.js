@@ -13,21 +13,46 @@ exports.NotificationGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const cors_1 = require("../config/cors");
 let NotificationGateway = class NotificationGateway {
+    jwtService;
     server;
     connectedClients = new Map();
+    constructor(jwtService) {
+        this.jwtService = jwtService;
+    }
     handleConnection(client) {
-        const tenantId = client.handshake.query.tenantId;
+        const token = client.handshake.auth?.token;
+        if (typeof token !== 'string') {
+            client.disconnect(true);
+            return;
+        }
+        let payload;
+        try {
+            payload = this.jwtService.verify(token);
+        }
+        catch {
+            client.disconnect(true);
+            return;
+        }
+        const tenantId = payload.tenantId;
         if (tenantId) {
+            client.data.tenantId = tenantId;
             client.join(`tenant:${tenantId}`);
             if (!this.connectedClients.has(tenantId)) {
                 this.connectedClients.set(tenantId, new Set());
             }
             this.connectedClients.get(tenantId).add(client.id);
+            client.emit('notification-ready', {
+                type: 'NOTIFICATION_READY',
+                message: 'Notification center connected',
+                timestamp: new Date().toISOString(),
+            });
         }
     }
     handleDisconnect(client) {
-        const tenantId = client.handshake.query.tenantId;
+        const tenantId = client.data.tenantId;
         if (tenantId && this.connectedClients.has(tenantId)) {
             this.connectedClients.get(tenantId).delete(client.id);
         }
@@ -46,7 +71,7 @@ let NotificationGateway = class NotificationGateway {
     notifyTransaction(tenantId, transaction) {
         this.sendToTenant(tenantId, 'transaction', {
             type: 'TRANSACTION_COMPLETED',
-            message: `Transaction ${transaction.receiptId} completed — ${transaction.paymentMethod}`,
+            message: `Transaction ${transaction.receiptId} completed - ${transaction.paymentMethod}`,
             transaction,
             timestamp: new Date().toISOString(),
         });
@@ -69,10 +94,11 @@ exports.NotificationGateway = NotificationGateway = __decorate([
     (0, common_1.Injectable)(),
     (0, websockets_1.WebSocketGateway)({
         cors: {
-            origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+            origin: (0, cors_1.getCorsOrigin)(),
             credentials: true,
         },
         namespace: '/notifications',
-    })
+    }),
+    __metadata("design:paramtypes", [jwt_1.JwtService])
 ], NotificationGateway);
 //# sourceMappingURL=notification.gateway.js.map

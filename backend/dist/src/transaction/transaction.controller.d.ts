@@ -18,14 +18,22 @@ export declare class TransactionController {
             id: string;
             subtotal: number;
             quantity: number;
-            productId: string;
             unitPrice: number;
             transactionId: string;
+            productId: string;
         })[];
         cashier: {
             id: string;
             name: string;
         };
+        payments: {
+            id: string;
+            createdAt: Date;
+            transactionId: string;
+            reference: string | null;
+            method: string;
+            amount: number;
+        }[];
     } & {
         id: string;
         status: string;
@@ -39,9 +47,9 @@ export declare class TransactionController {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;
@@ -61,9 +69,9 @@ export declare class TransactionController {
                 id: string;
                 subtotal: number;
                 quantity: number;
-                productId: string;
                 unitPrice: number;
                 transactionId: string;
+                productId: string;
             })[];
             cashier: {
                 id: string;
@@ -82,9 +90,9 @@ export declare class TransactionController {
             tax: number;
             amountPaid: number;
             changeDue: number;
+            note: string | null;
             receiptId: string;
             discountType: string | null;
-            note: string | null;
             cashierId: string;
             customerId: string | null;
         })[];
@@ -126,14 +134,22 @@ export declare class TransactionController {
             id: string;
             subtotal: number;
             quantity: number;
-            productId: string;
             unitPrice: number;
             transactionId: string;
+            productId: string;
         })[];
         cashier: {
             id: string;
             name: string;
         };
+        payments: {
+            id: string;
+            createdAt: Date;
+            transactionId: string;
+            reference: string | null;
+            method: string;
+            amount: number;
+        }[];
     } & {
         id: string;
         status: string;
@@ -147,9 +163,9 @@ export declare class TransactionController {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;
@@ -166,9 +182,9 @@ export declare class TransactionController {
         tax: number;
         amountPaid: number;
         changeDue: number;
+        note: string | null;
         receiptId: string;
         discountType: string | null;
-        note: string | null;
         cashierId: string;
         customerId: string | null;
     }>;

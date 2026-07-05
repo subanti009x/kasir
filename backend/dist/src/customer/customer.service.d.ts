@@ -45,9 +45,9 @@ export declare class CustomerService {
                 id: string;
                 subtotal: number;
                 quantity: number;
-                productId: string;
                 unitPrice: number;
                 transactionId: string;
+                productId: string;
             })[];
         } & {
             id: string;
@@ -62,9 +62,9 @@ export declare class CustomerService {
             tax: number;
             amountPaid: number;
             changeDue: number;
+            note: string | null;
             receiptId: string;
             discountType: string | null;
-            note: string | null;
             cashierId: string;
             customerId: string | null;
         })[];

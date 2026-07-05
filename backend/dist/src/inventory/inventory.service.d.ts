@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInventoryLogDto } from './dto/inventory.dto';
+import { NotificationGateway } from '../notification/notification.gateway';
 export declare class InventoryService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private notifications;
+    constructor(prisma: PrismaService, notifications: NotificationGateway);
     findAll(tenantId: string, productId?: string): Promise<({
         product: {
             id: string;
@@ -17,8 +19,8 @@ export declare class InventoryService {
         type: string;
         note: string | null;
         quantity: number;
-        reference: string | null;
         productId: string;
+        reference: string | null;
     })[]>;
     create(dto: CreateInventoryLogDto, tenantId: string): Promise<{
         product: {
@@ -33,8 +35,8 @@ export declare class InventoryService {
         type: string;
         note: string | null;
         quantity: number;
-        reference: string | null;
         productId: string;
+        reference: string | null;
     }>;
     getLowStock(tenantId: string): Promise<{
         id: string;
