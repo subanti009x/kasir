@@ -1,0 +1,184 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TransactionService = void 0;
+const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+let TransactionService = class TransactionService {
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
+    }
+    async checkout(userId, tenantId, dto) {
+        return this.prisma.$transaction(async (tx) => {
+            let subtotal = 0;
+            const validatedItems = [];
+            for (const item of dto.items) {
+                const product = await tx.product.findFirst({
+                    where: { id: item.productId, tenantId, status: 'ACTIVE' },
+                });
+                if (!product) {
+                    throw new common_1.BadRequestException(`Product ${item.productId} not found or inactive`);
+                }
+                if (product.stock < item.quantity) {
+                    throw new common_1.BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
+                }
+                const itemSubtotal = item.unitPrice * item.quantity;
+                subtotal += itemSubtotal;
+                validatedItems.push({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice,
+                    subtotal: itemSubtotal,
+                    product,
+                });
+            }
+            let discount = 0;
+            if (dto.discount && dto.discount > 0) {
+                if (dto.discountType === 'PERCENTAGE') {
+                    discount = subtotal * (dto.discount / 100);
+                }
+                else {
+                    discount = dto.discount;
+                }
+            }
+            const tenant = await tx.tenant.findUnique({ where: { id: tenantId } });
+            const taxRate = tenant?.taxRate || 0;
+            const taxableAmount = subtotal - discount;
+            const tax = taxableAmount * (taxRate / 100);
+            const total = taxableAmount + tax;
+            const amountPaid = dto.amountPaid || total;
+            const changeDue = Math.max(amountPaid - total, 0);
+            const txCount = await tx.transaction.count({ where: { tenantId } });
+            const receiptId = `REC-${Date.now().toString(36).toUpperCase()}-${(txCount + 1).toString().padStart(5, '0')}`;
+            const transaction = await tx.transaction.create({
+                data: {
+                    tenantId,
+                    cashierId: userId,
+                    customerId: dto.customerId || null,
+                    receiptId,
+                    subtotal,
+                    discount,
+                    discountType: dto.discountType,
+                    tax,
+                    total,
+                    paymentMethod: dto.paymentMethod,
+                    amountPaid,
+                    changeDue,
+                    status: 'COMPLETED',
+                    note: dto.note,
+                    items: {
+                        create: validatedItems.map((item) => ({
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            unitPrice: item.unitPrice,
+                            subtotal: item.subtotal,
+                        })),
+                    },
+                },
+                include: {
+                    items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+                    cashier: { select: { id: true, name: true } },
+                    customer: { select: { id: true, name: true } },
+                },
+            });
+            for (const item of validatedItems) {
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: { stock: { decrement: item.quantity } },
+                });
+                await tx.inventoryLog.create({
+                    data: {
+                        type: 'STOCK_OUT',
+                        quantity: -item.quantity,
+                        note: `Sale ${receiptId}`,
+                        reference: transaction.id,
+                        productId: item.productId,
+                        tenantId,
+                    },
+                });
+            }
+            return transaction;
+        });
+    }
+    async findAll(tenantId, page = 1, limit = 20, startDate, endDate) {
+        const where = { tenantId };
+        if (startDate || endDate) {
+            where.createdAt = {};
+            if (startDate)
+                where.createdAt.gte = new Date(startDate);
+            if (endDate)
+                where.createdAt.lte = new Date(endDate + 'T23:59:59.999Z');
+        }
+        const [data, total] = await Promise.all([
+            this.prisma.transaction.findMany({
+                where,
+                include: {
+                    cashier: { select: { id: true, name: true } },
+                    customer: { select: { id: true, name: true } },
+                    items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+                },
+                orderBy: { createdAt: 'desc' },
+                skip: (page - 1) * limit,
+                take: limit,
+            }),
+            this.prisma.transaction.count({ where }),
+        ]);
+        return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+    async findOne(id, tenantId) {
+        const transaction = await this.prisma.transaction.findFirst({
+            where: { id, tenantId },
+            include: {
+                cashier: { select: { id: true, name: true } },
+                customer: true,
+                items: { include: { product: true } },
+            },
+        });
+        if (!transaction)
+            throw new common_1.NotFoundException('Transaction not found');
+        return transaction;
+    }
+    async refund(id, tenantId) {
+        const transaction = await this.findOne(id, tenantId);
+        if (transaction.status === 'REFUNDED') {
+            throw new common_1.BadRequestException('Transaction already refunded');
+        }
+        return this.prisma.$transaction(async (tx) => {
+            for (const item of transaction.items) {
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: { stock: { increment: item.quantity } },
+                });
+                await tx.inventoryLog.create({
+                    data: {
+                        type: 'STOCK_IN',
+                        quantity: item.quantity,
+                        note: `Refund ${transaction.receiptId}`,
+                        reference: transaction.id,
+                        productId: item.productId,
+                        tenantId,
+                    },
+                });
+            }
+            return tx.transaction.update({
+                where: { id },
+                data: { status: 'REFUNDED' },
+            });
+        });
+    }
+};
+exports.TransactionService = TransactionService;
+exports.TransactionService = TransactionService = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+], TransactionService);
+//# sourceMappingURL=transaction.service.js.map

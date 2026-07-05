@@ -1,0 +1,26 @@
+import { OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+export declare class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+    server: Server;
+    private connectedClients;
+    handleConnection(client: Socket): void;
+    handleDisconnect(client: Socket): void;
+    sendToTenant(tenantId: string, event: string, data: any): void;
+    notifyLowStock(tenantId: string, product: {
+        id: string;
+        name: string;
+        stock: number;
+        minStock: number;
+    }): void;
+    notifyTransaction(tenantId: string, transaction: {
+        id: string;
+        receiptId: string;
+        total: number;
+        paymentMethod: string;
+    }): void;
+    notifyPayment(tenantId: string, data: {
+        receiptId: string;
+        method: string;
+        amount: number;
+    }): void;
+}
