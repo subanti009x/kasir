@@ -10,12 +10,12 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
       <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-5 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">Payment successful</p>
-            <h2 className="mt-1 text-xl font-bold">Receipt {receipt.id}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">Pembayaran Berhasil</p>
+            <h2 className="mt-1 text-xl font-bold">Struk #{receipt.id}</h2>
             <p className="mt-1 text-sm text-slate-500">{receipt.date}</p>
           </div>
           <button
-            aria-label="Close receipt"
+            aria-label="Tutup struk"
             className="grid size-9 place-items-center rounded-lg border border-slate-200"
             onClick={onClose}
             type="button"
@@ -37,11 +37,11 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
             <div>
-              <p className="font-semibold text-slate-700">Cashier</p>
+              <p className="font-semibold text-slate-700">Kasir</p>
               <p>{receipt.cashier}</p>
             </div>
             <div>
-              <p className="font-semibold text-slate-700">Payment</p>
+              <p className="font-semibold text-slate-700">Pembayaran</p>
               <p>{receipt.method}</p>
             </div>
           </div>
@@ -63,10 +63,10 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
 
         <div className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm">
           <TotalRow label="Subtotal" value={formatCurrency(receipt.subtotal)} />
-          <TotalRow label="Discount" value={`-${formatCurrency(receipt.discount)}`} />
-          <TotalRow label="Tax" value={formatCurrency(receipt.tax)} />
+          <TotalRow label="Diskon" value={`-${formatCurrency(receipt.discount)}`} />
+          <TotalRow label="Pajak" value={formatCurrency(receipt.tax)} />
           <div className="flex items-center justify-between pt-2 text-lg font-bold">
-            <span>Total paid</span>
+            <span>Total Bayar</span>
             <span>{formatCurrency(receipt.total)}</span>
           </div>
         </div>
@@ -77,7 +77,7 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
           type="button"
         >
           <Printer size={17} />
-          Receipt printed
+          Cetak Struk
         </button>
       </div>
     </div>
@@ -116,15 +116,15 @@ export function ProductEditorModal({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
-              Product management
+              Kelola Produk
             </p>
-            <h2 className="mt-1 text-xl font-bold">{isEditing ? "Edit product" : "New product"}</h2>
+            <h2 className="mt-1 text-xl font-bold">{isEditing ? "Ubah Produk" : "Tambah Produk Baru"}</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Tenant-scoped product record with category, SKU, barcode, price, and stock controls.
+              Pencatatan data produk dengan kategori, SKU, barcode, harga, dan kontrol stok.
             </p>
           </div>
           <button
-            aria-label="Close product editor"
+            aria-label="Tutup form produk"
             className="grid size-9 shrink-0 place-items-center rounded-lg border border-slate-200"
             onClick={onClose}
             type="button"
@@ -134,20 +134,20 @@ export function ProductEditorModal({
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <Field label="Product name">
+          <Field label="Nama produk">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               onChange={(event) => updateDraft("name", event.target.value)}
-              placeholder="Example: Arabica Beans 250g"
+              placeholder="Contoh: Biji Kopi Arabika 250g"
               required
               value={draft.name}
             />
           </Field>
-          <Field label="Category">
+          <Field label="Kategori">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               onChange={(event) => updateDraft("category", event.target.value)}
-              placeholder="Bakery, Beverage, Staple"
+              placeholder="Bakery, Minuman, Sembako"
               required
               value={draft.category}
             />
@@ -171,7 +171,7 @@ export function ProductEditorModal({
               value={draft.barcode}
             />
           </Field>
-          <Field label="Purchase price">
+          <Field label="Harga beli">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               inputMode="numeric"
@@ -180,7 +180,7 @@ export function ProductEditorModal({
               value={draft.purchasePrice}
             />
           </Field>
-          <Field label="Selling price">
+          <Field label="Harga jual">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               inputMode="numeric"
@@ -190,7 +190,7 @@ export function ProductEditorModal({
               value={draft.sellingPrice}
             />
           </Field>
-          <Field label="Inventory stock">
+          <Field label="Stok saat ini">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               inputMode="numeric"
@@ -199,7 +199,7 @@ export function ProductEditorModal({
               value={draft.stock}
             />
           </Field>
-          <Field label="Minimum stock">
+          <Field label="Batas minimum stok">
             <input
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
               inputMode="numeric"
@@ -224,7 +224,7 @@ export function ProductEditorModal({
             type="button"
           >
             <Trash2 size={17} />
-            Delete product
+            Hapus Produk
           </button>
           <div className="flex gap-2">
             <button
@@ -232,14 +232,14 @@ export function ProductEditorModal({
               onClick={onClose}
               type="button"
             >
-              Cancel
+              Batal
             </button>
             <button
               className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white sm:flex-none"
               type="submit"
             >
               <PackagePlus size={17} />
-              Save product
+              Simpan Produk
             </button>
           </div>
         </div>
@@ -278,15 +278,15 @@ export function InventoryMovementModal({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
-              Inventory movement
+              Mutasi Stok
             </p>
-            <h2 className="mt-1 text-xl font-bold">Record stock change</h2>
+            <h2 className="mt-1 text-xl font-bold">Catat Perubahan Stok</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Stock movement is scoped to this tenant and appears in inventory history.
+              Mutasi stok ini akan tercatat ke dalam riwayat inventaris toko.
             </p>
           </div>
           <button
-            aria-label="Close inventory movement"
+            aria-label="Tutup form mutasi"
             className="grid size-9 shrink-0 place-items-center rounded-lg border border-slate-200"
             onClick={onClose}
             type="button"
@@ -296,7 +296,7 @@ export function InventoryMovementModal({
         </div>
 
         <div className="mt-5 grid gap-4">
-          <Field label="Product">
+          <Field label="Produk">
             <select
               className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-teal-600"
               onChange={(event) => updateDraft("productId", event.target.value)}
@@ -305,39 +305,39 @@ export function InventoryMovementModal({
             >
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
-                  {product.name} - {product.stock} stock
+                  {product.name} - Stok: {product.stock}
                 </option>
               ))}
             </select>
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Movement type">
+            <Field label="Jenis Mutasi">
               <select
                 className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-teal-600"
                 onChange={(event) => updateDraft("type", event.target.value)}
                 value={draft.type}
               >
-                <option>Stock In</option>
-                <option>Stock Out</option>
-                <option>Adjustment</option>
+                <option value="Stock In">Stok Masuk</option>
+                <option value="Stock Out">Stok Keluar</option>
+                <option value="Adjustment">Penyesuaian Stok</option>
               </select>
             </Field>
-            <Field label={draft.type === "Adjustment" ? "Adjustment quantity" : "Quantity"}>
+            <Field label={draft.type === "Adjustment" ? "Jumlah penyesuaian" : "Jumlah"}>
               <input
                 className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-teal-600"
                 inputMode="numeric"
                 onChange={(event) => updateDraft("quantity", event.target.value)}
-                placeholder={draft.type === "Adjustment" ? "Example: -2 or 8" : "Example: 12"}
+                placeholder={draft.type === "Adjustment" ? "Contoh: -2 atau 8" : "Contoh: 12"}
                 required
                 value={draft.quantity}
               />
             </Field>
           </div>
-          <Field label="Reason">
+          <Field label="Alasan / Catatan">
             <textarea
               className="min-h-24 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-teal-600"
               onChange={(event) => updateDraft("note", event.target.value)}
-              placeholder="Supplier delivery, damaged goods, stock opname correction"
+              placeholder="Contoh: Pengiriman dari pemasok, barang rusak, koreksi opname stok"
               value={draft.note}
             />
           </Field>
@@ -345,8 +345,8 @@ export function InventoryMovementModal({
 
         {selectedProduct ? (
           <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
-            Current stock for <span className="font-semibold text-slate-950">{selectedProduct.name}</span>:{" "}
-            <span className="font-semibold text-slate-950">{selectedProduct.stock}</span> units.
+            Stok saat ini untuk <span className="font-semibold text-slate-950">{selectedProduct.name}</span>:{" "}
+            <span className="font-semibold text-slate-950">{selectedProduct.stock}</span> unit.
           </div>
         ) : null}
 
@@ -362,14 +362,14 @@ export function InventoryMovementModal({
             onClick={onClose}
             type="button"
           >
-            Cancel
+            Batal
           </button>
           <button
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white"
             type="submit"
           >
             <ArrowDownUp size={17} />
-            Save movement
+            Simpan Mutasi
           </button>
         </div>
       </form>

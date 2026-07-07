@@ -21,9 +21,9 @@ export default function SuppliersPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">{suppliers.length} suppliers</p>
+        <p className="text-sm text-slate-500">{suppliers.length} pemasok</p>
         <button className="flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800" onClick={() => { setForm({ name: "", phone: "", email: "", address: "", contactPerson: "" }); setEditing(null); setModal("create"); }}>
-          <Plus size={16} /> Add Supplier
+          <Plus size={16} /> Tambah Pemasok
         </button>
       </div>
 
@@ -33,7 +33,7 @@ export default function SuppliersPage() {
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
           <table className="w-full text-sm">
             <thead><tr className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
-              <th className="px-4 py-3">Name</th><th className="px-4 py-3">Contact Person</th><th className="px-4 py-3">Phone</th><th className="px-4 py-3">Email</th><th className="px-4 py-3 text-right">POs</th><th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3">Nama Pemasok</th><th className="px-4 py-3">Contact Person</th><th className="px-4 py-3">Nomor Telepon</th><th className="px-4 py-3">Email</th><th className="px-4 py-3 text-right">Jumlah PO</th><th className="px-4 py-3 text-right">Aksi</th>
             </tr></thead>
             <tbody className="divide-y divide-slate-100">
               {suppliers.map((s: any) => (
@@ -45,11 +45,11 @@ export default function SuppliersPage() {
                   <td className="px-4 py-3 text-right">{s._count?.purchaseOrders || 0}</td>
                   <td className="px-4 py-3 text-right">
                     <button className="mr-2 text-slate-400 hover:text-teal-600" onClick={() => { setForm({ name: s.name, phone: s.phone || "", email: s.email || "", address: s.address || "", contactPerson: s.contactPerson || "" }); setEditing(s); setModal("edit"); }}><Pencil size={15} /></button>
-                    <button className="text-slate-400 hover:text-red-600" onClick={() => { if (confirm("Delete?")) deleteMut.mutate(s.id); }}><Trash2 size={15} /></button>
+                    <button className="text-slate-400 hover:text-red-600" onClick={() => { if (confirm("Hapus pemasok ini?")) deleteMut.mutate(s.id); }}><Trash2 size={15} /></button>
                   </td>
                 </tr>
               ))}
-              {suppliers.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-slate-400">No suppliers yet</td></tr>}
+              {suppliers.length === 0 && <tr><td colSpan={6} className="px-4 py-12 text-center text-slate-400">Belum ada data pemasok</td></tr>}
             </tbody>
           </table>
         </div>
@@ -58,16 +58,16 @@ export default function SuppliersPage() {
       {modal && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setModal(null)}>
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Add Supplier" : "Edit Supplier"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Pemasok Baru" : "Ubah Data Pemasok"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); if (modal === "edit") updateMut.mutate({ id: editing.id, data: form }); else createMut.mutate(form); }}>
-              <div><label className="text-xs font-medium text-slate-600">Name *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+              <div><label className="text-xs font-medium text-slate-600">Nama Pemasok *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div><label className="text-xs font-medium text-slate-600">Contact Person</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.contactPerson} onChange={(e) => setForm({ ...form, contactPerson: e.target.value })} /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs font-medium text-slate-600">Phone</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-                <div><label className="text-xs font-medium text-slate-600">Email</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Nomor Telepon</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Alamat Email</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               </div>
-              <div><label className="text-xs font-medium text-slate-600">Address</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-              <button type="submit" className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white">{modal === "create" ? "Add Supplier" : "Save"}</button>
+              <div><label className="text-xs font-medium text-slate-600">Alamat</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+              <button type="submit" className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white">{modal === "create" ? "Tambah Pemasok" : "Simpan Perubahan"}</button>
             </form>
           </div>
         </div>

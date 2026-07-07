@@ -129,7 +129,7 @@ export function Permission({ enabled, label }: { enabled: boolean; label: string
     <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
       <span>{label}</span>
       <span className={`rounded-md px-2 py-1 text-xs font-bold ${enabled ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-500"}`}>
-        {enabled ? "Allowed" : "Hidden"}
+        {enabled ? "Diizinkan" : "Dibatasi"}
       </span>
     </div>
   );

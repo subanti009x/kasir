@@ -27,7 +27,7 @@ export function ReportsPanel({
   return (
     <Panel>
       <div className="flex items-center justify-between gap-3">
-        <SectionHeader icon={BarChart3} title="Reporting dashboard" subtitle="Daily, weekly, monthly, yearly, and custom range filters." />
+        <SectionHeader icon={BarChart3} title="Laporan Penjualan" subtitle="Filter laporan berdasarkan harian, mingguan, bulanan, tahunan, atau periode kustom." />
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {periods.map((item) => (
@@ -39,7 +39,7 @@ export function ReportsPanel({
             onClick={() => setPeriod(item)}
             type="button"
           >
-            {item}
+            {item === "Daily" ? "Harian" : item === "Weekly" ? "Mingguan" : item === "Monthly" ? "Bulanan" : item === "Yearly" ? "Tahunan" : "Kustom"}
           </button>
         ))}
       </div>
@@ -59,7 +59,7 @@ export function ReportsPanel({
         </div>
       </div>
       <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-        <span className="font-semibold">Best seller:</span> {bestSeller} with {soldToday} units sold today.
+        <span className="font-semibold">Produk terlaris:</span> {bestSeller} dengan {soldToday} unit terjual hari ini.
       </div>
     </Panel>
   );
@@ -79,7 +79,7 @@ export function InventoryPanel({
   return (
     <Panel>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <SectionHeader icon={ArrowDownUp} title="Inventory control" subtitle="Stock in, stock out, adjustment, and change history." />
+        <SectionHeader icon={ArrowDownUp} title="Kontrol Stok (Inventaris)" subtitle="Pantau stok masuk, stok keluar, penyesuaian stok, dan riwayat mutasi." />
         <button
           className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-bold text-slate-700 disabled:text-slate-400"
           disabled={!canManage}
@@ -87,7 +87,7 @@ export function InventoryPanel({
           type="button"
         >
           <ArrowDownUp size={15} />
-          Record movement
+          Catat Mutasi Stok
         </button>
       </div>
       <div className="mt-4 grid gap-3">
@@ -98,9 +98,9 @@ export function InventoryPanel({
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{product.name}</p>
-                  <p className="text-xs text-slate-500">Minimum {product.minStock} units</p>
+                  <p className="text-xs text-slate-500">Stok minimum: {product.minStock} unit</p>
                 </div>
-                <StatusBadge tone={product.stock <= product.minStock ? "rose" : "emerald"}>{product.stock} stock</StatusBadge>
+                <StatusBadge tone={product.stock <= product.minStock ? "rose" : "emerald"}>Stok: {product.stock}</StatusBadge>
               </div>
               <div className="mt-3 h-2 rounded-full bg-slate-100">
                 <div className={`h-2 rounded-full ${product.stock <= product.minStock ? "bg-rose-500" : "bg-emerald-500"}`} style={{ width: `${stockRatio}%` }} />
@@ -111,7 +111,7 @@ export function InventoryPanel({
                 onClick={() => onAdjust(product)}
                 type="button"
               >
-                Adjust {product.name}
+                Sesuaikan stok {product.name}
               </button>
             </div>
           );
@@ -122,7 +122,7 @@ export function InventoryPanel({
           <DataRow
             key={`${log.product}-${log.type}-${log.note}-${index}`}
             label={log.product}
-            meta={`${log.type} - ${log.note}`}
+            meta={`${log.type === "Stock In" ? "Stok Masuk" : log.type === "Stock Out" ? "Stok Keluar" : "Penyesuaian"} - ${log.note}`}
             value={`${log.quantity > 0 ? "+" : ""}${log.quantity}`}
           />
         ))}
@@ -156,11 +156,11 @@ export function CheckoutPanel({
 }) {
   return (
     <Panel>
-      <SectionHeader icon={ReceiptText} title="Current sale" subtitle="Discounts, taxes, split payment, and receipt preview." />
+      <SectionHeader icon={ReceiptText} title="Keranjang Belanja" subtitle="Atur diskon, pajak, opsi split payment, dan pratinjau struk." />
       <div className="mt-4 grid gap-3">
         {cartLines.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
-            Add products to start a transaction.
+            Pilih produk untuk memulai transaksi.
           </div>
         ) : (
           cartLines.map((line) => (
@@ -178,8 +178,8 @@ export function CheckoutPanel({
       </div>
       <div className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm">
         <TotalRow label="Subtotal" value={formatCurrency(subtotal)} />
-        <TotalRow label="Discount" value={`-${formatCurrency(discount)}`} />
-        <TotalRow label={`Tax ${taxRate}%`} value={formatCurrency(tax)} />
+        <TotalRow label="Diskon" value={`-${formatCurrency(discount)}`} />
+        <TotalRow label={`Pajak ${taxRate}%`} value={formatCurrency(tax)} />
         <div className="flex items-center justify-between pt-2 text-lg font-bold">
           <span>Total</span>
           <span>{formatCurrency(total)}</span>
@@ -207,7 +207,7 @@ export function CheckoutPanel({
         type="button"
       >
         <Printer size={18} />
-        Pay and print receipt
+        Bayar & Cetak Struk
       </button>
     </Panel>
   );
@@ -216,13 +216,15 @@ export function CheckoutPanel({
 export function TransactionsPanel({ transactions }: { transactions: Transaction[] }) {
   return (
     <Panel>
-      <SectionHeader icon={History} title="Recent transactions" subtitle="Tenant-only transaction history." />
+      <SectionHeader icon={History} title="Transaksi Terbaru" subtitle="Daftar transaksi khusus toko Anda." />
       <div className="mt-4 grid gap-3">
         {transactions.map((transaction) => (
           <div className="rounded-lg border border-slate-200 p-3" key={transaction.id}>
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-bold">{transaction.id}</p>
-              <StatusBadge tone={transaction.status === "Paid" ? "emerald" : "amber"}>{transaction.status}</StatusBadge>
+              <StatusBadge tone={transaction.status === "Paid" ? "emerald" : "amber"}>
+                {transaction.status === "Paid" ? "Lunas" : "Tertunda"}
+              </StatusBadge>
             </div>
             <div className="mt-2 flex items-center justify-between gap-3 text-sm">
               <span className="text-slate-500">{transaction.customer}</span>
@@ -245,7 +247,7 @@ export function NotificationsPanel({
 }) {
   return (
     <Panel>
-      <SectionHeader icon={Bell} title="Notifications" subtitle="Operational alerts and payment events." />
+      <SectionHeader icon={Bell} title="Pemberitahuan" subtitle="Peringatan operasional toko dan status pembayaran." />
       <div className="mt-4 grid gap-2">
         {notifications.map((item) => (
           <div className="flex items-start gap-3 rounded-lg bg-slate-50 p-3" key={item.label}>
@@ -266,13 +268,13 @@ export function PermissionsPanel({ role }: { role: Role }) {
     <Panel>
       <div className="flex items-center gap-2 text-sm font-bold">
         <UserRoundCog size={18} />
-        Role permissions
+        Hak Akses Peran
       </div>
       <div className="mt-3 grid gap-2 text-sm text-slate-600">
-        <Permission enabled={role !== "Cashier"} label="Manage products and categories" />
-        <Permission enabled={role !== "Cashier"} label="View profit and supplier reports" />
-        <Permission enabled label="Process transactions" />
-        <Permission enabled={role === "Super Admin"} label="Activate or pause SME accounts" />
+        <Permission enabled={role !== "Cashier"} label="Mengelola produk dan kategori" />
+        <Permission enabled={role !== "Cashier"} label="Melihat laporan laba rugi dan pengadaan" />
+        <Permission enabled label="Memproses transaksi kasir" />
+        <Permission enabled={role === "Super Admin"} label="Mengaktifkan atau menonaktifkan akun UMKM" />
       </div>
     </Panel>
   );
@@ -281,7 +283,7 @@ export function PermissionsPanel({ role }: { role: Role }) {
 export function ArchitecturePanel() {
   return (
     <Panel>
-      <SectionHeader icon={Database} title="Commercial architecture readiness" subtitle="Prepared for backend, storage, cache, search, realtime, jobs, and monitoring layers." />
+      <SectionHeader icon={Database} title="Kesiapan Arsitektur Aplikasi" subtitle="Sistem siap untuk integrasi backend, database, cache, pencarian, sinkronisasi real-time, antrean tugas, dan monitoring." />
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {architectureItems.map((item) => (
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4" key={item.label}>

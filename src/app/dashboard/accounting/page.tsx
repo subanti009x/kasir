@@ -15,12 +15,12 @@ function formatCurrency(n: number) {
 }
 
 const EXPENSE_CATEGORIES = [
-  { value: "RENT", label: "Rent", icon: Building2, color: "bg-violet-100 text-violet-700" },
-  { value: "UTILITIES", label: "Utilities", icon: Wallet, color: "bg-amber-100 text-amber-700" },
-  { value: "SALARIES", label: "Salaries", icon: DollarSign, color: "bg-sky-100 text-sky-700" },
-  { value: "MARKETING", label: "Marketing", icon: TrendingUp, color: "bg-pink-100 text-pink-700" },
-  { value: "SUPPLIES", label: "Supplies", icon: Receipt, color: "bg-teal-100 text-teal-700" },
-  { value: "OTHER", label: "Other", icon: PiggyBank, color: "bg-slate-100 text-slate-700" },
+  { value: "RENT", label: "Sewa Tempat", icon: Building2, color: "bg-violet-100 text-violet-700" },
+  { value: "UTILITIES", label: "Listrik & Air (Utilitas)", icon: Wallet, color: "bg-amber-100 text-amber-700" },
+  { value: "SALARIES", label: "Gaji Karyawan", icon: DollarSign, color: "bg-sky-100 text-sky-700" },
+  { value: "MARKETING", label: "Pemasaran / Iklan", icon: TrendingUp, color: "bg-pink-100 text-pink-700" },
+  { value: "SUPPLIES", label: "Perlengkapan & Bahan", icon: Receipt, color: "bg-teal-100 text-teal-700" },
+  { value: "OTHER", label: "Lainnya", icon: PiggyBank, color: "bg-slate-100 text-slate-700" },
 ];
 
 type Tab = "profit-loss" | "balance-sheet" | "expenses";
@@ -81,9 +81,9 @@ export default function AccountingPage() {
   });
 
   const tabs: { key: Tab; label: string; icon: typeof BarChart3 }[] = [
-    { key: "profit-loss", label: "Profit & Loss", icon: BarChart3 },
-    { key: "balance-sheet", label: "Balance Sheet", icon: Scale },
-    { key: "expenses", label: "Expenses", icon: Receipt },
+    { key: "profit-loss", label: "Laba Rugi", icon: BarChart3 },
+    { key: "balance-sheet", label: "Neraca Keuangan", icon: Scale },
+    { key: "expenses", label: "Biaya Operasional", icon: Receipt },
   ];
 
   return (
@@ -114,10 +114,10 @@ export default function AccountingPage() {
           {/* Date filter */}
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <BarChart3 size={18} className="text-teal-700" />
-            <span className="text-sm font-semibold text-slate-900">Profit & Loss Statement</span>
+            <span className="text-sm font-semibold text-slate-900">Laporan Laba Rugi</span>
             <div className="ml-auto flex items-center gap-2">
               <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={plStart} onChange={(e) => setPlStart(e.target.value)} />
-              <span className="text-xs text-slate-400">to</span>
+              <span className="text-xs text-slate-400">sampai</span>
               <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={plEnd} onChange={(e) => setPlEnd(e.target.value)} />
             </div>
           </div>
@@ -128,14 +128,14 @@ export default function AccountingPage() {
             <>
               {/* Summary cards */}
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-                <PLCard icon={CircleDollarSign} iconBg="bg-teal-50 text-teal-700" label="Revenue" value={pl.revenue} />
-                <PLCard icon={ArrowDownRight} iconBg="bg-orange-50 text-orange-700" label="Cost of Goods Sold" value={-pl.cogs} negative />
-                <PLCard icon={TrendingUp} iconBg="bg-emerald-50 text-emerald-700" label="Gross Profit" value={pl.grossProfit} sub={`${pl.grossProfitMargin}% margin`} />
-                <PLCard icon={Receipt} iconBg="bg-rose-50 text-rose-700" label="Operating Expenses" value={-pl.operatingExpenses?.total} negative />
+                <PLCard icon={CircleDollarSign} iconBg="bg-teal-50 text-teal-700" label="Pendapatan Usaha" value={pl.revenue} />
+                <PLCard icon={ArrowDownRight} iconBg="bg-orange-50 text-orange-700" label="Harga Pokok Penjualan (HPP)" value={-pl.cogs} negative />
+                <PLCard icon={TrendingUp} iconBg="bg-emerald-50 text-emerald-700" label="Laba Kotor" value={pl.grossProfit} sub={`${pl.grossProfitMargin}% margin`} />
+                <PLCard icon={Receipt} iconBg="bg-rose-50 text-rose-700" label="Beban Operasional" value={-pl.operatingExpenses?.total} negative />
                 <PLCard
                   icon={pl.netProfit >= 0 ? TrendingUp : TrendingDown}
                   iconBg={pl.netProfit >= 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}
-                  label="Net Profit"
+                  label="Laba Bersih"
                   value={pl.netProfit}
                   sub={`${pl.netProfitMargin}% margin`}
                   highlight
@@ -146,23 +146,23 @@ export default function AccountingPage() {
               <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
                 {/* Revenue vs Expenses bar */}
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <h3 className="text-sm font-bold text-slate-900">Revenue vs Costs</h3>
+                  <h3 className="text-sm font-bold text-slate-900">Analisis Pendapatan vs Beban</h3>
                   <div className="mt-5 space-y-4">
-                    <ProgressBar label="Revenue" amount={pl.revenue} max={pl.revenue || 1} color="bg-teal-600" />
-                    <ProgressBar label="COGS" amount={pl.cogs} max={pl.revenue || 1} color="bg-orange-500" />
-                    <ProgressBar label="Operating Expenses" amount={pl.operatingExpenses?.total || 0} max={pl.revenue || 1} color="bg-rose-500" />
+                    <ProgressBar label="Pendapatan" amount={pl.revenue} max={pl.revenue || 1} color="bg-teal-600" />
+                    <ProgressBar label="HPP" amount={pl.cogs} max={pl.revenue || 1} color="bg-orange-500" />
+                    <ProgressBar label="Beban Operasional" amount={pl.operatingExpenses?.total || 0} max={pl.revenue || 1} color="bg-rose-500" />
                     <div className="border-t border-slate-100 pt-3">
-                      <ProgressBar label="Net Profit" amount={pl.netProfit} max={pl.revenue || 1} color={pl.netProfit >= 0 ? "bg-emerald-600" : "bg-red-500"} />
+                      <ProgressBar label="Laba Bersih" amount={pl.netProfit} max={pl.revenue || 1} color={pl.netProfit >= 0 ? "bg-emerald-600" : "bg-red-500"} />
                     </div>
                   </div>
                 </div>
 
                 {/* Expense category breakdown */}
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <h3 className="text-sm font-bold text-slate-900">Expense Breakdown</h3>
+                  <h3 className="text-sm font-bold text-slate-900">Rincian Beban Operasional</h3>
                   <div className="mt-3 space-y-2">
                     {pl.operatingExpenses?.categories?.length === 0 && (
-                      <p className="py-6 text-center text-xs text-slate-400">No expenses recorded in this period</p>
+                      <p className="py-6 text-center text-xs text-slate-400">Tidak ada pengeluaran tercatat pada periode ini</p>
                     )}
                     {(pl.operatingExpenses?.categories || []).map((cat: any) => {
                       const meta = EXPENSE_CATEGORIES.find((c) => c.value === cat.category) || EXPENSE_CATEGORIES[5];
@@ -173,7 +173,7 @@ export default function AccountingPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-semibold text-slate-900">{meta.label}</p>
-                            <p className="text-[10px] text-slate-400">{cat.count} entries</p>
+                            <p className="text-[10px] text-slate-400">{cat.count} transaksi</p>
                           </div>
                           <span className="text-xs font-bold text-slate-900">{formatCurrency(cat.amount)}</span>
                         </div>
@@ -195,9 +195,9 @@ export default function AccountingPage() {
           {/* Date filter */}
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <Landmark size={18} className="text-teal-700" />
-            <span className="text-sm font-semibold text-slate-900">Balance Sheet</span>
+            <span className="text-sm font-semibold text-slate-900">Neraca Keuangan</span>
             <div className="ml-auto flex items-center gap-2">
-              <span className="text-xs text-slate-400">As of</span>
+              <span className="text-xs text-slate-400">Per tanggal</span>
               <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={bsDate} onChange={(e) => setBsDate(e.target.value)} />
             </div>
           </div>
@@ -214,42 +214,42 @@ export default function AccountingPage() {
               }`}>
                 <Scale size={16} />
                 {bs.isBalanced
-                  ? "✓ Balanced — Assets = Liabilities + Equity"
-                  : "⚠ Unbalanced — Check journal entries"}
+                  ? "✓ Seimbang (Balanced) — Aset = Liabilitas + Ekuitas"
+                  : "⚠️ Belum Seimbang — Harap periksa pencatatan keuangan"}
               </div>
 
               {/* Three-column layout */}
               <div className="grid gap-4 lg:grid-cols-3">
                 {/* Assets */}
                 <BSSection
-                  title="Assets"
+                  title="Aset (Aktiva)"
                   icon={<ArrowUpRight size={16} />}
                   color="teal"
                   items={[
-                    { label: "Cash & Cash Equivalents", amount: bs.assets.cash },
-                    { label: "Inventory", amount: bs.assets.inventory },
+                    { label: "Kas & Setara Kas", amount: bs.assets.cash },
+                    { label: "Persediaan Barang (Stok)", amount: bs.assets.inventory },
                   ]}
                   total={bs.assets.total}
                 />
 
                 {/* Liabilities */}
                 <BSSection
-                  title="Liabilities"
+                  title="Kewajiban (Liabilitas)"
                   icon={<ArrowDownRight size={16} />}
                   color="rose"
                   items={[
-                    { label: "Accounts Payable", amount: bs.liabilities.accountsPayable },
+                    { label: "Utang Usaha", amount: bs.liabilities.accountsPayable },
                   ]}
                   total={bs.liabilities.total}
                 />
 
                 {/* Equity */}
                 <BSSection
-                  title="Equity"
+                  title="Modal (Ekuitas)"
                   icon={<PiggyBank size={16} />}
                   color="indigo"
                   items={[
-                    { label: "Retained Earnings", amount: bs.equity.retainedEarnings },
+                    { label: "Laba Ditahan", amount: bs.equity.retainedEarnings },
                   ]}
                   total={bs.equity.total}
                 />
@@ -258,11 +258,11 @@ export default function AccountingPage() {
               {/* Summary row */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Assets</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Aset</p>
                   <p className="mt-1 text-2xl font-bold text-slate-950">{formatCurrency(bs.assets.total)}</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Liabilities + Equity</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Liabilitas + Ekuitas</p>
                   <p className="mt-1 text-2xl font-bold text-slate-950">{formatCurrency(bs.liabilities.total + bs.equity.total)}</p>
                 </div>
               </div>
@@ -279,17 +279,17 @@ export default function AccountingPage() {
           {/* Header with date filter and Add button */}
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <Receipt size={18} className="text-teal-700" />
-            <span className="text-sm font-semibold text-slate-900">Operating Expenses</span>
+            <span className="text-sm font-semibold text-slate-900">Biaya Operasional</span>
             <div className="ml-auto flex items-center gap-2">
               <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={expStart} onChange={(e) => setExpStart(e.target.value)} />
-              <span className="text-xs text-slate-400">to</span>
+              <span className="text-xs text-slate-400">sampai</span>
               <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={expEnd} onChange={(e) => setExpEnd(e.target.value)} />
               <button
                 onClick={() => setShowExpenseForm(true)}
                 className="ml-2 flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
               >
                 <Plus size={16} />
-                Add Expense
+                Catat Pengeluaran
               </button>
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function AccountingPage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowExpenseForm(false)}>
               <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-950">Add Expense</h3>
+                  <h3 className="text-base font-bold text-slate-950">Catat Pengeluaran Baru</h3>
                   <button onClick={() => setShowExpenseForm(false)} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100">
                     <X size={18} />
                   </button>
@@ -318,7 +318,7 @@ export default function AccountingPage() {
                   }}
                 >
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-700">Category</label>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Kategori</label>
                     <select
                       className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm"
                       value={expenseForm.category}
@@ -330,17 +330,17 @@ export default function AccountingPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-700">Description</label>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Keterangan</label>
                     <input
                       type="text"
                       className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm"
-                      placeholder="e.g., Monthly office rent"
+                      placeholder="Contoh: Sewa ruko bulanan"
                       value={expenseForm.description}
                       onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-700">Amount (IDR)</label>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Nominal (IDR)</label>
                     <input
                       type="number"
                       min="0"
@@ -352,7 +352,7 @@ export default function AccountingPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-slate-700">Date</label>
+                    <label className="mb-1 block text-xs font-semibold text-slate-700">Tanggal</label>
                     <input
                       type="date"
                       className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm"
@@ -365,7 +365,7 @@ export default function AccountingPage() {
                     disabled={createExpense.isPending}
                     className="flex h-10 w-full items-center justify-center rounded-lg bg-slate-950 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
                   >
-                    {createExpense.isPending ? <Loader2 className="animate-spin" size={16} /> : "Save Expense"}
+                    {createExpense.isPending ? <Loader2 className="animate-spin" size={16} /> : "Simpan Pengeluaran"}
                   </button>
                 </form>
               </div>
@@ -382,17 +382,17 @@ export default function AccountingPage() {
                   <div className="mx-auto grid size-12 place-items-center rounded-xl bg-slate-100 text-slate-400">
                     <Receipt size={22} />
                   </div>
-                  <p className="mt-3 text-sm font-semibold text-slate-700">No expenses recorded</p>
-                  <p className="mt-1 text-xs text-slate-500">Add your first expense to start tracking operating costs.</p>
+                  <p className="mt-3 text-sm font-semibold text-slate-700">Belum ada pengeluaran tercatat</p>
+                  <p className="mt-1 text-xs text-slate-500">Catat pengeluaran pertama Anda untuk mulai memantau biaya operasional bisnis.</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100">
                   {/* Table header */}
                   <div className="grid grid-cols-[1fr_120px_1fr_140px_48px] gap-3 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    <span>Description</span>
-                    <span>Category</span>
-                    <span>Created by</span>
-                    <span className="text-right">Amount</span>
+                    <span>Keterangan</span>
+                    <span>Kategori</span>
+                    <span>Dicatat oleh</span>
+                    <span className="text-right">Nominal</span>
                     <span />
                   </div>
                   {expenses.map((exp: any) => {
@@ -410,9 +410,9 @@ export default function AccountingPage() {
                         <span className="text-xs text-slate-500">{exp.createdBy?.name || "-"}</span>
                         <span className="text-right text-sm font-bold text-slate-900">{formatCurrency(exp.amount)}</span>
                         <button
-                          onClick={() => { if (confirm("Delete this expense?")) deleteExpense.mutate(exp.id); }}
+                          onClick={() => { if (confirm("Hapus pengeluaran ini?")) deleteExpense.mutate(exp.id); }}
                           className="grid size-8 place-items-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-600"
-                          title="Delete"
+                          title="Hapus"
                         >
                           <Trash2 size={15} />
                         </button>

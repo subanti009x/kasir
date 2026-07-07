@@ -161,7 +161,7 @@ export default function POSPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               className="h-11 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10"
-              placeholder="Search products, SKU, barcode..."
+              placeholder="Cari nama produk, SKU, barcode..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
@@ -194,7 +194,7 @@ export default function POSPage() {
                 <div className="mt-3 flex items-end justify-between">
                   <p className="text-lg font-bold text-slate-950">{formatCurrency(product.sellingPrice)}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.stock <= (product.minStock || 0) ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
-                    {product.stock} stock
+                    Stok: {product.stock}
                   </span>
                 </div>
               </button>
@@ -207,14 +207,14 @@ export default function POSPage() {
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-teal-700" />
-            <h2 className="text-lg font-bold text-slate-950">Current Sale</h2>
+            <h2 className="text-lg font-bold text-slate-950">Keranjang Belanja</h2>
             <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
-              {cartItems.length} items
+              {cartItems.length} produk
             </span>
           </div>
 
           <div className="mt-4 max-h-[34vh] space-y-2 overflow-y-auto">
-            {cartItems.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Tap products to add to cart</p>}
+            {cartItems.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Pilih produk untuk dimasukkan ke keranjang</p>}
             {cartItems.map((item) => (
               <div key={item.product.id} className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
                 <div className="min-w-0 flex-1">
@@ -240,7 +240,7 @@ export default function POSPage() {
 
           <div className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm">
             <div className="flex justify-between text-slate-600"><span>Subtotal</span><span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span></div>
-            <div className="flex justify-between text-slate-600"><span>Tax ({taxRate}%)</span><span className="font-semibold text-slate-900">{formatCurrency(tax)}</span></div>
+            <div className="flex justify-between text-slate-600"><span>Pajak ({taxRate}%)</span><span className="font-semibold text-slate-900">{formatCurrency(tax)}</span></div>
             <div className="flex justify-between pt-2 text-xl font-bold text-slate-950"><span>Total</span><span>{formatCurrency(total)}</span></div>
           </div>
 
@@ -258,7 +258,7 @@ export default function POSPage() {
                   className={`flex h-10 items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition ${paymentMethod === method.name ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
                   onClick={() => setPaymentMethod(method.name)}
                 >
-                  <Icon size={15} /> {method.name}
+                  <Icon size={15} /> {method.name === "Cash" ? "Tunai" : method.name}
                 </button>
               );
             })}
@@ -266,20 +266,20 @@ export default function POSPage() {
 
           <div className="mt-3 grid gap-3">
             <label className="text-xs font-medium text-slate-600">
-              {splitPayment ? "Primary amount" : paymentMethod === "Cash" ? "Amount paid" : "Payment amount"}
+              {splitPayment ? "Nominal utama" : paymentMethod === "Cash" ? "Nominal dibayar" : "Nominal pembayaran"}
               <input type="number" min={0} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={cashAmount} placeholder="0" onChange={(event) => setCashAmount(event.target.value)} />
             </label>
             {splitPayment && (
               <div className="grid grid-cols-[1fr_140px] gap-2">
                 <select className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryMethod} onChange={(event) => setSecondaryMethod(event.target.value)}>
-                  {enabledPayments.filter((method: any) => method.name !== paymentMethod).map((method: any) => <option key={method.id} value={method.name}>{method.name}</option>)}
+                  {enabledPayments.filter((method: any) => method.name !== paymentMethod).map((method: any) => <option key={method.id} value={method.name}>{method.name === "Cash" ? "Tunai" : method.name}</option>)}
                 </select>
                 <input type="number" min={0} className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryAmount} placeholder={String(Math.ceil(remainingAmount))} onChange={(event) => setSecondaryAmount(event.target.value)} />
               </div>
             )}
             <div className="flex justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-              <span>Paid {formatCurrency(paidAmount)}</span>
-              <span>Change {formatCurrency(changeDue)}</span>
+              <span>Dibayar {formatCurrency(paidAmount)}</span>
+              <span>Kembalian {formatCurrency(changeDue)}</span>
             </div>
           </div>
 
@@ -289,10 +289,10 @@ export default function POSPage() {
             onClick={handleCheckout}
           >
             {checkoutMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : <Printer size={18} />}
-            Pay & Print Receipt
+            Bayar & Cetak Struk
           </button>
 
-          {checkoutMutation.isError && <p className="mt-2 text-center text-xs text-red-600">{(checkoutMutation.error as any)?.message || "Checkout failed"}</p>}
+          {checkoutMutation.isError && <p className="mt-2 text-center text-xs text-red-600">{(checkoutMutation.error as any)?.message || "Proses pembayaran gagal"}</p>}
         </div>
       </div>
 
@@ -303,7 +303,7 @@ export default function POSPage() {
               <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-emerald-100">
                 <Check className="text-emerald-600" size={24} />
               </div>
-              <h3 className="text-xl font-bold">Payment Successful</h3>
+              <h3 className="text-xl font-bold">Pembayaran Berhasil</h3>
               <p className="mt-1 text-sm text-slate-500">{receipt.receiptId}</p>
             </div>
             <div className="mt-4 space-y-2">
@@ -316,16 +316,16 @@ export default function POSPage() {
             </div>
             <div className="mt-4 space-y-1 border-t pt-3 text-sm">
               <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(receipt.subtotal)}</span></div>
-              <div className="flex justify-between"><span>Tax</span><span>{formatCurrency(receipt.tax)}</span></div>
-              <div className="flex justify-between"><span>Paid</span><span>{formatCurrency(receipt.amountPaid)}</span></div>
-              <div className="flex justify-between"><span>Change</span><span>{formatCurrency(receipt.changeDue)}</span></div>
+              <div className="flex justify-between"><span>Pajak</span><span>{formatCurrency(receipt.tax)}</span></div>
+              <div className="flex justify-between"><span>Dibayar</span><span>{formatCurrency(receipt.amountPaid)}</span></div>
+              <div className="flex justify-between"><span>Kembalian</span><span>{formatCurrency(receipt.changeDue)}</span></div>
               <div className="flex justify-between text-lg font-bold"><span>Total</span><span>{formatCurrency(receipt.total)}</span></div>
             </div>
             <div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-              <p>Payment: {receipt.paymentMethod}</p>
-              {receipt.payments?.map((payment: any) => <p key={payment.id}>{payment.method}: {formatCurrency(payment.amount)}</p>)}
-              <p>Cashier: {receipt.cashier?.name}</p>
-              <p>Date: {new Date(receipt.createdAt).toLocaleString("id-ID")}</p>
+              <p>Metode Pembayaran: {receipt.paymentMethod === "Cash" ? "Tunai" : receipt.paymentMethod}</p>
+              {receipt.payments?.map((payment: any) => <p key={payment.id}>{payment.method === "Cash" ? "Tunai" : payment.method}: {formatCurrency(payment.amount)}</p>)}
+              <p>Kasir: {receipt.cashier?.name}</p>
+              <p>Tanggal: {new Date(receipt.createdAt).toLocaleString("id-ID")}</p>
             </div>
             <div className="mt-4 flex gap-2">
               <button
@@ -338,10 +338,10 @@ export default function POSPage() {
                 })}
               >
                 <Printer size={16} />
-                Print Again
+                Cetak Ulang
               </button>
               <button className="h-10 flex-1 rounded-lg bg-slate-950 text-sm font-bold text-white transition hover:bg-slate-800" onClick={() => setReceipt(null)}>
-                Close
+                Tutup
               </button>
             </div>
           </div>

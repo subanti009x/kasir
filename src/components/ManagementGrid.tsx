@@ -21,7 +21,7 @@ export function ManagementGrid({
   return (
     <div className="grid gap-4 xl:grid-cols-3">
       <Panel>
-        <SectionHeader icon={Tags} title="Product CRUD" subtitle="Categories, price, barcode, and image records." />
+        <SectionHeader icon={Tags} title="Kelola Produk" subtitle="Atur kategori, harga, barcode, dan data gambar produk." />
         <div className="mt-4 grid gap-3">
           {products.slice(0, 4).map((product) => (
             <div className="rounded-lg border border-slate-200 px-3 py-2" key={product.id}>
@@ -42,7 +42,7 @@ export function ManagementGrid({
                   type="button"
                 >
                   <Pencil size={14} />
-                  Edit
+                  Ubah
                 </button>
                 <button
                   className="inline-flex h-8 flex-1 items-center justify-center gap-2 rounded-md border border-rose-200 text-xs font-bold text-rose-700 disabled:border-slate-200 disabled:text-slate-400"
@@ -51,7 +51,7 @@ export function ManagementGrid({
                   type="button"
                 >
                   <Trash2 size={14} />
-                  Delete
+                  Hapus
                 </button>
               </div>
             </div>
@@ -63,18 +63,18 @@ export function ManagementGrid({
           onClick={onNewProduct}
           type="button"
         >
-          Add or edit product
+          Tambah atau ubah produk
         </button>
       </Panel>
 
       <Panel>
-        <SectionHeader icon={Users} title="Customers" subtitle="Phone numbers and purchase history." />
+        <SectionHeader icon={Users} title="Pelanggan" subtitle="Daftar nomor telepon dan riwayat belanja pelanggan." />
         <div className="mt-4 grid gap-3">
           {tenant.customers.map((customer) => (
             <DataRow
               key={customer.name}
               label={customer.name}
-              meta={`${customer.phone} - ${customer.lastPurchase}`}
+              meta={`${customer.phone} - Pembelian terakhir: ${customer.lastPurchase}`}
               value={formatCurrency(customer.lifetimeValue)}
             />
           ))}
@@ -82,13 +82,13 @@ export function ManagementGrid({
       </Panel>
 
       <Panel>
-        <SectionHeader icon={Truck} title="Suppliers" subtitle="Purchase orders and procurement history." />
+        <SectionHeader icon={Truck} title="Pemasok" subtitle="Daftar purchase order dan riwayat pengadaan barang." />
         <div className="mt-4 grid gap-3">
           {tenant.suppliers.map((supplier) => (
             <DataRow
               key={supplier.name}
               label={supplier.name}
-              meta={`${supplier.openOrders} open purchase orders`}
+              meta={`${supplier.openOrders} purchase order aktif`}
               value={formatCurrency(supplier.purchaseHistory)}
             />
           ))}
@@ -96,12 +96,12 @@ export function ManagementGrid({
       </Panel>
 
       <Panel className="xl:col-span-3">
-        <SectionHeader icon={Settings} title="Settings and store profile" subtitle="Receipt, tax, currency, business hours, and payment method controls." />
+        <SectionHeader icon={Settings} title="Pengaturan & Profil Toko" subtitle="Atur struk belanja, pajak, mata uang, jam operasional, dan metode pembayaran." />
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <SettingTile icon={Store} label="Store profile" value={`${tenant.name} - ${tenant.owner}`} />
-          <SettingTile icon={Phone} label="Contact" value={`${tenant.phone} - ${tenant.hours}`} />
-          <SettingTile icon={Percent} label="Tax settings" value={`${tenant.taxRate}% ${tenant.currency}`} />
-          <SettingTile icon={FileText} label="Receipt template" value={tenant.receiptTemplate} />
+          <SettingTile icon={Store} label="Profil toko" value={`${tenant.name} - ${tenant.owner}`} />
+          <SettingTile icon={Phone} label="Hubungi kami" value={`${tenant.phone} - ${tenant.hours}`} />
+          <SettingTile icon={Percent} label="Pengaturan pajak" value={`${tenant.taxRate}% ${tenant.currency}`} />
+          <SettingTile icon={FileText} label="Templat struk" value={tenant.receiptTemplate} />
         </div>
       </Panel>
     </div>

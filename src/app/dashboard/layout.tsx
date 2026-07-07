@@ -14,17 +14,17 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/pos", label: "Point of Sale", icon: ShoppingCart },
-  { href: "/dashboard/products", label: "Products", icon: Tags },
-  { href: "/dashboard/categories", label: "Categories", icon: PackageSearch },
-  { href: "/dashboard/inventory", label: "Inventory", icon: Boxes },
-  { href: "/dashboard/transactions", label: "Transactions", icon: FileBox },
-  { href: "/dashboard/customers", label: "Customers", icon: Users },
-  { href: "/dashboard/suppliers", label: "Suppliers", icon: Truck },
-  { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
-  { href: "/dashboard/accounting", label: "Accounting", icon: Calculator },
-  { href: "/dashboard/employees", label: "Employees", icon: UserIcon },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/pos", label: "Kasir (POS)", icon: ShoppingCart },
+  { href: "/dashboard/products", label: "Produk", icon: Tags },
+  { href: "/dashboard/categories", label: "Kategori", icon: PackageSearch },
+  { href: "/dashboard/inventory", label: "Inventaris", icon: Boxes },
+  { href: "/dashboard/transactions", label: "Transaksi", icon: FileBox },
+  { href: "/dashboard/customers", label: "Pelanggan", icon: Users },
+  { href: "/dashboard/suppliers", label: "Pemasok", icon: Truck },
+  { href: "/dashboard/reports", label: "Laporan", icon: BarChart3 },
+  { href: "/dashboard/accounting", label: "Akuntansi", icon: Calculator },
+  { href: "/dashboard/employees", label: "Karyawan", icon: UserIcon },
+  { href: "/dashboard/settings", label: "Pengaturan", icon: Settings },
 ];
 
 type AppNotification = {
@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const socketConfig = getNotificationSocketConfig();
     if (!socketConfig) {
       setSocketConnected(false);
-      setSocketError("Live updates are not configured");
+      setSocketError("Pembaruan langsung belum dikonfigurasi");
       return;
     }
 
@@ -95,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {
           id: `${eventType}-${payload?.timestamp || Date.now()}-${Math.random().toString(36).slice(2)}`,
           type: payload?.type || eventType,
-          message: payload?.message || "New notification",
+          message: payload?.message || "Notifikasi baru",
           timestamp: payload?.timestamp || new Date().toISOString(),
           read: false,
         },
@@ -110,7 +110,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     socket.on("disconnect", () => setSocketConnected(false));
     socket.on("connect_error", (error) => {
       setSocketConnected(false);
-      setSocketError(error.message || "Unable to connect live updates");
+      setSocketError(error.message || "Tidak dapat terhubung ke pembaruan langsung");
     });
     socket.on("notification-ready", (payload) => addNotification("notification-ready", payload));
     socket.on("low-stock", (payload) => addNotification("low-stock", payload));
@@ -128,7 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="grid min-h-screen place-items-center bg-slate-50">
         <div className="flex items-center gap-3 text-slate-400">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
-          Loading...
+          Memuat...
         </div>
       </div>
     );
@@ -172,7 +172,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
             <div>
               <p className="text-sm font-bold text-slate-950">Admin Solutions Inovatif</p>
-              <p className="text-xs text-slate-500">Business Management & POS System</p>
+              <p className="text-sm text-slate-500">Sistem Manajemen Bisnis & POS</p>
             </div>
           </div>
           <button
@@ -201,10 +201,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="mx-4 mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-800">
               <Shield size={14} />
-              Tenant isolated
+              Tenant terisolasi
             </div>
             <p className="mt-1 text-[11px] text-emerald-700">
-              Data scoped to <span className="font-semibold">{user.tenant.name}</span>
+              Data terbatas pada <span className="font-semibold">{user.tenant.name}</span>
             </p>
           </div>
         )}
@@ -255,10 +255,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => { logout(); router.replace("/"); }}
           >
             <LogOut size={18} />
-            Sign out
+            Keluar
           </button>
           <div className="mt-2 text-center text-[10px] text-slate-400">
-            Supported by RSI (Ray Solutions Inovatif)
+            Didukung oleh RSI (Ray Solutions Inovatif)
           </div>
         </div>
       </aside>
@@ -299,16 +299,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
                   <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                     <div>
-                      <p className="text-sm font-bold text-slate-950">Notifications</p>
+                      <p className="text-sm font-bold text-slate-950">Notifikasi</p>
                       <p className={`text-xs ${socketConnected ? "text-emerald-600" : "text-amber-600"}`}>
-                        {user.tenantId ? (socketConnected ? "Live updates connected" : socketError || "Connecting live updates...") : "Platform account"}
+                        {user.tenantId ? (socketConnected ? "Terhubung secara langsung" : socketError || "Menghubungkan...") : "Akun platform"}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100" onClick={markAllRead} title="Mark all read">
+                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100" onClick={markAllRead} title="Tandai semua sudah dibaca">
                         <CheckCheck size={15} />
                       </button>
-                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-red-50 hover:text-red-600" onClick={clearNotifications} title="Clear notifications">
+                      <button className="grid size-8 place-items-center rounded-md text-slate-500 hover:bg-red-50 hover:text-red-600" onClick={clearNotifications} title="Hapus notifikasi">
                         <Trash2 size={15} />
                       </button>
                     </div>
@@ -320,8 +320,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="mx-auto grid size-10 place-items-center rounded-lg bg-slate-100 text-slate-400">
                           <Bell size={18} />
                         </div>
-                        <p className="mt-3 text-sm font-semibold text-slate-700">No notifications yet</p>
-                        <p className="mt-1 text-xs text-slate-500">Sales, payments, refunds, and low stock alerts will appear here.</p>
+                        <p className="mt-3 text-sm font-semibold text-slate-700">Belum ada notifikasi</p>
+                        <p className="mt-1 text-xs text-slate-500">Penjualan, pembayaran, refund, dan peringatan stok akan muncul di sini.</p>
                       </div>
                     ) : (
                       <div className="divide-y divide-slate-100">

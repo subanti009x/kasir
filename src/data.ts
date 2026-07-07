@@ -26,7 +26,7 @@ export const tenants: Tenant[] = [
     owner: "Ayu Prameswari",
     currency: "IDR",
     taxRate: 11,
-    receiptTemplate: "Compact thermal receipt with tax ID and QRIS reference",
+    receiptTemplate: "Struk termal ringkas dengan NPWD dan referensi QRIS",
     paymentMethods: ["Cash", "QRIS", "Bank Transfer", "E-Wallet", "Split Payment"],
     employees: [
       { name: "Ayu Prameswari", role: "SME Owner", status: "Active" },
@@ -34,9 +34,9 @@ export const tenants: Tenant[] = [
       { name: "Mira", role: "Cashier", status: "Off shift" },
     ],
     customers: [
-      { name: "Dewi L.", phone: "+62 812 4000 1881", lastPurchase: "Today, 09:42", lifetimeValue: 8400000 },
-      { name: "Office Pantry", phone: "+62 811 7000 9910", lastPurchase: "Today, 08:55", lifetimeValue: 21800000 },
-      { name: "Walk-in", phone: "-", lastPurchase: "Today, 09:18", lifetimeValue: 3260000 },
+      { name: "Dewi L.", phone: "+62 812 4000 1881", lastPurchase: "Hari ini, 09:42", lifetimeValue: 8400000 },
+      { name: "Office Pantry", phone: "+62 811 7000 9910", lastPurchase: "Hari ini, 08:55", lifetimeValue: 21800000 },
+      { name: "Pelanggan Umum", phone: "-", lastPurchase: "Hari ini, 09:18", lifetimeValue: 3260000 },
     ],
     suppliers: [
       { name: "Bandung Flour Supply", phone: "+62 22 7990 1001", openOrders: 2, purchaseHistory: 68000000 },
@@ -98,13 +98,13 @@ export const tenants: Tenant[] = [
     ],
     transactions: [
       { id: "TRX-10291", cashier: "Raka", customer: "Dewi L.", total: 186000, method: "QRIS", time: "09:42", status: "Paid" },
-      { id: "TRX-10290", cashier: "Mira", customer: "Walk-in", total: 74000, method: "Cash", time: "09:18", status: "Paid" },
+      { id: "TRX-10290", cashier: "Mira", customer: "Pelanggan Umum", total: 74000, method: "Cash", time: "09:18", status: "Paid" },
       { id: "TRX-10289", cashier: "Raka", customer: "Office Pantry", total: 428000, method: "Bank Transfer", time: "08:55", status: "Pending" },
     ],
     inventoryLogs: [
-      { product: "Kopi Susu Botol", type: "Stock Out", quantity: 41, note: "Sales movement" },
-      { product: "Sourdough Loaf", type: "Stock In", quantity: 48, note: "Morning production batch" },
-      { product: "Cheese Cake Slice", type: "Adjustment", quantity: -2, note: "Damaged packaging" },
+      { product: "Kopi Susu Botol", type: "Stock Out", quantity: 41, note: "Transaksi penjualan" },
+      { product: "Sourdough Loaf", type: "Stock In", quantity: 48, note: "Batch produksi pagi" },
+      { product: "Cheese Cake Slice", type: "Adjustment", quantity: -2, note: "Kemasan rusak" },
     ],
   },
   {
@@ -119,7 +119,7 @@ export const tenants: Tenant[] = [
     owner: "Bima Santoso",
     currency: "IDR",
     taxRate: 10,
-    receiptTemplate: "Detailed grocery receipt with cashier code and payment split",
+    receiptTemplate: "Struk belanja detail dengan kode kasir dan split payment",
     paymentMethods: ["Cash", "QRIS", "E-Wallet", "Bank Transfer"],
     employees: [
       { name: "Bima Santoso", role: "SME Owner", status: "Active" },
@@ -127,9 +127,9 @@ export const tenants: Tenant[] = [
       { name: "Dimas", role: "Cashier", status: "Active" },
     ],
     customers: [
-      { name: "Pak Rudi", phone: "+62 812 6400 2201", lastPurchase: "Today, 10:02", lifetimeValue: 11750000 },
-      { name: "Warung Sri", phone: "+62 813 7770 3131", lastPurchase: "Today, 09:06", lifetimeValue: 31600000 },
-      { name: "Walk-in", phone: "-", lastPurchase: "Today, 09:49", lifetimeValue: 5190000 },
+      { name: "Pak Rudi", phone: "+62 812 6400 2201", lastPurchase: "Hari ini, 10:02", lifetimeValue: 11750000 },
+      { name: "Warung Sri", phone: "+62 813 7770 3131", lastPurchase: "Hari ini, 09:06", lifetimeValue: 31600000 },
+      { name: "Pelanggan Umum", phone: "-", lastPurchase: "Hari ini, 09:49", lifetimeValue: 5190000 },
     ],
     suppliers: [
       { name: "Sumber Beras Timur", phone: "+62 31 7721 9008", openOrders: 3, purchaseHistory: 126000000 },
@@ -191,13 +191,13 @@ export const tenants: Tenant[] = [
     ],
     transactions: [
       { id: "TRX-88021", cashier: "Nina", customer: "Pak Rudi", total: 238500, method: "E-Wallet", time: "10:02", status: "Paid" },
-      { id: "TRX-88020", cashier: "Dimas", customer: "Walk-in", total: 66500, method: "Cash", time: "09:49", status: "Paid" },
+      { id: "TRX-88020", cashier: "Dimas", customer: "Pelanggan Umum", total: 66500, method: "Cash", time: "09:49", status: "Paid" },
       { id: "TRX-88019", cashier: "Nina", customer: "Warung Sri", total: 518000, method: "Bank Transfer", time: "09:06", status: "Paid" },
     ],
     inventoryLogs: [
-      { product: "Minyak Goreng 2L", type: "Stock Out", quantity: 38, note: "Sales movement" },
-      { product: "Beras Premium 5kg", type: "Stock In", quantity: 80, note: "Supplier delivery" },
-      { product: "Telur Ayam 1kg", type: "Adjustment", quantity: -4, note: "Broken items" },
+      { product: "Minyak Goreng 2L", type: "Stock Out", quantity: 38, note: "Transaksi penjualan" },
+      { product: "Beras Premium 5kg", type: "Stock In", quantity: 80, note: "Pengiriman dari pemasok" },
+      { product: "Telur Ayam 1kg", type: "Adjustment", quantity: -4, note: "Telur pecah/rusak" },
     ],
   },
 ];
@@ -216,17 +216,17 @@ export const navItems: { label: Section; icon: typeof LayoutDashboard }[] = [
 ];
 
 export const platformStats = [
-  { label: "Active SMEs", value: "248", icon: Building2, accent: "text-teal-700" },
-  { label: "Monthly GMV", value: "Rp 8.4B", icon: BadgeDollarSign, accent: "text-amber-700" },
-  { label: "Live Cashiers", value: "1,932", icon: Users, accent: "text-sky-700" },
+  { label: "UMKM Aktif", value: "248", icon: Building2, accent: "text-teal-700" },
+  { label: "GMV Bulanan", value: "Rp 8.4M", icon: BadgeDollarSign, accent: "text-amber-700" },
+  { label: "Kasir Aktif", value: "1.932", icon: Users, accent: "text-sky-700" },
   { label: "Uptime", value: "99.98%", icon: ShieldCheck, accent: "text-emerald-700" },
 ];
 
 export const architectureItems = [
   { label: "Frontend", value: "Next.js App Router, React, Tailwind CSS" },
-  { label: "API layer", value: "REST contracts ready for NestJS services" },
-  { label: "Data boundary", value: "Tenant ID scopes products, staff, reports, and receipts" },
-  { label: "Future modules", value: "Accounting, CRM, loyalty, marketplace, and mobile apps" },
+  { label: "Lapisan API", value: "REST contract siap untuk layanan NestJS" },
+  { label: "Batasan Data", value: "ID Tenant membatasi produk, staf, laporan, dan struk belanja" },
+  { label: "Modul Masa Depan", value: "Akuntansi, CRM, loyalitas pelanggan, marketplace, dan aplikasi mobile" },
 ];
 
 export const emptyProductDraft: ProductDraft = {

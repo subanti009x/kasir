@@ -62,22 +62,22 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={CircleDollarSign} label="Today's Sales" value={formatCurrency(d.todaySales || 0)} tone="teal" sub={`${d.todayTransactions || 0} transactions`} />
-        <StatCard icon={CalendarDays} label="Monthly Sales" value={formatCurrency(d.monthlySales || 0)} tone="sky" sub={`${d.monthlyTransactions || 0} transactions`} />
-        <StatCard icon={Package} label="Total Products" value={String(d.totalProducts || 0)} tone="violet" />
-        <StatCard icon={AlertTriangle} label="Low Stock Items" value={String(d.lowStockCount || 0)} tone="rose" sub="Needs replenishment" />
+        <StatCard icon={CircleDollarSign} label="Penjualan Hari Ini" value={formatCurrency(d.todaySales || 0)} tone="teal" sub={`${d.todayTransactions || 0} transaksi`} />
+        <StatCard icon={CalendarDays} label="Penjualan Bulan Ini" value={formatCurrency(d.monthlySales || 0)} tone="sky" sub={`${d.monthlyTransactions || 0} transaksi`} />
+        <StatCard icon={Package} label="Total Produk" value={String(d.totalProducts || 0)} tone="violet" />
+        <StatCard icon={AlertTriangle} label="Stok Menipis" value={String(d.lowStockCount || 0)} tone="rose" sub="Perlu segera diisi ulang" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         {/* Recent Transactions */}
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-slate-950">Recent Transactions</h2>
-            <span className="text-xs text-slate-400">Last 10</span>
+            <h2 className="text-lg font-bold text-slate-950">Transaksi Terbaru</h2>
+            <span className="text-xs text-slate-400">10 terakhir</span>
           </div>
           <div className="mt-4 space-y-2">
             {(d.recentTransactions || []).length === 0 && (
-              <p className="py-8 text-center text-sm text-slate-400">No transactions yet</p>
+              <p className="py-8 text-center text-sm text-slate-400">Belum ada transaksi</p>
             )}
             {(d.recentTransactions || []).map((tx: any) => (
               <div key={tx.id} className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 transition hover:bg-slate-50">
@@ -104,11 +104,11 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <AlertTriangle className="text-rose-500" size={18} />
-            <h2 className="text-lg font-bold text-slate-950">Low Stock Alert</h2>
+            <h2 className="text-lg font-bold text-slate-950">Peringatan Stok Menipis</h2>
           </div>
           <div className="mt-4 space-y-3">
             {(lowStock || []).length === 0 && (
-              <p className="py-8 text-center text-sm text-slate-400">All products are well stocked</p>
+              <p className="py-8 text-center text-sm text-slate-400">Semua produk masih tersedia cukup</p>
             )}
             {(lowStock || []).map((p: any) => {
               const ratio = Math.min((p.stock / Math.max(p.minStock, 1)) * 100, 100);
@@ -120,7 +120,7 @@ export default function DashboardPage() {
                       <p className="text-xs text-slate-500">{p.sku} · Min: {p.minStock}</p>
                     </div>
                     <span className="rounded-full bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-700">
-                      {p.stock} left
+                      {p.stock} tersisa
                     </span>
                   </div>
                   <div className="mt-2 h-1.5 rounded-full bg-slate-100">
@@ -135,9 +135,9 @@ export default function DashboardPage() {
 
       {/* Quick stats row */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard icon={Users} label="Total Customers" value={String(d.totalCustomers || 0)} tone="emerald" />
-        <StatCard icon={Users} label="Total Employees" value={String(d.totalEmployees || 0)} tone="sky" />
-        <StatCard icon={TrendingUp} label="Avg Transaction" value={formatCurrency(d.todayTransactions > 0 ? (d.todaySales || 0) / d.todayTransactions : 0)} tone="amber" />
+        <StatCard icon={Users} label="Total Pelanggan" value={String(d.totalCustomers || 0)} tone="emerald" />
+        <StatCard icon={Users} label="Total Karyawan" value={String(d.totalEmployees || 0)} tone="sky" />
+        <StatCard icon={TrendingUp} label="Rata-rata Transaksi" value={formatCurrency(d.todayTransactions > 0 ? (d.todaySales || 0) / d.todayTransactions : 0)} tone="amber" />
       </div>
     </div>
   );

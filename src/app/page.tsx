@@ -9,8 +9,8 @@ import { Eye, EyeOff, Loader2, ArrowRight, UserPlus } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const [stats, setStats] = useState([
-    { label: "Active SMEs", value: "248+" },
-    { label: "Daily Transactions", value: "12K+" },
+    { label: "UMKM Aktif", value: "248+" },
+    { label: "Transaksi Harian", value: "12K+" },
     { label: "Uptime", value: "99.98%" },
   ]);
 
@@ -18,8 +18,8 @@ export default function LoginPage() {
     api<{ activeSMEs: number; dailyTransactions: number; uptime: number }>("/public-stats")
       .then((data) => {
         setStats([
-          { label: "Active SMEs", value: String(data.activeSMEs) },
-          { label: "Daily Transactions", value: data.dailyTransactions >= 1000 ? `${(data.dailyTransactions / 1000).toFixed(1)}K+` : String(data.dailyTransactions) },
+          { label: "UMKM Aktif", value: String(data.activeSMEs) },
+          { label: "Transaksi Harian", value: data.dailyTransactions >= 1000 ? `${(data.dailyTransactions / 1000).toFixed(1)}K+` : String(data.dailyTransactions) },
           { label: "Uptime", value: `${data.uptime}%` },
         ]);
       })
@@ -64,7 +64,7 @@ export default function LoginPage() {
       }
       router.replace("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || "Terjadi kesalahan, silakan coba lagi");
     } finally {
       setLoading(false);
     }
@@ -81,21 +81,21 @@ export default function LoginPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Admin Solutions Inovatif</h1>
-              <p className="text-sm text-slate-400">Business Management & POS System</p>
+              <p className="text-sm text-slate-400">Sistem Manajemen Bisnis & POS</p>
             </div>
           </div>
         </div>
         <div>
           <h2 className="text-4xl font-bold leading-tight text-white">
-            Enterprise POS
+            POS Modern
             <br />
             <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
-              for Every Business
+              untuk Semua Bisnis
             </span>
           </h2>
           <p className="mt-4 max-w-lg text-lg leading-relaxed text-slate-400">
-            Manage products, process transactions, track inventory, and view reports — all in one
-            secure, Business Management & POS System designed for Indonesian SMEs.
+            Kelola produk, proses transaksi, pantau stok, dan lihat laporan — semua dalam satu
+            sistem yang aman, dirancang khusus untuk UMKM Indonesia.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
             {stats.map((s) => (
@@ -106,7 +106,7 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-slate-600">© 2026 Admin Solutions Inovatif. Supported by RSI (Ray Solutions Inovatif)</p>
+        <p className="text-xs text-slate-600">© 2026 Admin Solutions Inovatif. Didukung oleh RSI (Ray Solutions Inovatif)</p>
       </div>
 
       {/* Right - Form */}
@@ -120,12 +120,12 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-2xl font-bold text-slate-950">
-            {mode === "login" ? "Welcome back" : "Create your account"}
+            {mode === "login" ? "Selamat datang kembali" : "Buat akun baru"}
           </h2>
           <p className="mt-2 text-sm text-slate-500">
             {mode === "login"
-              ? "Sign in to manage your business"
-              : "Register to start your business on Admin Solutions Inovatif"}
+              ? "Masuk untuk mengelola bisnis Anda"
+              : "Daftar dan mulai kelola bisnis Anda di Admin Solutions Inovatif"}
           </p>
 
           {error && (
@@ -138,33 +138,33 @@ export default function LoginPage() {
             {mode === "register" && (
               <>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Full Name</label>
+                  <label className="text-sm font-medium text-slate-700">Nama Lengkap</label>
                   <input
                     className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-600/10"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Your full name"
+                    placeholder="Masukkan nama lengkap"
                     required
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm font-medium text-slate-700">Business Name</label>
+                    <label className="text-sm font-medium text-slate-700">Nama Usaha</label>
                     <input
                       className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-600/10"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
-                      placeholder="My Shop"
+                      placeholder="Toko Saya"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-700">Business Slug</label>
+                    <label className="text-sm font-medium text-slate-700">Slug Usaha</label>
                     <input
                       className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-600/10"
                       value={businessSlug}
                       onChange={(e) => setBusinessSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
-                      placeholder="my-shop"
+                      placeholder="toko-saya"
                       required
                     />
                   </div>
@@ -173,7 +173,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="text-sm font-medium text-slate-700">Email</label>
+              <label className="text-sm font-medium text-slate-700">Alamat Email</label>
               <input
                 className="mt-1.5 h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-600/10"
                 type="email"
@@ -184,7 +184,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700">Password</label>
+              <label className="text-sm font-medium text-slate-700">Kata Sandi</label>
               <div className="relative mt-1.5">
                 <input
                   className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 pr-11 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:ring-2 focus:ring-teal-600/10"
@@ -214,11 +214,11 @@ export default function LoginPage() {
                 <Loader2 className="animate-spin" size={18} />
               ) : mode === "login" ? (
                 <>
-                  Sign in <ArrowRight size={16} />
+                  Masuk <ArrowRight size={16} />
                 </>
               ) : (
                 <>
-                  Create account <UserPlus size={16} />
+                  Daftar <UserPlus size={16} />
                 </>
               )}
             </button>
@@ -227,16 +227,16 @@ export default function LoginPage() {
           <div className="mt-6 text-center text-sm text-slate-500">
             {mode === "login" ? (
               <>
-                Don&apos;t have an account?{" "}
+                Belum punya akun?{" "}
                 <button className="font-semibold text-teal-700 hover:underline" onClick={() => { setMode("register"); setError(""); }}>
-                  Register
+                  Daftar sekarang
                 </button>
               </>
             ) : (
               <>
-                Already have an account?{" "}
+                Sudah punya akun?{" "}
                 <button className="font-semibold text-teal-700 hover:underline" onClick={() => { setMode("login"); setError(""); }}>
-                  Sign in
+                  Masuk
                 </button>
               </>
             )}

@@ -24,11 +24,11 @@ export default function CustomersPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-teal-600" placeholder="Search customers..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <input className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-teal-600" placeholder="Cari pelanggan..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         {canManage && (
           <button className="flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800" onClick={() => { setForm({ name: "", phone: "", email: "", address: "" }); setEditing(null); setModal("create"); }}>
-            <Plus size={16} /> Add Customer
+            <Plus size={16} /> Tambah Pelanggan
           </button>
         )}
       </div>
@@ -45,34 +45,34 @@ export default function CustomersPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-slate-900">{c.name}</p>
-                  <p className="text-xs text-slate-500">{c.phone || c.email || "No contact"}</p>
-                  <p className="mt-1 text-xs text-slate-400">{c._count?.transactions || 0} transactions</p>
+                  <p className="text-xs text-slate-500">{c.phone || c.email || "Tidak ada kontak"}</p>
+                  <p className="mt-1 text-xs text-slate-400">{c._count?.transactions || 0} transaksi</p>
                 </div>
                 {canManage && (
                   <div className="flex gap-1">
                     <button className="text-slate-400 hover:text-teal-600" onClick={() => { setForm({ name: c.name, phone: c.phone || "", email: c.email || "", address: c.address || "" }); setEditing(c); setModal("edit"); }}><Pencil size={14} /></button>
-                    <button className="text-slate-400 hover:text-red-600" onClick={() => { if (confirm("Delete?")) deleteMut.mutate(c.id); }}><Trash2 size={14} /></button>
+                    <button className="text-slate-400 hover:text-red-600" onClick={() => { if (confirm("Hapus pelanggan ini?")) deleteMut.mutate(c.id); }}><Trash2 size={14} /></button>
                   </div>
                 )}
               </div>
             </div>
           ))}
-          {customers.length === 0 && <p className="col-span-full py-12 text-center text-sm text-slate-400">No customers found</p>}
+          {customers.length === 0 && <p className="col-span-full py-12 text-center text-sm text-slate-400">Pelanggan tidak ditemukan</p>}
         </div>
       )}
 
       {modal && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setModal(null)}>
           <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Add Customer" : "Edit Customer"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Pelanggan Baru" : "Ubah Data Pelanggan"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); if (modal === "edit") updateMut.mutate({ id: editing.id, data: form }); else createMut.mutate(form); }}>
-              <div><label className="text-xs font-medium text-slate-600">Name *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+              <div><label className="text-xs font-medium text-slate-600">Nama Pelanggan *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs font-medium text-slate-600">Phone</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-                <div><label className="text-xs font-medium text-slate-600">Email</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Nomor Telepon</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Alamat Email</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               </div>
-              <div><label className="text-xs font-medium text-slate-600">Address</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-              <button type="submit" className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white">{modal === "create" ? "Add Customer" : "Save"}</button>
+              <div><label className="text-xs font-medium text-slate-600">Alamat</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
+              <button type="submit" className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white">{modal === "create" ? "Tambah Pelanggan" : "Simpan Perubahan"}</button>
             </form>
           </div>
         </div>
