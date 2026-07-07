@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PurchaseOrderService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const accounting_service_1 = require("../accounting/accounting.service");
 let PurchaseOrderService = class PurchaseOrderService {
     prisma;
-    constructor(prisma) {
+    accounting;
+    constructor(prisma, accounting) {
         this.prisma = prisma;
+        this.accounting = accounting;
     }
     async findAll(tenantId, status) {
         const where = { tenantId };
@@ -89,7 +92,7 @@ let PurchaseOrderService = class PurchaseOrderService {
         if (po.status === 'CANCELLED') {
             throw new common_1.BadRequestException('Cannot receive a cancelled PO');
         }
-        return this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
             let allReceived = true;
             for (const receiveItem of dto.items) {
                 const poItem = po.items.find((i) => i.id === receiveItem.purchaseOrderItemId);
@@ -131,6 +134,24 @@ let PurchaseOrderService = class PurchaseOrderService {
                 },
             });
         });
+        try {
+            const receivedAmount = dto.items.reduce((sum, item) => {
+                const poItem = po.items.find((i) => i.id === item.purchaseOrderItemId);
+                return sum + (poItem ? poItem.unitCost * item.receivedQty : 0);
+            }, 0);
+            if (receivedAmount > 0) {
+                await this.accounting.generatePurchaseJournal(tenantId, {
+                    id: po.id,
+                    orderNumber: po.orderNumber,
+                    totalAmount: receivedAmount,
+                    createdAt: new Date(),
+                });
+            }
+        }
+        catch (error) {
+            console.error('Failed to generate purchase journal entry:', error);
+        }
+        return result;
     }
     async cancel(id, tenantId) {
         await this.findOne(id, tenantId);
@@ -143,6 +164,7 @@ let PurchaseOrderService = class PurchaseOrderService {
 exports.PurchaseOrderService = PurchaseOrderService;
 exports.PurchaseOrderService = PurchaseOrderService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        accounting_service_1.AccountingService])
 ], PurchaseOrderService);
 //# sourceMappingURL=purchase-order.service.js.map

@@ -51,6 +51,7 @@ async function bootstrap() {
     .addTag('reports', 'Reporting & analytics')
     .addTag('settings', 'Tenant settings')
     .addTag('notifications', 'Notification system')
+    .addTag('accounting', 'Accounting & Financial Statements')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

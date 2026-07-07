@@ -2,12 +2,14 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
 import { NotificationGateway } from '../notification/notification.gateway';
+import { AccountingService } from '../accounting/accounting.service';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private prisma: PrismaService,
     private notifications: NotificationGateway,
+    private accounting: AccountingService,
   ) {}
 
   async checkout(userId: string, tenantId: string, dto: CheckoutDto) {
@@ -166,7 +168,31 @@ export class TransactionService {
       .filter((product) => product.stock <= product.minStock)
       .forEach((product) => this.notifications.notifyLowStock(tenantId, product));
 
+    // Generate accounting journal entry (fire-and-forget)
+    this.generateSaleAccounting(tenantId, transaction);
+
     return transaction;
+  }
+
+  /**
+   * After a successful checkout, generate accounting journal entries.
+   * Called separately to avoid blocking the transaction response.
+   */
+  private async generateSaleAccounting(tenantId: string, transaction: any) {
+    try {
+      // Fetch items with purchase prices for COGS calculation
+      const fullTransaction = await this.prisma.transaction.findUnique({
+        where: { id: transaction.id },
+        include: {
+          items: { include: { product: { select: { purchasePrice: true } } } },
+        },
+      });
+      if (fullTransaction) {
+        await this.accounting.generateSaleJournal(tenantId, fullTransaction);
+      }
+    } catch (error) {
+      console.error('Failed to generate sale journal entry:', error);
+    }
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, startDate?: string, endDate?: string) {
@@ -246,6 +272,14 @@ export class TransactionService {
       transactionId: transaction.id,
       timestamp: new Date().toISOString(),
     });
+
+    // Generate refund journal entry (fire-and-forget)
+    try {
+      await this.accounting.generateRefundJournal(tenantId, transaction);
+    } catch (error) {
+      console.error('Failed to generate refund journal entry:', error);
+    }
+
     return refunded;
   }
 }

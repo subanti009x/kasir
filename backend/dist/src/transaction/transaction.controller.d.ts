@@ -4,6 +4,10 @@ export declare class TransactionController {
     private readonly transactionService;
     constructor(transactionService: TransactionService);
     checkout(dto: CheckoutDto, user: any): Promise<{
+        cashier: {
+            id: string;
+            name: string;
+        };
         customer: {
             id: string;
             name: string;
@@ -22,10 +26,6 @@ export declare class TransactionController {
             transactionId: string;
             productId: string;
         })[];
-        cashier: {
-            id: string;
-            name: string;
-        };
         payments: {
             id: string;
             createdAt: Date;
@@ -36,25 +36,29 @@ export declare class TransactionController {
         }[];
     } & {
         id: string;
-        status: string;
-        tenantId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        paymentMethod: string;
-        total: number;
+        receiptId: string;
         subtotal: number;
         discount: number;
+        discountType: string | null;
         tax: number;
+        total: number;
+        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
+        status: string;
         note: string | null;
-        receiptId: string;
-        discountType: string | null;
+        tenantId: string;
         cashierId: string;
         customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(user: any, page?: number, limit?: number, startDate?: string, endDate?: string): Promise<{
         data: ({
+            cashier: {
+                id: string;
+                name: string;
+            };
             customer: {
                 id: string;
                 name: string;
@@ -73,28 +77,24 @@ export declare class TransactionController {
                 transactionId: string;
                 productId: string;
             })[];
-            cashier: {
-                id: string;
-                name: string;
-            };
         } & {
             id: string;
-            status: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            paymentMethod: string;
-            total: number;
+            receiptId: string;
             subtotal: number;
             discount: number;
+            discountType: string | null;
             tax: number;
+            total: number;
+            paymentMethod: string;
             amountPaid: number;
             changeDue: number;
+            status: string;
             note: string | null;
-            receiptId: string;
-            discountType: string | null;
+            tenantId: string;
             cashierId: string;
             customerId: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         total: number;
         page: number;
@@ -102,27 +102,31 @@ export declare class TransactionController {
         totalPages: number;
     }>;
     findOne(id: string, user: any): Promise<{
+        cashier: {
+            id: string;
+            name: string;
+        };
         customer: {
             id: string;
-            email: string | null;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
+            email: string | null;
             address: string | null;
             phone: string | null;
         } | null;
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -138,10 +142,6 @@ export declare class TransactionController {
             transactionId: string;
             productId: string;
         })[];
-        cashier: {
-            id: string;
-            name: string;
-        };
         payments: {
             id: string;
             createdAt: Date;
@@ -152,40 +152,40 @@ export declare class TransactionController {
         }[];
     } & {
         id: string;
-        status: string;
-        tenantId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        paymentMethod: string;
-        total: number;
+        receiptId: string;
         subtotal: number;
         discount: number;
+        discountType: string | null;
         tax: number;
+        total: number;
+        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
+        status: string;
         note: string | null;
-        receiptId: string;
-        discountType: string | null;
+        tenantId: string;
         cashierId: string;
         customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     refund(id: string, user: any): Promise<{
         id: string;
-        status: string;
-        tenantId: string;
-        createdAt: Date;
-        updatedAt: Date;
-        paymentMethod: string;
-        total: number;
+        receiptId: string;
         subtotal: number;
         discount: number;
+        discountType: string | null;
         tax: number;
+        total: number;
+        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
+        status: string;
         note: string | null;
-        receiptId: string;
-        discountType: string | null;
+        tenantId: string;
         cashierId: string;
         customerId: string | null;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

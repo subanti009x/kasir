@@ -14,12 +14,12 @@ export declare class InventoryService {
         };
     } & {
         id: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
-        type: string;
-        note: string | null;
         quantity: number;
         productId: string;
+        type: string;
         reference: string | null;
     })[]>;
     create(dto: CreateInventoryLogDto, tenantId: string): Promise<{
@@ -30,24 +30,24 @@ export declare class InventoryService {
         };
     } & {
         id: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
-        type: string;
-        note: string | null;
         quantity: number;
         productId: string;
+        type: string;
         reference: string | null;
     }>;
     getLowStock(tenantId: string): Promise<{
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -58,11 +58,11 @@ export declare class InventoryService {
     getLowStockProducts(tenantId: string): Promise<{
         id: string;
         name: string;
-        category: {
-            name: string;
-        } | null;
         sku: string;
         stock: number;
         minStock: number;
+        category: {
+            name: string;
+        } | null;
     }[]>;
 }

@@ -40,6 +40,7 @@ async function bootstrap() {
         .addTag('reports', 'Reporting & analytics')
         .addTag('settings', 'Tenant settings')
         .addTag('notifications', 'Notification system')
+        .addTag('accounting', 'Accounting & Financial Statements')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document);

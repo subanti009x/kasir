@@ -19,30 +19,30 @@ export declare class ReportService {
             minStock: number;
         }[];
         recentTransactions: ({
-            customer: {
-                name: string;
-            } | null;
             cashier: {
                 name: string;
             };
+            customer: {
+                name: string;
+            } | null;
         } & {
             id: string;
-            status: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            paymentMethod: string;
-            total: number;
+            receiptId: string;
             subtotal: number;
             discount: number;
+            discountType: string | null;
             tax: number;
+            total: number;
+            paymentMethod: string;
             amountPaid: number;
             changeDue: number;
+            status: string;
             note: string | null;
-            receiptId: string;
-            discountType: string | null;
+            tenantId: string;
             cashierId: string;
             customerId: string | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
     }>;
     getSalesReport(tenantId: string, startDate: string, endDate: string): Promise<{

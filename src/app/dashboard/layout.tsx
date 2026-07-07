@@ -9,7 +9,7 @@ import { getNotificationSocketConfig } from "@/lib/realtime";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
   Settings, LogOut, Menu, X, Shield, Bell, User as UserIcon, CheckCheck, Trash2,
-  FileBox,
+  FileBox, Calculator,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +22,7 @@ const navItems = [
   { href: "/dashboard/customers", label: "Customers", icon: Users },
   { href: "/dashboard/suppliers", label: "Suppliers", icon: Truck },
   { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
+  { href: "/dashboard/accounting", label: "Accounting", icon: Calculator },
   { href: "/dashboard/employees", label: "Employees", icon: UserIcon },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
@@ -41,6 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [socketError, setSocketError] = useState("");
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
@@ -70,18 +72,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!user?.tenantId || !token) {
       setSocketConnected(false);
+      setSocketError("");
       return;
     }
 
     const socketConfig = getNotificationSocketConfig();
     if (!socketConfig) {
       setSocketConnected(false);
+      setSocketError("Live updates are not configured");
       return;
     }
 
     const socket: Socket = io(`${socketConfig.url}/notifications`, {
       path: socketConfig.path,
-      transports: ["websocket", "polling"],
+      transports: socketConfig.transports,
       auth: { token },
       reconnection: true,
     });
@@ -99,8 +103,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ].slice(0, 50));
     };
 
-    socket.on("connect", () => setSocketConnected(true));
+    socket.on("connect", () => {
+      setSocketConnected(true);
+      setSocketError("");
+    });
     socket.on("disconnect", () => setSocketConnected(false));
+    socket.on("connect_error", (error) => {
+      setSocketConnected(false);
+      setSocketError(error.message || "Unable to connect live updates");
+    });
     socket.on("notification-ready", (payload) => addNotification("notification-ready", payload));
     socket.on("low-stock", (payload) => addNotification("low-stock", payload));
     socket.on("transaction", (payload) => addNotification("transaction", payload));
@@ -128,6 +139,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (item.href === "/dashboard/suppliers" && !canManage) return false;
     if (item.href === "/dashboard/settings" && !canManage) return false;
     if (item.href === "/dashboard/reports" && !canManage) return false;
+    if (item.href === "/dashboard/accounting" && !canManage) return false;
     return true;
   });
   const unreadCount = notifications.filter((notification) => !notification.read).length;
@@ -289,7 +301,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div>
                       <p className="text-sm font-bold text-slate-950">Notifications</p>
                       <p className={`text-xs ${socketConnected ? "text-emerald-600" : "text-amber-600"}`}>
-                        {user.tenantId ? (socketConnected ? "Live updates connected" : "Connecting live updates...") : "Platform account"}
+                        {user.tenantId ? (socketConnected ? "Live updates connected" : socketError || "Connecting live updates...") : "Platform account"}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">

@@ -1,0 +1,26 @@
+/*
+ * print-receipt.css
+ * ─────────────────────────────────────────────────────────
+ * Global @media print rules that prevent the main POS UI
+ * from printing when the receipt iframe triggers print.
+ * Only the receipt iframe content reaches the printer.
+ */
+
+@media print {
+  /* Hide everything in the main document when printing */
+  body > *:not(iframe) {
+    display: none !important;
+  }
+
+  /* Reset page for thermal receipt */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+}

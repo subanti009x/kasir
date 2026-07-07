@@ -4,38 +4,41 @@ export declare class SupplierController {
     private readonly supplierService;
     constructor(supplierService: SupplierService);
     findAll(user: any): Promise<({
+        _count: {
+            purchaseOrders: number;
+        };
         purchaseOrders: {
             status: string;
             createdAt: Date;
             totalAmount: number;
         }[];
-        _count: {
-            purchaseOrders: number;
-        };
     } & {
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     })[]>;
     findOne(id: string, user: any): Promise<{
+        _count: {
+            purchaseOrders: number;
+        };
         purchaseOrders: ({
             items: ({
                 product: {
                     id: string;
-                    name: string;
                     status: string;
                     tenantId: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string | null;
+                    name: string;
                     sku: string;
                     barcode: string | null;
+                    description: string | null;
                     purchasePrice: number;
                     sellingPrice: number;
                     stock: number;
@@ -54,57 +57,54 @@ export declare class SupplierController {
         } & {
             id: string;
             status: string;
+            note: string | null;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
-            note: string | null;
             orderNumber: string;
             totalAmount: number;
             supplierId: string;
         })[];
-        _count: {
-            purchaseOrders: number;
-        };
     } & {
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     create(dto: CreateSupplierDto, user: any): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     update(id: string, dto: UpdateSupplierDto, user: any): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     remove(id: string, user: any): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;

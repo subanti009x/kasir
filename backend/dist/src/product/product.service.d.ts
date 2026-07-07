@@ -17,14 +17,14 @@ export declare class ProductService {
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -35,23 +35,23 @@ export declare class ProductService {
     findOne(id: string, tenantId: string): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -62,23 +62,23 @@ export declare class ProductService {
     create(dto: CreateProductDto, tenantId: string): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -89,23 +89,23 @@ export declare class ProductService {
     update(id: string, dto: UpdateProductDto, tenantId: string): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -115,14 +115,14 @@ export declare class ProductService {
     }>;
     remove(id: string, tenantId: string): Promise<{
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -133,23 +133,23 @@ export declare class ProductService {
     uploadImage(id: string, tenantId: string, file: UploadedProductImage): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;

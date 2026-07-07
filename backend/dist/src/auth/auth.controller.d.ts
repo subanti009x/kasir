@@ -13,8 +13,8 @@ export declare class AuthController {
             tenantId: string | null;
             tenant: {
                 id: string;
-                name: string;
                 status: string;
+                name: string;
                 plan: string;
             } | null;
         };

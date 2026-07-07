@@ -13,12 +13,15 @@ exports.TransactionService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const notification_gateway_1 = require("../notification/notification.gateway");
+const accounting_service_1 = require("../accounting/accounting.service");
 let TransactionService = class TransactionService {
     prisma;
     notifications;
-    constructor(prisma, notifications) {
+    accounting;
+    constructor(prisma, notifications, accounting) {
         this.prisma = prisma;
         this.notifications = notifications;
+        this.accounting = accounting;
     }
     async checkout(userId, tenantId, dto) {
         const transaction = await this.prisma.$transaction(async (tx) => {
@@ -160,7 +163,24 @@ let TransactionService = class TransactionService {
         lowStockItems
             .filter((product) => product.stock <= product.minStock)
             .forEach((product) => this.notifications.notifyLowStock(tenantId, product));
+        this.generateSaleAccounting(tenantId, transaction);
         return transaction;
+    }
+    async generateSaleAccounting(tenantId, transaction) {
+        try {
+            const fullTransaction = await this.prisma.transaction.findUnique({
+                where: { id: transaction.id },
+                include: {
+                    items: { include: { product: { select: { purchasePrice: true } } } },
+                },
+            });
+            if (fullTransaction) {
+                await this.accounting.generateSaleJournal(tenantId, fullTransaction);
+            }
+        }
+        catch (error) {
+            console.error('Failed to generate sale journal entry:', error);
+        }
     }
     async findAll(tenantId, page = 1, limit = 20, startDate, endDate) {
         const where = { tenantId };
@@ -234,6 +254,12 @@ let TransactionService = class TransactionService {
             transactionId: transaction.id,
             timestamp: new Date().toISOString(),
         });
+        try {
+            await this.accounting.generateRefundJournal(tenantId, transaction);
+        }
+        catch (error) {
+            console.error('Failed to generate refund journal entry:', error);
+        }
         return refunded;
     }
 };
@@ -241,6 +267,7 @@ exports.TransactionService = TransactionService;
 exports.TransactionService = TransactionService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        notification_gateway_1.NotificationGateway])
+        notification_gateway_1.NotificationGateway,
+        accounting_service_1.AccountingService])
 ], TransactionService);
 //# sourceMappingURL=transaction.service.js.map

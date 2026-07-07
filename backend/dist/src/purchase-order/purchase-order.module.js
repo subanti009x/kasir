@@ -11,12 +11,13 @@ const common_1 = require("@nestjs/common");
 const purchase_order_service_1 = require("./purchase-order.service");
 const purchase_order_controller_1 = require("./purchase-order.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
+const accounting_module_1 = require("../accounting/accounting.module");
 let PurchaseOrderModule = class PurchaseOrderModule {
 };
 exports.PurchaseOrderModule = PurchaseOrderModule;
 exports.PurchaseOrderModule = PurchaseOrderModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, accounting_module_1.AccountingModule],
         controllers: [purchase_order_controller_1.PurchaseOrderController],
         providers: [purchase_order_service_1.PurchaseOrderService],
         exports: [purchase_order_service_1.PurchaseOrderService],

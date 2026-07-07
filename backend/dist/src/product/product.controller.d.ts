@@ -17,14 +17,14 @@ export declare class ProductController {
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -35,23 +35,23 @@ export declare class ProductController {
     findOne(id: string, user: any): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -62,23 +62,23 @@ export declare class ProductController {
     create(dto: CreateProductDto, user: any): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -89,23 +89,23 @@ export declare class ProductController {
     update(id: string, dto: UpdateProductDto, user: any): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -116,23 +116,23 @@ export declare class ProductController {
     uploadImage(id: string, file: UploadedProductImage, user: any): Promise<{
         category: {
             id: string;
-            name: string;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
+            name: string;
             description: string | null;
             color: string | null;
         } | null;
     } & {
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;
@@ -142,14 +142,14 @@ export declare class ProductController {
     }>;
     remove(id: string, user: any): Promise<{
         id: string;
-        name: string;
         status: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        description: string | null;
+        name: string;
         sku: string;
         barcode: string | null;
+        description: string | null;
         purchasePrice: number;
         sellingPrice: number;
         stock: number;

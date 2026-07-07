@@ -14,6 +14,11 @@ type NotificationTokenPayload = {
   tenantId?: string | null;
 };
 
+function getSocketPath(): string {
+  const prefix = process.env.BACKEND_ROUTE_PREFIX || (process.env.VERCEL ? '/_/backend' : '');
+  return prefix ? `${prefix.replace(/\/$/, '')}/socket.io` : '/socket.io';
+}
+
 @Injectable()
 @WebSocketGateway({
   cors: {
@@ -21,6 +26,8 @@ type NotificationTokenPayload = {
     credentials: true,
   },
   namespace: '/notifications',
+  path: getSocketPath(),
+  transports: ['websocket', 'polling'],
 })
 export class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

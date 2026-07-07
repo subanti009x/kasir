@@ -40,6 +40,8 @@ model Tenant {
   purchaseOrders  PurchaseOrder[]
   paymentMethods  PaymentMethod[]
   planHistory      SubscriptionPlanHistory[]
+  expenses        Expense[]
+  journalEntries  JournalEntry[]
 
   @@index([status])
   @@index([plan])
@@ -75,6 +77,7 @@ model User {
   tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   transactions Transaction[]
+  expenses     Expense[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -302,4 +305,63 @@ model TransactionItem {
 
   productId     String
   product       Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+// ------------------------------------------------------
+// Accounting Models
+// ------------------------------------------------------
+
+model Expense {
+  id          String   @id @default(uuid())
+  category    String   // RENT, UTILITIES, SALARIES, MARKETING, SUPPLIES, OTHER
+  description String
+  amount      Float
+  date        DateTime
+
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, date])
+  @@index([tenantId, category])
+}
+
+model JournalEntry {
+  id            String   @id @default(uuid())
+  entryDate     DateTime
+  description   String
+  referenceType String   // SALE, REFUND, PURCHASE, EXPENSE
+  referenceId   String   // ID of the related transaction, PO, or expense
+
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  lines         JournalEntryLine[]
+
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, entryDate])
+  @@index([tenantId, referenceType])
+  @@index([referenceType, referenceId])
+}
+
+model JournalEntryLine {
+  id              String   @id @default(uuid())
+  accountCategory String   // CASH, INVENTORY, ACCOUNTS_PAYABLE, OWNER_EQUITY, RETAINED_EARNINGS, SALES_REVENUE, COGS, OPERATING_EXPENSE
+  debit           Float    @default(0)
+  credit          Float    @default(0)
+  label           String?  // Optional detail label (e.g., expense category name)
+
+  journalEntryId  String
+  journalEntry    JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+
+  @@index([journalEntryId])
+  @@index([accountCategory])
 }

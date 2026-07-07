@@ -1,13 +1,11 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePurchaseOrderDto, ReceivePurchaseOrderDto } from './dto/purchase-order.dto';
+import { AccountingService } from '../accounting/accounting.service';
 export declare class PurchaseOrderService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private accounting;
+    constructor(prisma: PrismaService, accounting: AccountingService);
     findAll(tenantId: string, status?: string): Promise<({
-        supplier: {
-            id: string;
-            name: string;
-        };
         items: ({
             product: {
                 id: string;
@@ -22,40 +20,33 @@ export declare class PurchaseOrderService {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            name: string;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     })[]>;
     findOne(id: string, tenantId: string): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -71,40 +62,40 @@ export declare class PurchaseOrderService {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     }>;
     create(dto: CreatePurchaseOrderDto, tenantId: string): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -120,40 +111,40 @@ export declare class PurchaseOrderService {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     }>;
     receive(id: string, dto: ReceivePurchaseOrderDto, tenantId: string): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -169,13 +160,24 @@ export declare class PurchaseOrderService {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
@@ -183,10 +185,10 @@ export declare class PurchaseOrderService {
     cancel(id: string, tenantId: string): Promise<{
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;

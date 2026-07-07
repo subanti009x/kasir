@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { api } from "@/lib/api";
 import { Eye, EyeOff, Loader2, ArrowRight, UserPlus } from "lucide-react";
 
 export default function LoginPage() {
@@ -14,11 +15,7 @@ export default function LoginPage() {
   ]);
 
   useEffect(() => {
-    fetch("/api/public-stats")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch public stats");
-        return res.json();
-      })
+    api<{ activeSMEs: number; dailyTransactions: number; uptime: number }>("/public-stats")
       .then((data) => {
         setStats([
           { label: "Active SMEs", value: String(data.activeSMEs) },

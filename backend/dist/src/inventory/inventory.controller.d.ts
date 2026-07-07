@@ -12,23 +12,23 @@ export declare class InventoryController {
         };
     } & {
         id: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
-        type: string;
-        note: string | null;
         quantity: number;
         productId: string;
+        type: string;
         reference: string | null;
     })[]>;
     getLowStock(user: any): Promise<{
         id: string;
         name: string;
-        category: {
-            name: string;
-        } | null;
         sku: string;
         stock: number;
         minStock: number;
+        category: {
+            name: string;
+        } | null;
     }[]>;
     create(dto: CreateInventoryLogDto, user: any): Promise<{
         product: {
@@ -38,12 +38,12 @@ export declare class InventoryController {
         };
     } & {
         id: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
-        type: string;
-        note: string | null;
         quantity: number;
         productId: string;
+        type: string;
         reference: string | null;
     }>;
 }

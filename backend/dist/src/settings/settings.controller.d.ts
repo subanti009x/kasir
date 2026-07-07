@@ -12,17 +12,17 @@ export declare class SettingsController {
     getSettings(user: any): Promise<({
         paymentMethods: {
             id: string;
-            name: string;
             tenantId: string;
+            name: string;
             enabled: boolean;
         }[];
     } & {
         id: string;
-        email: string | null;
-        name: string;
         status: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         slug: string;
         logo: string | null;
         address: string | null;
@@ -38,17 +38,17 @@ export declare class SettingsController {
     updateSettings(dto: UpdateTenantDto, user: any): Promise<{
         paymentMethods: {
             id: string;
-            name: string;
             tenantId: string;
+            name: string;
             enabled: boolean;
         }[];
     } & {
         id: string;
-        email: string | null;
-        name: string;
         status: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         slug: string;
         logo: string | null;
         address: string | null;
@@ -63,11 +63,11 @@ export declare class SettingsController {
     }>;
     uploadLogo(file: UploadedLogo, user: any): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         status: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         slug: string;
         logo: string | null;
         address: string | null;
@@ -82,8 +82,8 @@ export declare class SettingsController {
     }>;
     getPaymentMethods(user: any): Promise<{
         id: string;
-        name: string;
         tenantId: string;
+        name: string;
         enabled: boolean;
     }[]>;
     updatePaymentMethod(dto: {

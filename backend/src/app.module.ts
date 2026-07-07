@@ -15,6 +15,7 @@ import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
 import { ReportModule } from './report/report.module';
 import { SettingsModule } from './settings/settings.module';
 import { NotificationModule } from './notification/notification.module';
+import { AccountingModule } from './accounting/accounting.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NotificationModule } from './notification/notification.module';
     ReportModule,
     SettingsModule,
     NotificationModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

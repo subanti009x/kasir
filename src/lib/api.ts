@@ -156,6 +156,20 @@ export const reportApi = {
     api<any>("/reports/sales", { token, params: { startDate, endDate } }),
 };
 
+// ---- Accounting ----
+export const accountingApi = {
+  balanceSheet: (token: string, asOfDate?: string) =>
+    api<any>("/accounting/balance-sheet", { token, params: { asOfDate } }),
+  profitLoss: (token: string, startDate: string, endDate: string) =>
+    api<any>("/accounting/profit-loss", { token, params: { startDate, endDate } }),
+  listExpenses: (token: string, startDate?: string, endDate?: string) =>
+    api<any[]>("/accounting/expenses", { token, params: { startDate, endDate } }),
+  createExpense: (token: string, data: { category: string; description: string; amount: number; date: string }) =>
+    api<any>("/accounting/expenses", { method: "POST", body: data, token }),
+  deleteExpense: (token: string, id: string) =>
+    api("/accounting/expenses/" + id, { method: "DELETE", token }),
+};
+
 // ---- Settings ----
 export const settingsApi = {
   get: (token: string) => api<any>("/settings", { token }),

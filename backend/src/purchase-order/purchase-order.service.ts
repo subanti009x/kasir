@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePurchaseOrderDto, ReceivePurchaseOrderDto } from './dto/purchase-order.dto';
+import { AccountingService } from '../accounting/accounting.service';
 
 @Injectable()
 export class PurchaseOrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accounting: AccountingService,
+  ) {}
 
   async findAll(tenantId: string, status?: string) {
     const where: any = { tenantId };
@@ -84,7 +88,7 @@ export class PurchaseOrderService {
       throw new BadRequestException('Cannot receive a cancelled PO');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       let allReceived = true;
 
       for (const receiveItem of dto.items) {
@@ -135,6 +139,26 @@ export class PurchaseOrderService {
         },
       });
     });
+
+    // Generate accounting journal entry for received items
+    try {
+      const receivedAmount = dto.items.reduce((sum, item) => {
+        const poItem = po.items.find((i) => i.id === item.purchaseOrderItemId);
+        return sum + (poItem ? poItem.unitCost * item.receivedQty : 0);
+      }, 0);
+      if (receivedAmount > 0) {
+        await this.accounting.generatePurchaseJournal(tenantId, {
+          id: po.id,
+          orderNumber: po.orderNumber,
+          totalAmount: receivedAmount,
+          createdAt: new Date(),
+        });
+      }
+    } catch (error) {
+      console.error('Failed to generate purchase journal entry:', error);
+    }
+
+    return result;
   }
 
   async cancel(id: string, tenantId: string) {

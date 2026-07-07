@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { productApi, settingsApi, transactionApi } from "@/lib/api";
+import { printReceipt } from "@/lib/printReceipt";
 import { Search, Minus, Plus, Trash2, ShoppingCart, Printer, QrCode, Banknote, CreditCard, Wallet, Loader2, Check, SplitSquareHorizontal } from "lucide-react";
 
 function formatCurrency(n: number) {
@@ -72,6 +73,14 @@ export default function POSPage() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+
+      // Auto-print the receipt to the connected thermal printer
+      printReceipt(data, {
+        name: settings?.name,
+        address: settings?.address,
+        phone: settings?.phone,
+        logo: settings?.logo,
+      });
     },
   });
 
@@ -113,7 +122,7 @@ export default function POSPage() {
   const taxRate = Number(settings?.taxRate || 0);
   const tax = subtotal * (taxRate / 100);
   const total = subtotal + tax;
-  const primaryAmount = splitPayment ? Number(cashAmount || 0) : Number(cashAmount || total);
+  const primaryAmount = Number(cashAmount || 0);
   const remainingAmount = Math.max(total - primaryAmount, 0);
   const secondAmount = splitPayment ? Number(secondaryAmount || remainingAmount) : 0;
   const paidAmount = splitPayment ? primaryAmount + secondAmount : primaryAmount;
@@ -258,7 +267,7 @@ export default function POSPage() {
           <div className="mt-3 grid gap-3">
             <label className="text-xs font-medium text-slate-600">
               {splitPayment ? "Primary amount" : paymentMethod === "Cash" ? "Amount paid" : "Payment amount"}
-              <input type="number" min={0} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={cashAmount} placeholder={String(Math.ceil(total))} onChange={(event) => setCashAmount(event.target.value)} />
+              <input type="number" min={0} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={cashAmount} placeholder="0" onChange={(event) => setCashAmount(event.target.value)} />
             </label>
             {splitPayment && (
               <div className="grid grid-cols-[1fr_140px] gap-2">
@@ -318,9 +327,23 @@ export default function POSPage() {
               <p>Cashier: {receipt.cashier?.name}</p>
               <p>Date: {new Date(receipt.createdAt).toLocaleString("id-ID")}</p>
             </div>
-            <button className="mt-4 h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white" onClick={() => setReceipt(null)}>
-              Close
-            </button>
+            <div className="mt-4 flex gap-2">
+              <button
+                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                onClick={() => printReceipt(receipt, {
+                  name: settings?.name,
+                  address: settings?.address,
+                  phone: settings?.phone,
+                  logo: settings?.logo,
+                })}
+              >
+                <Printer size={16} />
+                Print Again
+              </button>
+              <button className="h-10 flex-1 rounded-lg bg-slate-950 text-sm font-bold text-white transition hover:bg-slate-800" onClick={() => setReceipt(null)}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

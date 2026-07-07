@@ -15,6 +15,10 @@ const socket_io_1 = require("socket.io");
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const cors_1 = require("../config/cors");
+function getSocketPath() {
+    const prefix = process.env.BACKEND_ROUTE_PREFIX || (process.env.VERCEL ? '/_/backend' : '');
+    return prefix ? `${prefix.replace(/\/$/, '')}/socket.io` : '/socket.io';
+}
 let NotificationGateway = class NotificationGateway {
     jwtService;
     server;
@@ -98,6 +102,8 @@ exports.NotificationGateway = NotificationGateway = __decorate([
             credentials: true,
         },
         namespace: '/notifications',
+        path: getSocketPath(),
+        transports: ['websocket', 'polling'],
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService])
 ], NotificationGateway);

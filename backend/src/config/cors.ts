@@ -3,11 +3,27 @@ export function getCorsOrigin() {
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+  const vercelOrigins = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]
+    .filter((origin): origin is string => Boolean(origin))
+    .map((origin) => `https://${origin.replace(/^https?:\/\//, '').replace(/\/$/, '')}`);
+  const allowedOriginSet = new Set([...allowedOrigins, ...vercelOrigins]);
 
   return (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOriginSet.has('*') || allowedOriginSet.has(origin)) {
       callback(null, true);
       return;
+    }
+
+    if (process.env.VERCEL) {
+      try {
+        if (new URL(origin).hostname.endsWith('.vercel.app')) {
+          callback(null, true);
+          return;
+        }
+      } catch {
+        callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
+        return;
+      }
     }
 
     callback(new Error(`Origin ${origin} is not allowed by CORS`), false);

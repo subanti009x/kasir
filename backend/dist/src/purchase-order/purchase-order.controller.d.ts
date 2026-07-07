@@ -4,10 +4,6 @@ export declare class PurchaseOrderController {
     private readonly poService;
     constructor(poService: PurchaseOrderService);
     findAll(user: any, status?: string): Promise<({
-        supplier: {
-            id: string;
-            name: string;
-        };
         items: ({
             product: {
                 id: string;
@@ -22,40 +18,33 @@ export declare class PurchaseOrderController {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            name: string;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     })[]>;
     findOne(id: string, user: any): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -71,40 +60,40 @@ export declare class PurchaseOrderController {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     }>;
     create(dto: CreatePurchaseOrderDto, user: any): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -120,40 +109,40 @@ export declare class PurchaseOrderController {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
     }>;
     receive(id: string, dto: ReceivePurchaseOrderDto, user: any): Promise<{
-        supplier: {
-            id: string;
-            email: string | null;
-            name: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            address: string | null;
-            phone: string | null;
-            contactPerson: string | null;
-        };
         items: ({
             product: {
                 id: string;
-                name: string;
                 status: string;
                 tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string | null;
+                name: string;
                 sku: string;
                 barcode: string | null;
+                description: string | null;
                 purchasePrice: number;
                 sellingPrice: number;
                 stock: number;
@@ -169,13 +158,24 @@ export declare class PurchaseOrderController {
             receivedQty: number;
             purchaseOrderId: string;
         })[];
+        supplier: {
+            id: string;
+            tenantId: string;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            email: string | null;
+            address: string | null;
+            phone: string | null;
+            contactPerson: string | null;
+        };
     } & {
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;
@@ -183,10 +183,10 @@ export declare class PurchaseOrderController {
     cancel(id: string, user: any): Promise<{
         id: string;
         status: string;
+        note: string | null;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
-        note: string | null;
         orderNumber: string;
         totalAmount: number;
         supplierId: string;

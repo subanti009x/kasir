@@ -4,38 +4,41 @@ export declare class SupplierService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(tenantId: string): Promise<({
+        _count: {
+            purchaseOrders: number;
+        };
         purchaseOrders: {
             status: string;
             createdAt: Date;
             totalAmount: number;
         }[];
-        _count: {
-            purchaseOrders: number;
-        };
     } & {
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     })[]>;
     findOne(id: string, tenantId: string): Promise<{
+        _count: {
+            purchaseOrders: number;
+        };
         purchaseOrders: ({
             items: ({
                 product: {
                     id: string;
-                    name: string;
                     status: string;
                     tenantId: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string | null;
+                    name: string;
                     sku: string;
                     barcode: string | null;
+                    description: string | null;
                     purchasePrice: number;
                     sellingPrice: number;
                     stock: number;
@@ -54,57 +57,54 @@ export declare class SupplierService {
         } & {
             id: string;
             status: string;
+            note: string | null;
             tenantId: string;
             createdAt: Date;
             updatedAt: Date;
-            note: string | null;
             orderNumber: string;
             totalAmount: number;
             supplierId: string;
         })[];
-        _count: {
-            purchaseOrders: number;
-        };
     } & {
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     create(dto: CreateSupplierDto, tenantId: string): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     update(id: string, dto: UpdateSupplierDto, tenantId: string): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;
     }>;
     remove(id: string, tenantId: string): Promise<{
         id: string;
-        email: string | null;
-        name: string;
         tenantId: string;
         createdAt: Date;
         updatedAt: Date;
+        name: string;
+        email: string | null;
         address: string | null;
         phone: string | null;
         contactPerson: string | null;

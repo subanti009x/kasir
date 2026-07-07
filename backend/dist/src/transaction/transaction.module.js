@@ -12,12 +12,13 @@ const transaction_service_1 = require("./transaction.service");
 const transaction_controller_1 = require("./transaction.controller");
 const prisma_module_1 = require("../prisma/prisma.module");
 const notification_module_1 = require("../notification/notification.module");
+const accounting_module_1 = require("../accounting/accounting.module");
 let TransactionModule = class TransactionModule {
 };
 exports.TransactionModule = TransactionModule;
 exports.TransactionModule = TransactionModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule],
+        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule, accounting_module_1.AccountingModule],
         controllers: [transaction_controller_1.TransactionController],
         providers: [transaction_service_1.TransactionService],
         exports: [transaction_service_1.TransactionService],
