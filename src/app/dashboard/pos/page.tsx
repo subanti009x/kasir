@@ -154,9 +154,9 @@ export default function POSPage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-6">
       <div>
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
@@ -175,7 +175,7 @@ export default function POSPage() {
             {products.map((product: any) => (
               <button
                 key={product.id}
-                className="group rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md disabled:opacity-50"
+                className="group min-h-32 rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md disabled:opacity-50"
                 onClick={() => addToCart(product)}
                 disabled={product.stock === 0}
               >
@@ -191,8 +191,8 @@ export default function POSPage() {
                     {product.category.name}
                   </span>
                 )}
-                <div className="mt-3 flex items-end justify-between">
-                  <p className="text-lg font-bold text-slate-950">{formatCurrency(product.sellingPrice)}</p>
+                <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
+                  <p className="text-base font-bold text-slate-950 sm:text-lg">{formatCurrency(product.sellingPrice)}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.stock <= (product.minStock || 0) ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
                     Stok: {product.stock}
                   </span>
@@ -204,7 +204,7 @@ export default function POSPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-20">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-teal-700" />
             <h2 className="text-lg font-bold text-slate-950">Keranjang Belanja</h2>
@@ -213,25 +213,25 @@ export default function POSPage() {
             </span>
           </div>
 
-          <div className="mt-4 max-h-[34vh] space-y-2 overflow-y-auto">
+          <div className="mt-4 max-h-[45vh] space-y-2 overflow-y-auto xl:max-h-[34vh]">
             {cartItems.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Pilih produk untuk dimasukkan ke keranjang</p>}
             {cartItems.map((item) => (
-              <div key={item.product.id} className="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
+              <div key={item.product.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-100 p-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{item.product.name}</p>
                   <p className="text-xs text-slate-500">{formatCurrency(item.product.sellingPrice)}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button className="grid size-7 place-items-center rounded-md border border-slate-200 hover:bg-slate-50" onClick={() => updateQty(item.product.id, -1)}>
+                  <button className="grid size-9 place-items-center rounded-md border border-slate-200 hover:bg-slate-50" onClick={() => updateQty(item.product.id, -1)}>
                     <Minus size={14} />
                   </button>
                   <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                  <button className="grid size-7 place-items-center rounded-md bg-slate-950 text-white hover:bg-slate-800" onClick={() => updateQty(item.product.id, 1)}>
+                  <button className="grid size-9 place-items-center rounded-md bg-slate-950 text-white hover:bg-slate-800" onClick={() => updateQty(item.product.id, 1)}>
                     <Plus size={14} />
                   </button>
                 </div>
-                <p className="w-20 text-right text-sm font-bold">{formatCurrency(item.product.sellingPrice * item.quantity)}</p>
-                <button className="text-slate-400 hover:text-red-500" onClick={() => removeFromCart(item.product.id)}>
+                <p className="ml-auto min-w-24 text-right text-sm font-bold">{formatCurrency(item.product.sellingPrice * item.quantity)}</p>
+                <button className="grid size-9 place-items-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500" onClick={() => removeFromCart(item.product.id)}>
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -249,13 +249,13 @@ export default function POSPage() {
             <input type="checkbox" checked={splitPayment} onChange={(event) => setSplitPayment(event.target.checked)} />
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {enabledPayments.map((method: any) => {
               const Icon = paymentIcons[method.name] || CreditCard;
               return (
                 <button
                   key={method.id}
-                  className={`flex h-10 items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition ${paymentMethod === method.name ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
+                  className={`flex h-11 items-center justify-center gap-2 rounded-lg border text-xs font-semibold transition ${paymentMethod === method.name ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}
                   onClick={() => setPaymentMethod(method.name)}
                 >
                   <Icon size={15} /> {method.name === "Cash" ? "Tunai" : method.name}
@@ -270,14 +270,14 @@ export default function POSPage() {
               <input type="number" min={0} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={cashAmount} placeholder="0" onChange={(event) => setCashAmount(event.target.value)} />
             </label>
             {splitPayment && (
-              <div className="grid grid-cols-[1fr_140px] gap-2">
+              <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
                 <select className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryMethod} onChange={(event) => setSecondaryMethod(event.target.value)}>
                   {enabledPayments.filter((method: any) => method.name !== paymentMethod).map((method: any) => <option key={method.id} value={method.name}>{method.name === "Cash" ? "Tunai" : method.name}</option>)}
                 </select>
                 <input type="number" min={0} className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={secondaryAmount} placeholder={String(Math.ceil(remainingAmount))} onChange={(event) => setSecondaryAmount(event.target.value)} />
               </div>
             )}
-            <div className="flex justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <div className="flex flex-col gap-1 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600 sm:flex-row sm:justify-between">
               <span>Dibayar {formatCurrency(paidAmount)}</span>
               <span>Kembalian {formatCurrency(changeDue)}</span>
             </div>
@@ -297,8 +297,8 @@ export default function POSPage() {
       </div>
 
       {receipt && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setReceipt(null)}>
-          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setReceipt(null)}>
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-2xl sm:p-6" onClick={(event) => event.stopPropagation()}>
             <div className="text-center">
               <div className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-emerald-100">
                 <Check className="text-emerald-600" size={24} />
@@ -308,7 +308,7 @@ export default function POSPage() {
             </div>
             <div className="mt-4 space-y-2">
               {receipt.items?.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-sm">
+                <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
                   <span>{item.product?.name} x {item.quantity}</span>
                   <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
                 </div>
@@ -327,7 +327,7 @@ export default function POSPage() {
               <p>Kasir: {receipt.cashier?.name}</p>
               <p>Tanggal: {new Date(receipt.createdAt).toLocaleString("id-ID")}</p>
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <button
                 className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                 onClick={() => printReceipt(receipt, {

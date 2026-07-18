@@ -34,26 +34,26 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <label className="text-xs text-slate-500">Dari</label>
-          <input type="date" className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }} />
+          <input type="date" className="h-11 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-sm sm:h-10 sm:flex-none" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }} />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           <label className="text-xs text-slate-500">Hingga</label>
-          <input type="date" className="h-10 rounded-lg border border-slate-200 px-3 text-sm" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }} />
+          <input type="date" className="h-11 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-sm sm:h-10 sm:flex-none" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }} />
         </div>
         {(startDate || endDate) && (
           <button className="text-xs text-teal-700 hover:underline" onClick={() => { setStartDate(""); setEndDate(""); setPage(1); }}>Hapus filter</button>
         )}
-        <span className="ml-auto text-sm text-slate-500">{data?.total || 0} transaksi</span>
+        <span className="text-sm text-slate-500 sm:ml-auto">{data?.total || 0} transaksi</span>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-sm">
+          <table className="responsive-table w-full text-sm">
             <thead><tr className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">ID Struk</th><th className="px-4 py-3">Tanggal</th><th className="px-4 py-3">Kasir</th><th className="px-4 py-3">Pembayaran</th><th className="px-4 py-3 text-right">Total</th><th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Aksi</th>
             </tr></thead>
@@ -67,7 +67,7 @@ export default function TransactionsPage() {
                   <td className="px-4 py-3 text-right font-bold">{formatCurrency(tx.total)}</td>
                   <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${tx.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700" : tx.status === "REFUNDED" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600"}`}>{tx.status === "COMPLETED" ? "LUNAS" : tx.status === "REFUNDED" ? "DI-REFUND" : tx.status}</span></td>
                   <td className="px-4 py-3 text-right">
-                    <button className="text-slate-400 hover:text-teal-600" onClick={() => setDetail(tx)}><Eye size={15} /></button>
+                    <button className="inline-grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-teal-50 hover:text-teal-600" onClick={() => setDetail(tx)}><Eye size={15} /></button>
                   </td>
                 </tr>
               ))}
@@ -79,21 +79,21 @@ export default function TransactionsPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button className="h-8 rounded border px-3 text-xs disabled:opacity-30" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</button>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button className="h-10 rounded border px-3 text-xs disabled:opacity-30" disabled={page <= 1} onClick={() => setPage(page - 1)}>Sebelumnya</button>
           <span className="text-sm text-slate-600">Halaman {page} dari {totalPages}</span>
-          <button className="h-8 rounded border px-3 text-xs disabled:opacity-30" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Selanjutnya</button>
+          <button className="h-10 rounded border px-3 text-xs disabled:opacity-30" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Selanjutnya</button>
         </div>
       )}
 
       {/* Detail modal */}
       {detail && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setDetail(null)}>
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setDetail(null)}>
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{detail.receiptId}</h3><button onClick={() => setDetail(null)}><X size={20} /></button></div>
             <div className="mt-4 space-y-2">
               {detail.items?.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-sm">
+                <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
                   <span>{item.product?.name || "Produk"} × {item.quantity}</span>
                   <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
                 </div>

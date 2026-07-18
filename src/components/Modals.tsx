@@ -6,10 +6,10 @@ import { TotalRow, Field } from "./UI";
 
 export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receipt: Receipt }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4">
-      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-5 shadow-2xl">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 sm:p-4">
+      <div className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 shadow-2xl sm:p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">Pembayaran Berhasil</p>
             <h2 className="mt-1 text-xl font-bold">Struk #{receipt.id}</h2>
             <p className="mt-1 text-sm text-slate-500">{receipt.date}</p>
@@ -35,7 +35,7 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
               <p className="text-xs text-slate-500">{receipt.phone}</p>
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+          <div className="mt-4 grid gap-3 text-xs text-slate-500 sm:grid-cols-2">
             <div>
               <p className="font-semibold text-slate-700">Kasir</p>
               <p>{receipt.cashier}</p>
@@ -49,8 +49,8 @@ export function ReceiptModal({ onClose, receipt }: { onClose: () => void; receip
 
         <div className="mt-4 grid gap-2">
           {receipt.lines.map((line) => (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2" key={line.id}>
-              <div>
+            <div className="flex items-start justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2" key={line.id}>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold">{line.name}</p>
                 <p className="text-xs text-slate-500">
                   {line.quantity} x {formatCurrency(line.unitPrice)}
@@ -108,13 +108,13 @@ export function ProductEditorModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 sm:p-4">
       <form
-        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-5 shadow-2xl"
+        className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-4 shadow-2xl sm:p-5"
         onSubmit={onSubmit}
       >
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
               Kelola Produk
             </p>
@@ -226,7 +226,7 @@ export function ProductEditorModal({
             <Trash2 size={17} />
             Hapus Produk
           </button>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <button
               className="h-11 flex-1 rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700 sm:flex-none"
               onClick={onClose}
@@ -270,13 +270,13 @@ export function InventoryMovementModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-3 sm:p-4">
       <form
-        className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-lg bg-white p-5 shadow-2xl"
+        className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-lg bg-white p-4 shadow-2xl sm:p-5"
         onSubmit={onSubmit}
       >
         <div className="flex items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
               Mutasi Stok
             </p>
@@ -356,7 +356,7 @@ export function InventoryMovementModal({
           </div>
         ) : null}
 
-        <div className="mt-5 flex justify-end gap-2">
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             className="h-11 rounded-lg border border-slate-200 px-4 text-sm font-bold text-slate-700"
             onClick={onClose}
