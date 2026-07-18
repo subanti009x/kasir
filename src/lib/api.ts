@@ -201,3 +201,19 @@ export const tenantApi = {
   stats: (token: string) => api<any>("/tenants/stats", { token }),
   plans: (token: string) => api<any[]>("/tenants/plans", { token }),
 };
+
+// ---- Exclusive Features (Super Admin) ----
+export const exclusiveFeatureApi = {
+  list: (token: string) => api<any[]>("/exclusive-features", { token }),
+  create: (token: string, data: any) => api<any>("/exclusive-features", { method: "POST", body: data, token }),
+  update: (token: string, id: string, data: any) => api<any>(`/exclusive-features/${id}`, { method: "PATCH", body: data, token }),
+  delete: (token: string, id: string) => api(`/exclusive-features/${id}`, { method: "DELETE", token }),
+  tenantFeatures: (token: string, tenantId: string) => api<any[]>(`/exclusive-features/tenant/${tenantId}`, { token }),
+  assign: (token: string, data: { tenantId: string; featureId: string; enabled?: boolean }) =>
+    api<any>("/exclusive-features/assign", { method: "POST", body: data, token }),
+  updateAssignment: (token: string, id: string, data: { enabled?: boolean }) =>
+    api<any>(`/exclusive-features/assign/${id}`, { method: "PATCH", body: data, token }),
+  removeAssignment: (token: string, id: string) => api(`/exclusive-features/assign/${id}`, { method: "DELETE", token }),
+  check: (token: string, tenantId: string) =>
+    api<{ features: any[]; featureMap: Record<string, boolean> }>(`/exclusive-features/check/${tenantId}`, { token }),
+};

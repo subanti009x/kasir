@@ -248,8 +248,61 @@ async function main() {
     ],
   });
 
+  // --- Exclusive Features ---
+  const feature1 = await prisma.exclusiveFeature.upsert({
+    where: { code: 'PAYMENT_SYSTEM' },
+    update: {},
+    create: {
+      code: 'PAYMENT_SYSTEM',
+      name: 'Sistem Pembayaran',
+      description: 'Menghitung total pembayaran secara otomatis, mendukung pemberian diskon, dan menampilkan total pembayaran akhir setelah diskon diterapkan.',
+      category: 'POS',
+      isActive: true,
+    },
+  });
+
+  const feature2 = await prisma.exclusiveFeature.upsert({
+    where: { code: 'RECEIPT_OPTIONS' },
+    update: {},
+    create: {
+      code: 'RECEIPT_OPTIONS',
+      name: 'Opsi Output Struk',
+      description: 'Setelah pembayaran berhasil, kasir dapat memilih metode output struk: cetak menggunakan printer thermal atau kirim struk digital melalui WhatsApp (hanya untuk pelanggan member).',
+      category: 'POS',
+      isActive: true,
+    },
+  });
+
+  const feature3 = await prisma.exclusiveFeature.upsert({
+    where: { code: 'WHATSAPP_RECEIPT' },
+    update: {},
+    create: {
+      code: 'WHATSAPP_RECEIPT',
+      name: 'Struk WhatsApp',
+      description: 'Mengirim rincian transaksi ke WhatsApp pelanggan beserta pesan otomatis ucapan terima kasih.',
+      category: 'POS',
+      isActive: true,
+    },
+  });
+
+  // Assign all exclusive features to Nusantara Bakery (tenant1)
+  for (const feature of [feature1, feature2, feature3]) {
+    await prisma.tenantFeature.upsert({
+      where: { tenantId_featureId: { tenantId: tenant1.id, featureId: feature.id } },
+      update: {},
+      create: {
+        tenantId: tenant1.id,
+        featureId: feature.id,
+        enabled: true,
+      },
+    });
+  }
+  // Toko Sembako Maju (tenant2) does NOT get any exclusive features → uses default system
+
   console.log(`✅ Tenant 1: ${tenant1.name}`);
   console.log(`✅ Tenant 2: ${tenant2.name}`);
+  console.log(`✅ Exclusive Features: ${feature1.name}, ${feature2.name}, ${feature3.name}`);
+  console.log(`   → Assigned to: ${tenant1.name}`);
   console.log('');
   console.log('🔑 Login credentials:');
   console.log('   Super Admin: admin@kasirpro.com / admin123');

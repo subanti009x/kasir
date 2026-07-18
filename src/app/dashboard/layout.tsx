@@ -9,7 +9,7 @@ import { getNotificationSocketConfig } from "@/lib/realtime";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
   Settings, LogOut, Menu, X, Shield, Bell, User as UserIcon, CheckCheck, Trash2,
-  FileBox, Calculator,
+  FileBox, Calculator, Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -213,18 +213,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
             {isSuperAdmin && (
-              <Link
-                href="/dashboard/admin"
-                className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
-                  pathname === "/dashboard/admin"
-                    ? "bg-slate-950 text-white"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                onClick={() => setSidebarOpen(false)}
-              >
-                <Shield size={18} />
-                Platform Admin
-              </Link>
+              <>
+                <Link
+                  href="/dashboard/admin"
+                  className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+                    pathname === "/dashboard/admin"
+                      ? "bg-slate-950 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Shield size={18} />
+                  Platform Admin
+                </Link>
+                <Link
+                  href="/dashboard/exclusive-features"
+                  className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+                    pathname === "/dashboard/exclusive-features" || pathname.startsWith("/dashboard/exclusive-features/")
+                      ? "bg-slate-950 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Sparkles size={18} />
+                  Fitur Eksklusif
+                </Link>
+              </>
             )}
             {visibleItems.map((item) => {
               const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
@@ -276,7 +290,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-bold text-slate-950 sm:text-lg">
               {navItems.find((i) => pathname === i.href || (i.href !== "/dashboard" && pathname.startsWith(i.href)))?.label ||
-                (pathname.includes("/admin") ? "Platform Admin" : "Dashboard")}
+                (pathname.includes("/admin") ? "Platform Admin" : pathname.includes("/exclusive-features") ? "Fitur Eksklusif" : "Dashboard")}
             </h1>
           </div>
           <div className="flex items-center gap-2">
