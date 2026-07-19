@@ -202,6 +202,7 @@ let TransactionService = class TransactionService {
                     cashier: { select: { id: true, name: true } },
                     customer: { select: { id: true, name: true } },
                     items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+                    whatsappLogs: { select: { id: true, status: true, event: true, sentAt: true, errorMessage: true }, orderBy: { createdAt: 'desc' }, take: 1 },
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -219,6 +220,7 @@ let TransactionService = class TransactionService {
                 customer: true,
                 payments: true,
                 items: { include: { product: true } },
+                whatsappLogs: { select: { id: true, status: true, event: true, sentAt: true, errorMessage: true, recipientPhone: true, recipientName: true }, orderBy: { createdAt: 'desc' } },
             },
         });
         if (!transaction)

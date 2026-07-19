@@ -285,6 +285,18 @@ async function main() {
     },
   });
 
+  const featureLandingPage = await prisma.exclusiveFeature.upsert({
+    where: { code: 'LANDING_PAGE' },
+    update: {},
+    create: {
+      code: 'LANDING_PAGE',
+      name: 'Landing Page',
+      description: 'Landing page publik terintegrasi dengan sistem kasir. Menampilkan produk/layanan toko dan memungkinkan pelanggan melakukan pemesanan langsung dari landing page.',
+      category: 'INTEGRATION',
+      isActive: true,
+    },
+  });
+
   // Assign all exclusive features to Nusantara Bakery (tenant1)
   for (const feature of [feature1, feature2, feature3]) {
     await prisma.tenantFeature.upsert({
@@ -299,10 +311,148 @@ async function main() {
   }
   // Toko Sembako Maju (tenant2) does NOT get any exclusive features → uses default system
 
+  // --- Tenant 3: Aderose Glowing Salon ---
+  const tenant3 = await prisma.tenant.upsert({
+    where: { slug: 'aderose-glowing-salon' },
+    update: {},
+    create: {
+      name: 'Aderose Glowing Salon',
+      slug: 'aderose-glowing-salon',
+      logo: 'AG',
+      address: 'Jl. Kecantikan No. 21, Bandung',
+      phone: '+62 822 1404 5556',
+      email: 'info@aderose-salon.com',
+      businessHours: '09:00 - 21:00',
+      currency: 'IDR',
+      taxRate: 0,
+      receiptTemplate: 'Elegant salon receipt with beautician name and treatment details',
+      status: 'ACTIVE',
+      plan: 'GROWTH',
+    },
+  });
+
+  // Payment methods for tenant 3
+  const pm3Methods = ['Cash', 'QRIS', 'Bank Transfer', 'E-Wallet'];
+  for (const name of pm3Methods) {
+    await prisma.paymentMethod.upsert({
+      where: { tenantId_name: { tenantId: tenant3.id, name } },
+      update: {},
+      create: { name, tenantId: tenant3.id },
+    });
+  }
+
+  // Owner for tenant 3
+  const owner3Password = await bcrypt.hash('owner123', 12);
+  await prisma.user.upsert({
+    where: { email: 'adeorseowner@gmail.com' },
+    update: {},
+    create: {
+      email: 'adeorseowner@gmail.com',
+      password: owner3Password,
+      name: 'Aderose Owner',
+      role: 'OWNER',
+      status: 'ACTIVE',
+      tenantId: tenant3.id,
+    },
+  });
+
+  // Cashier for tenant 3
+  const cashier3Password = await bcrypt.hash('cashier123', 12);
+  await prisma.user.upsert({
+    where: { email: 'aderosechasier@gmail.com' },
+    update: {},
+    create: {
+      email: 'aderosechasier@gmail.com',
+      password: cashier3Password,
+      name: 'Aderose Cashier',
+      role: 'CASHIER',
+      status: 'ACTIVE',
+      tenantId: tenant3.id,
+    },
+  });
+
+  // Categories for tenant 3 (salon service categories)
+  const hairCare = await prisma.category.upsert({
+    where: { tenantId_name: { tenantId: tenant3.id, name: 'Hair Care' } },
+    update: {},
+    create: { name: 'Hair Care', description: 'Perawatan rambut profesional', color: '#D4A574', tenantId: tenant3.id },
+  });
+  const skinCare = await prisma.category.upsert({
+    where: { tenantId_name: { tenantId: tenant3.id, name: 'Skin Care' } },
+    update: {},
+    create: { name: 'Skin Care', description: 'Perawatan kulit wajah dan tubuh', color: '#C9A0DC', tenantId: tenant3.id },
+  });
+  const bodyCare = await prisma.category.upsert({
+    where: { tenantId_name: { tenantId: tenant3.id, name: 'Body Care' } },
+    update: {},
+    create: { name: 'Body Care', description: 'Perawatan tubuh dan relaksasi', color: '#87CEEB', tenantId: tenant3.id },
+  });
+  const nailCare = await prisma.category.upsert({
+    where: { tenantId_name: { tenantId: tenant3.id, name: 'Nail Care' } },
+    update: {},
+    create: { name: 'Nail Care', description: 'Perawatan kuku dan nail art', color: '#FFB6C1', tenantId: tenant3.id },
+  });
+  const makeUpCat = await prisma.category.upsert({
+    where: { tenantId_name: { tenantId: tenant3.id, name: 'Make Up' } },
+    update: {},
+    create: { name: 'Make Up', description: 'Layanan make up profesional', color: '#FFD700', tenantId: tenant3.id },
+  });
+
+  // Products (salon services) for tenant 3 — from landing page data
+  const salonServices = [
+    { name: 'Hair Spa', sku: 'SLN-HSP-01', description: 'Relaksasi rambut dan kulit kepala dengan aroma therapy premium.', purchasePrice: 45000, sellingPrice: 150000, stock: 99, minStock: 5, categoryId: hairCare.id },
+    { name: 'Hair Coloring', sku: 'SLN-HCL-02', description: 'Pewarnaan rambut elegan menggunakan produk profesional.', purchasePrice: 75000, sellingPrice: 250000, stock: 99, minStock: 5, categoryId: hairCare.id },
+    { name: 'Hair Cut', sku: 'SLN-HCT-03', description: 'Potongan modern yang disesuaikan dengan bentuk wajah.', purchasePrice: 22500, sellingPrice: 75000, stock: 99, minStock: 5, categoryId: hairCare.id },
+    { name: 'Hair Treatment', sku: 'SLN-HTR-04', description: 'Perawatan intensif untuk rambut sehat, lembut, dan berkilau.', purchasePrice: 60000, sellingPrice: 200000, stock: 99, minStock: 5, categoryId: hairCare.id },
+    { name: 'Creambath', sku: 'SLN-CRB-05', description: 'Creambath menenangkan dengan pijatan kepala yang nyaman.', purchasePrice: 30000, sellingPrice: 100000, stock: 99, minStock: 5, categoryId: hairCare.id },
+    { name: 'Facial', sku: 'SLN-FCL-06', description: 'Facial premium untuk kulit bersih, segar, dan glowing.', purchasePrice: 52500, sellingPrice: 175000, stock: 99, minStock: 5, categoryId: skinCare.id },
+    { name: 'Make Up', sku: 'SLN-MKP-07', description: 'Make up flawless untuk pesta, wisuda, prewedding, dan bridal.', purchasePrice: 150000, sellingPrice: 500000, stock: 99, minStock: 5, categoryId: makeUpCat.id },
+    { name: 'Nail Art', sku: 'SLN-NAR-08', description: 'Desain kuku feminin, modern, dan tahan lama.', purchasePrice: 37500, sellingPrice: 125000, stock: 99, minStock: 5, categoryId: nailCare.id },
+    { name: 'Manicure', sku: 'SLN-MNC-09', description: 'Perawatan tangan dan kuku agar tampak halus serta rapi.', purchasePrice: 25500, sellingPrice: 85000, stock: 99, minStock: 5, categoryId: nailCare.id },
+    { name: 'Pedicure', sku: 'SLN-PDC-10', description: 'Perawatan kaki menyeluruh untuk rasa ringan dan bersih.', purchasePrice: 25500, sellingPrice: 85000, stock: 99, minStock: 5, categoryId: nailCare.id },
+    { name: 'Eyelash Extension', sku: 'SLN-EXT-11', description: 'Bulu mata lentik natural dengan teknik aman dan presisi.', purchasePrice: 45000, sellingPrice: 150000, stock: 99, minStock: 5, categoryId: skinCare.id },
+    { name: 'Body Spa', sku: 'SLN-BSP-12', description: 'Spa tubuh premium untuk melepas lelah dan merawat kulit.', purchasePrice: 90000, sellingPrice: 300000, stock: 99, minStock: 5, categoryId: bodyCare.id },
+    { name: 'Body Massage', sku: 'SLN-BMG-13', description: 'Pijat relaksasi dengan tekanan lembut oleh therapist terlatih.', purchasePrice: 60000, sellingPrice: 200000, stock: 99, minStock: 5, categoryId: bodyCare.id },
+    { name: 'Waxing', sku: 'SLN-WXG-14', description: 'Waxing higienis untuk kulit terasa lebih halus dan bersih.', purchasePrice: 30000, sellingPrice: 100000, stock: 99, minStock: 5, categoryId: bodyCare.id },
+  ];
+
+  for (const service of salonServices) {
+    await prisma.product.upsert({
+      where: { tenantId_sku: { tenantId: tenant3.id, sku: service.sku } },
+      update: {},
+      create: { ...service, tenantId: tenant3.id },
+    });
+  }
+
+  // Customers for tenant 3
+  await prisma.customer.createMany({
+    skipDuplicates: true,
+    data: [
+      { name: 'Nadia Putri', phone: '+62 812 3456 7890', email: 'nadia@email.com', tenantId: tenant3.id },
+      { name: 'Citra Maharani', phone: '+62 813 9876 5432', email: 'citra@email.com', tenantId: tenant3.id },
+    ],
+  });
+
+  // Assign exclusive features to Aderose Glowing Salon (tenant3)
+  // All POS features + LANDING_PAGE
+  for (const feature of [feature1, feature2, feature3, featureLandingPage]) {
+    await prisma.tenantFeature.upsert({
+      where: { tenantId_featureId: { tenantId: tenant3.id, featureId: feature.id } },
+      update: {},
+      create: {
+        tenantId: tenant3.id,
+        featureId: feature.id,
+        enabled: true,
+      },
+    });
+  }
+
   console.log(`✅ Tenant 1: ${tenant1.name}`);
   console.log(`✅ Tenant 2: ${tenant2.name}`);
-  console.log(`✅ Exclusive Features: ${feature1.name}, ${feature2.name}, ${feature3.name}`);
-  console.log(`   → Assigned to: ${tenant1.name}`);
+  console.log(`✅ Tenant 3: ${tenant3.name}`);
+  console.log(`✅ Exclusive Features: ${feature1.name}, ${feature2.name}, ${feature3.name}, ${featureLandingPage.name}`);
+  console.log(`   → POS Features assigned to: ${tenant1.name}, ${tenant3.name}`);
+  console.log(`   → Landing Page assigned to: ${tenant3.name}`);
   console.log('');
   console.log('🔑 Login credentials:');
   console.log('   Super Admin: admin@kasirpro.com / admin123');
@@ -310,6 +460,8 @@ async function main() {
   console.log('   Cashier (Bakery): raka@nusantarabakery.com / cashier123');
   console.log('   Owner (Grocery): bima@sembako-maju.com / owner123');
   console.log('   Cashier (Grocery): nina@sembako-maju.com / cashier123');
+  console.log('   Owner (Salon): adeorseowner@gmail.com / owner123');
+  console.log('   Cashier (Salon): aderosechasier@gmail.com / cashier123');
   console.log('');
   console.log('✅ Seeding completed!');
 }
@@ -322,3 +474,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

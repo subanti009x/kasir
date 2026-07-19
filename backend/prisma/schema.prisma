@@ -272,6 +272,7 @@ model Transaction {
 
   items         TransactionItem[]
   payments      TransactionPayment[]
+  whatsappLogs  WhatsappLog[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -443,6 +444,7 @@ model WhatsappLog {
   sentAt          DateTime?
   nextRetryAt     DateTime?
   transactionId   String?
+  transaction     Transaction? @relation(fields: [transactionId], references: [id])
 
   configId        String
   config          WhatsappConfig @relation(fields: [configId], references: [id], onDelete: Cascade)

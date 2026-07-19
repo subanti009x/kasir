@@ -10,14 +10,14 @@ export declare class TransactionService {
     private whatsapp;
     constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService, whatsapp: WhatsappService);
     checkout(userId: string, tenantId: string, dto: CheckoutDto): Promise<{
-        cashier: {
-            id: string;
-            name: string;
-        };
         customer: {
             id: string;
             name: string;
         } | null;
+        cashier: {
+            id: string;
+            name: string;
+        };
         items: ({
             product: {
                 id: string;
@@ -29,18 +29,19 @@ export declare class TransactionService {
             subtotal: number;
             quantity: number;
             unitPrice: number;
-            transactionId: string;
             productId: string;
+            transactionId: string;
         })[];
         payments: {
             id: string;
             createdAt: Date;
-            transactionId: string;
-            reference: string | null;
             method: string;
             amount: number;
+            reference: string | null;
+            transactionId: string;
         }[];
     } & {
+        paymentMethod: string;
         id: string;
         receiptId: string;
         subtotal: number;
@@ -48,28 +49,27 @@ export declare class TransactionService {
         discountType: string | null;
         tax: number;
         total: number;
-        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
         status: string;
         note: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         tenantId: string;
         cashierId: string;
         customerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     private generateSaleAccounting;
     findAll(tenantId: string, page?: number, limit?: number, startDate?: string, endDate?: string): Promise<{
         data: ({
-            cashier: {
-                id: string;
-                name: string;
-            };
             customer: {
                 id: string;
                 name: string;
             } | null;
+            cashier: {
+                id: string;
+                name: string;
+            };
             items: ({
                 product: {
                     id: string;
@@ -81,10 +81,18 @@ export declare class TransactionService {
                 subtotal: number;
                 quantity: number;
                 unitPrice: number;
-                transactionId: string;
                 productId: string;
+                transactionId: string;
             })[];
+            whatsappLogs: {
+                id: string;
+                status: string;
+                event: string;
+                errorMessage: string | null;
+                sentAt: Date | null;
+            }[];
         } & {
+            paymentMethod: string;
             id: string;
             receiptId: string;
             subtotal: number;
@@ -92,16 +100,15 @@ export declare class TransactionService {
             discountType: string | null;
             tax: number;
             total: number;
-            paymentMethod: string;
             amountPaid: number;
             changeDue: number;
             status: string;
             note: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             tenantId: string;
             cashierId: string;
             customerId: string | null;
-            createdAt: Date;
-            updatedAt: Date;
         })[];
         total: number;
         page: number;
@@ -109,27 +116,27 @@ export declare class TransactionService {
         totalPages: number;
     }>;
     findOne(id: string, tenantId: string): Promise<{
+        customer: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            tenantId: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            email: string | null;
+        } | null;
         cashier: {
             id: string;
             name: string;
         };
-        customer: {
-            id: string;
-            tenantId: string;
-            createdAt: Date;
-            updatedAt: Date;
-            name: string;
-            email: string | null;
-            address: string | null;
-            phone: string | null;
-        } | null;
         items: ({
             product: {
                 id: string;
                 status: string;
-                tenantId: string;
                 createdAt: Date;
                 updatedAt: Date;
+                tenantId: string;
                 name: string;
                 sku: string;
                 barcode: string | null;
@@ -146,18 +153,28 @@ export declare class TransactionService {
             subtotal: number;
             quantity: number;
             unitPrice: number;
-            transactionId: string;
             productId: string;
+            transactionId: string;
         })[];
         payments: {
             id: string;
             createdAt: Date;
-            transactionId: string;
-            reference: string | null;
             method: string;
             amount: number;
+            reference: string | null;
+            transactionId: string;
+        }[];
+        whatsappLogs: {
+            id: string;
+            status: string;
+            event: string;
+            recipientPhone: string;
+            recipientName: string;
+            errorMessage: string | null;
+            sentAt: Date | null;
         }[];
     } & {
+        paymentMethod: string;
         id: string;
         receiptId: string;
         subtotal: number;
@@ -165,18 +182,18 @@ export declare class TransactionService {
         discountType: string | null;
         tax: number;
         total: number;
-        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
         status: string;
         note: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         tenantId: string;
         cashierId: string;
         customerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     refund(id: string, tenantId: string): Promise<{
+        paymentMethod: string;
         id: string;
         receiptId: string;
         subtotal: number;
@@ -184,15 +201,14 @@ export declare class TransactionService {
         discountType: string | null;
         tax: number;
         total: number;
-        paymentMethod: string;
         amountPaid: number;
         changeDue: number;
         status: string;
         note: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         tenantId: string;
         cashierId: string;
         customerId: string | null;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
 }
