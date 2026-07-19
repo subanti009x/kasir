@@ -106,4 +106,31 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
       timestamp: new Date().toISOString(),
     });
   }
+
+  // ── WhatsApp Notification Broadcasts ──────────────────
+
+  broadcastWhatsappQR(tenantId: string, qr: string) {
+    this.sendToTenant(tenantId, 'whatsapp-qr', {
+      type: 'WHATSAPP_QR',
+      qr,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  broadcastWhatsappStatus(tenantId: string, status: string, connectedPhone?: string | null) {
+    this.sendToTenant(tenantId, 'whatsapp-status', {
+      type: 'WHATSAPP_STATUS',
+      status,
+      connectedPhone: connectedPhone || null,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  broadcastWhatsappLogUpdate(tenantId: string, log: any) {
+    this.sendToTenant(tenantId, 'whatsapp-log-update', {
+      type: 'WHATSAPP_LOG_UPDATE',
+      log,
+      timestamp: new Date().toISOString(),
+    });
+  }
 }

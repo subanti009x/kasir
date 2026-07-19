@@ -2,11 +2,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { AccountingService } from '../accounting/accounting.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 export declare class TransactionService {
     private prisma;
     private notifications;
     private accounting;
-    constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService);
+    private whatsapp;
+    constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService, whatsapp: WhatsappService);
     checkout(userId: string, tenantId: string, dto: CheckoutDto): Promise<{
         cashier: {
             id: string;

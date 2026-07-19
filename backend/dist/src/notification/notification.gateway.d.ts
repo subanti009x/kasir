@@ -26,4 +26,7 @@ export declare class NotificationGateway implements OnGatewayConnection, OnGatew
         method: string;
         amount: number;
     }): void;
+    broadcastWhatsappQR(tenantId: string, qr: string): void;
+    broadcastWhatsappStatus(tenantId: string, status: string, connectedPhone?: string | null): void;
+    broadcastWhatsappLogUpdate(tenantId: string, log: any): void;
 }

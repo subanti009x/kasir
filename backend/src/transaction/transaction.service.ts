@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { AccountingService } from '../accounting/accounting.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class TransactionService {
@@ -10,6 +11,7 @@ export class TransactionService {
     private prisma: PrismaService,
     private notifications: NotificationGateway,
     private accounting: AccountingService,
+    private whatsapp: WhatsappService,
   ) {}
 
   async checkout(userId: string, tenantId: string, dto: CheckoutDto) {
@@ -171,6 +173,9 @@ export class TransactionService {
     // Generate accounting journal entry (fire-and-forget)
     this.generateSaleAccounting(tenantId, transaction);
 
+    // Send WhatsApp notification to member (fire-and-forget)
+    this.whatsapp.enqueueNotification(tenantId, 'CHECKOUT_SUCCESS', transaction);
+
     return transaction;
   }
 
@@ -279,6 +284,9 @@ export class TransactionService {
     } catch (error) {
       console.error('Failed to generate refund journal entry:', error);
     }
+
+    // Send WhatsApp refund notification to member (fire-and-forget)
+    this.whatsapp.enqueueNotification(tenantId, 'REFUND_SUCCESS', transaction);
 
     return refunded;
   }

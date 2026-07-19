@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -17,9 +18,11 @@ import { SettingsModule } from './settings/settings.module';
 import { NotificationModule } from './notification/notification.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { ExclusiveFeatureModule } from './exclusive-feature/exclusive-feature.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     TenantModule,
@@ -36,8 +39,10 @@ import { ExclusiveFeatureModule } from './exclusive-feature/exclusive-feature.mo
     NotificationModule,
     AccountingModule,
     ExclusiveFeatureModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+

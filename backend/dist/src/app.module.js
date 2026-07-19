@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const schedule_1 = require("@nestjs/schedule");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const prisma_module_1 = require("./prisma/prisma.module");
@@ -26,12 +27,14 @@ const settings_module_1 = require("./settings/settings.module");
 const notification_module_1 = require("./notification/notification.module");
 const accounting_module_1 = require("./accounting/accounting.module");
 const exclusive_feature_module_1 = require("./exclusive-feature/exclusive-feature.module");
+const whatsapp_module_1 = require("./whatsapp/whatsapp.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             tenant_module_1.TenantModule,
@@ -48,6 +51,7 @@ exports.AppModule = AppModule = __decorate([
             notification_module_1.NotificationModule,
             accounting_module_1.AccountingModule,
             exclusive_feature_module_1.ExclusiveFeatureModule,
+            whatsapp_module_1.WhatsappModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

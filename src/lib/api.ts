@@ -217,3 +217,15 @@ export const exclusiveFeatureApi = {
   check: (token: string, tenantId: string) =>
     api<{ features: any[]; featureMap: Record<string, boolean> }>(`/exclusive-features/check/${tenantId}`, { token }),
 };
+
+// ---- WhatsApp ----
+export const whatsappApi = {
+  getConfig: (token: string) => api<any>("/settings/whatsapp", { token }),
+  updateConfig: (token: string, data: any) => api<any>("/settings/whatsapp", { method: "PATCH", body: data, token }),
+  connect: (token: string) => api<any>("/settings/whatsapp/connect", { method: "POST", token }),
+  disconnect: (token: string) => api<any>("/settings/whatsapp/disconnect", { method: "POST", token }),
+  getLogs: (token: string, params?: { status?: string; page?: number; limit?: number }) =>
+    api<{ data: any[]; total: number; page: number; totalPages: number }>("/settings/whatsapp/logs", { token, params }),
+  getStats: (token: string) => api<{ total: number; pending: number; sending: number; sent: number; failed: number }>("/settings/whatsapp/logs/stats", { token }),
+  retryLog: (token: string, logId: string) => api<any>(`/settings/whatsapp/logs/${logId}/retry`, { method: "POST", token }),
+};

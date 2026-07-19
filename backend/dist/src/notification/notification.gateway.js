@@ -88,6 +88,28 @@ let NotificationGateway = class NotificationGateway {
             timestamp: new Date().toISOString(),
         });
     }
+    broadcastWhatsappQR(tenantId, qr) {
+        this.sendToTenant(tenantId, 'whatsapp-qr', {
+            type: 'WHATSAPP_QR',
+            qr,
+            timestamp: new Date().toISOString(),
+        });
+    }
+    broadcastWhatsappStatus(tenantId, status, connectedPhone) {
+        this.sendToTenant(tenantId, 'whatsapp-status', {
+            type: 'WHATSAPP_STATUS',
+            status,
+            connectedPhone: connectedPhone || null,
+            timestamp: new Date().toISOString(),
+        });
+    }
+    broadcastWhatsappLogUpdate(tenantId, log) {
+        this.sendToTenant(tenantId, 'whatsapp-log-update', {
+            type: 'WHATSAPP_LOG_UPDATE',
+            log,
+            timestamp: new Date().toISOString(),
+        });
+    }
 };
 exports.NotificationGateway = NotificationGateway;
 __decorate([

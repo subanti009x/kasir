@@ -43,6 +43,7 @@ model Tenant {
   expenses        Expense[]
   journalEntries  JournalEntry[]
   tenantFeatures  TenantFeature[]
+  whatsappConfig  WhatsappConfig?
 
   @@index([status])
   @@index([plan])
@@ -405,4 +406,52 @@ model TenantFeature {
   @@unique([tenantId, featureId])
   @@index([tenantId])
   @@index([featureId])
+}
+
+// ------------------------------------------------------
+// WhatsApp Notification System (Multi-Tenant, QR-Based)
+// ------------------------------------------------------
+
+model WhatsappConfig {
+  id                String   @id @default(uuid())
+  botName           String   @default("WhatsApp Bot")
+  enabled           Boolean  @default(true)
+  connectionStatus  String   @default("DISCONNECTED") // DISCONNECTED, QR_READY, CONNECTING, CONNECTED
+  connectedPhone    String?  // Auto-filled after QR scan
+  checkoutTemplate  String   @default("Halo {{customer_name}}! 🧾\n\nTerima kasih telah berbelanja di *{{store_name}}*.\n\nNo. Struk: {{receipt_id}}\nTanggal: {{date}}\n\n{{items}}\n\nSubtotal: {{subtotal}}\nPajak: {{tax}}\n*Total: {{total}}*\n\nMetode: {{payment_method}}\nDibayar: {{amount_paid}}\nKembalian: {{change_due}}\n\nTerima kasih atas kunjungannya! 🙏") @db.Text
+  refundTemplate    String   @default("Halo {{customer_name}},\n\nPengembalian dana telah diproses untuk transaksi *{{receipt_id}}* di *{{store_name}}*.\n\n*Total Refund: {{total}}*\n\nTerima kasih. 🙏") @db.Text
+
+  tenantId          String   @unique
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  logs              WhatsappLog[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model WhatsappLog {
+  id              String    @id @default(uuid())
+  event           String    // CHECKOUT_SUCCESS, REFUND_SUCCESS
+  recipientPhone  String
+  recipientName   String
+  messageBody     String    @db.Text
+  status          String    @default("PENDING") // PENDING, SENDING, SENT, FAILED
+  retryCount      Int       @default(0)
+  maxRetries      Int       @default(3)
+  errorMessage    String?
+  sentAt          DateTime?
+  nextRetryAt     DateTime?
+  transactionId   String?
+
+  configId        String
+  config          WhatsappConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([configId])
+  @@index([status])
+  @@index([configId, status])
+  @@index([status, nextRetryAt])
 }
