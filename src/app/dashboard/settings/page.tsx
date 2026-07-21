@@ -59,7 +59,7 @@ export default function SettingsPage() {
 
   // ── WhatsApp Feature ──
   const showWhatsapp = hasFeature("WHATSAPP_RECEIPT");
-  const { data: waConfig, isLoading: waConfigLoading } = useQuery({
+  const { data: waConfig, isLoading: _waConfigLoading } = useQuery({
     queryKey: ["whatsapp-config"],
     queryFn: () => whatsappApi.getConfig(token!),
     enabled: !!token && showWhatsapp,

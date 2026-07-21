@@ -11,12 +11,12 @@ export declare class LandingPageService {
     constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService, whatsapp: WhatsappService);
     getStoreInfo(tenantId: string): Promise<{
         id: string;
-        slug: string;
         name: string;
+        email: string | null;
+        slug: string;
         logo: string | null;
         address: string | null;
         phone: string | null;
-        email: string | null;
         businessHours: string | null;
     }>;
     getProducts(tenantId: string, categoryId?: string, search?: string): Promise<{
@@ -35,10 +35,10 @@ export declare class LandingPageService {
     }[]>;
     getCategories(tenantId: string): Promise<{
         id: string;
-        name: string;
         _count: {
             products: number;
         };
+        name: string;
         description: string | null;
         color: string | null;
     }[]>;
@@ -65,8 +65,8 @@ export declare class LandingPageService {
                 subtotal: number;
                 quantity: number;
                 unitPrice: number;
-                productId: string;
                 transactionId: string;
+                productId: string;
             })[];
             customer: {
                 id: string;

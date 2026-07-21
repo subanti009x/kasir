@@ -1,23 +1,31 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import makeWASocket, {
-  useMultiFileAuthState,
-  DisconnectReason,
-  WASocket,
-  Browsers,
-  ConnectionState,
-} from '@whiskeysockets/baileys';
-import { Boom } from '@hapi/boom';
 import { join } from 'path';
 import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import pino from 'pino';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationGateway } from '../notification/notification.gateway';
+
+// Detect serverless environment (Vercel) — Baileys requires persistent
+// WebSocket connections and filesystem access which are not available
+// in serverless functions.
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+// Dynamic import helper for ESM-only @whiskeysockets/baileys
+// Only called at runtime in non-serverless environments
+async function loadBaileys() {
+  const baileys = await import('@whiskeysockets/baileys');
+  return {
+    makeWASocket: baileys.default,
+    useMultiFileAuthState: baileys.useMultiFileAuthState,
+    DisconnectReason: baileys.DisconnectReason,
+    Browsers: baileys.Browsers,
+  };
+}
 
 export type SessionStatus = 'DISCONNECTED' | 'QR_READY' | 'CONNECTING' | 'CONNECTED';
 
 interface ManagedSession {
-  socket: WASocket | null;
+  socket: any;
   status: SessionStatus;
   retryCount: number;
 }
@@ -36,6 +44,11 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
+    if (IS_SERVERLESS) {
+      this.logger.log('Running in serverless environment — WhatsApp sessions disabled');
+      return;
+    }
+
     // Restore all connected sessions on startup
     await mkdir(AUTH_BASE_DIR, { recursive: true });
     try {
@@ -68,6 +81,10 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
   }
 
   async startSession(tenantId: string): Promise<void> {
+    if (IS_SERVERLESS) {
+      throw new Error('WhatsApp sessions are not available in serverless environment. Use a persistent server deployment.');
+    }
+
     // If already connected or connecting, skip
     const existing = this.sessions.get(tenantId);
     if (existing?.status === 'CONNECTED' || existing?.status === 'CONNECTING') {
@@ -79,6 +96,10 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
 
     const authDir = join(AUTH_BASE_DIR, tenantId);
     await mkdir(authDir, { recursive: true });
+
+    // Dynamic import of ESM-only Baileys
+    const { makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } = await loadBaileys();
+    const pino = (await import('pino')).default;
 
     const { state, saveCreds } = await useMultiFileAuthState(authDir);
 
@@ -102,7 +123,7 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
     await this.updateDbStatus(tenantId, 'CONNECTING');
 
     // Handle connection events
-    socket.ev.on('connection.update', async (update: Partial<ConnectionState>) => {
+    socket.ev.on('connection.update', async (update: any) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
@@ -114,7 +135,7 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
       }
 
       if (connection === 'close') {
-        const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+        const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
         const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
         this.logger.warn(
@@ -168,6 +189,10 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
   }
 
   async logoutSession(tenantId: string): Promise<void> {
+    if (IS_SERVERLESS) {
+      throw new Error('WhatsApp sessions are not available in serverless environment.');
+    }
+
     const session = this.sessions.get(tenantId);
     if (session?.socket) {
       try {
@@ -188,6 +213,10 @@ export class WhatsappSessionManager implements OnModuleInit, OnModuleDestroy {
   }
 
   async sendMessage(tenantId: string, phone: string, message: string): Promise<void> {
+    if (IS_SERVERLESS) {
+      throw new Error('WhatsApp sessions are not available in serverless environment.');
+    }
+
     const session = this.sessions.get(tenantId);
     if (!session?.socket || session.status !== 'CONNECTED') {
       throw new Error('WhatsApp session not connected');

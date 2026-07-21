@@ -121,7 +121,7 @@ export default function ExclusiveFeaturesPage() {
   }
 
   // Check which features are assigned to selected tenant
-  const assignedFeatureIds = new Set(tenantFeatures.map((tf: any) => tf.featureId));
+  const _assignedFeatureIds = new Set(tenantFeatures.map((tf: any) => tf.featureId));
 
   if (!isSuperAdmin) {
     return <p className="py-20 text-center text-slate-500">Akses ditolak. Halaman ini hanya untuk Super Admin.</p>;
@@ -256,7 +256,7 @@ export default function ExclusiveFeaturesPage() {
             {featuresLoading ? (
               <div className="flex justify-center py-16"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
             ) : features.length === 0 ? (
-              <div className="px-5 py-12 text-center text-slate-400">Belum ada fitur eksklusif. Klik "Tambah Fitur" untuk membuat.</div>
+              <div className="px-5 py-12 text-center text-slate-400">Belum ada fitur eksklusif. Klik &quot;Tambah Fitur&quot; untuk membuat.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -364,7 +364,7 @@ export default function ExclusiveFeaturesPage() {
               ) : features.length === 0 ? (
                 <div className="px-5 py-12 text-center text-slate-400">
                   <AlertTriangle className="mx-auto mb-2 text-amber-400" size={24} />
-                  Belum ada fitur eksklusif. Buat dulu di tab "Master Fitur".
+                  Belum ada fitur eksklusif. Buat dulu di tab &quot;Master Fitur&quot;.
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100">

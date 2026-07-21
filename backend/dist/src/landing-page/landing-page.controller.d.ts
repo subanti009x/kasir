@@ -5,12 +5,12 @@ export declare class LandingPageController {
     constructor(service: LandingPageService);
     getStoreInfo(req: any): Promise<{
         id: string;
-        slug: string;
         name: string;
+        email: string | null;
+        slug: string;
         logo: string | null;
         address: string | null;
         phone: string | null;
-        email: string | null;
         businessHours: string | null;
     }>;
     getProducts(req: any, categoryId?: string, search?: string): Promise<{
@@ -29,10 +29,10 @@ export declare class LandingPageController {
     }[]>;
     getCategories(req: any): Promise<{
         id: string;
-        name: string;
         _count: {
             products: number;
         };
+        name: string;
         description: string | null;
         color: string | null;
     }[]>;
@@ -59,8 +59,8 @@ export declare class LandingPageController {
                 subtotal: number;
                 quantity: number;
                 unitPrice: number;
-                productId: string;
                 transactionId: string;
+                productId: string;
             })[];
             customer: {
                 id: string;

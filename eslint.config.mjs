@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "dist/**",
     "backend/**",
     "next-env.d.ts",
+    // Ignore the Laravel sub-project vendor files:
+    "AplikasiClient/**",
   ]),
   {
     rules: {
