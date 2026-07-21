@@ -84,7 +84,7 @@ export default function AdminPage() {
           <div className="flex justify-center py-16"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="responsive-table w-full text-sm">
               <thead><tr className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
                 <th className="px-5 py-3">Toko / Tenant</th><th className="px-5 py-3">Paket</th><th className="px-5 py-3 text-center">Pengguna</th><th className="px-5 py-3 text-center">Produk</th><th className="px-5 py-3 text-center">Transaksi</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-center">Aksi</th>
               </tr></thead>

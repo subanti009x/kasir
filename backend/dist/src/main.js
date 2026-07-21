@@ -41,6 +41,7 @@ async function bootstrap() {
         .addTag('settings', 'Tenant settings')
         .addTag('notifications', 'Notification system')
         .addTag('accounting', 'Accounting & Financial Statements')
+        .addTag('landing-page', 'Public Landing Page API')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api/docs', app, document);

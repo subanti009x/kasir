@@ -14,14 +14,17 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const notification_gateway_1 = require("../notification/notification.gateway");
 const accounting_service_1 = require("../accounting/accounting.service");
+const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
 let TransactionService = class TransactionService {
     prisma;
     notifications;
     accounting;
-    constructor(prisma, notifications, accounting) {
+    whatsapp;
+    constructor(prisma, notifications, accounting, whatsapp) {
         this.prisma = prisma;
         this.notifications = notifications;
         this.accounting = accounting;
+        this.whatsapp = whatsapp;
     }
     async checkout(userId, tenantId, dto) {
         const transaction = await this.prisma.$transaction(async (tx) => {
@@ -164,6 +167,7 @@ let TransactionService = class TransactionService {
             .filter((product) => product.stock <= product.minStock)
             .forEach((product) => this.notifications.notifyLowStock(tenantId, product));
         this.generateSaleAccounting(tenantId, transaction);
+        this.whatsapp.enqueueNotification(tenantId, 'CHECKOUT_SUCCESS', transaction);
         return transaction;
     }
     async generateSaleAccounting(tenantId, transaction) {
@@ -198,6 +202,7 @@ let TransactionService = class TransactionService {
                     cashier: { select: { id: true, name: true } },
                     customer: { select: { id: true, name: true } },
                     items: { include: { product: { select: { id: true, name: true, sku: true } } } },
+                    whatsappLogs: { select: { id: true, status: true, event: true, sentAt: true, errorMessage: true }, orderBy: { createdAt: 'desc' }, take: 1 },
                 },
                 orderBy: { createdAt: 'desc' },
                 skip: (page - 1) * limit,
@@ -215,6 +220,7 @@ let TransactionService = class TransactionService {
                 customer: true,
                 payments: true,
                 items: { include: { product: true } },
+                whatsappLogs: { select: { id: true, status: true, event: true, sentAt: true, errorMessage: true, recipientPhone: true, recipientName: true }, orderBy: { createdAt: 'desc' } },
             },
         });
         if (!transaction)
@@ -260,6 +266,7 @@ let TransactionService = class TransactionService {
         catch (error) {
             console.error('Failed to generate refund journal entry:', error);
         }
+        this.whatsapp.enqueueNotification(tenantId, 'REFUND_SUCCESS', transaction);
         return refunded;
     }
 };
@@ -268,6 +275,7 @@ exports.TransactionService = TransactionService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         notification_gateway_1.NotificationGateway,
-        accounting_service_1.AccountingService])
+        accounting_service_1.AccountingService,
+        whatsapp_service_1.WhatsappService])
 ], TransactionService);
 //# sourceMappingURL=transaction.service.js.map

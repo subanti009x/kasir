@@ -2,11 +2,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CheckoutDto } from './dto/transaction.dto';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { AccountingService } from '../accounting/accounting.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 export declare class TransactionService {
     private prisma;
     private notifications;
     private accounting;
-    constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService);
+    private whatsapp;
+    constructor(prisma: PrismaService, notifications: NotificationGateway, accounting: AccountingService, whatsapp: WhatsappService);
     checkout(userId: string, tenantId: string, dto: CheckoutDto): Promise<{
         cashier: {
             id: string;
@@ -82,6 +84,13 @@ export declare class TransactionService {
                 transactionId: string;
                 productId: string;
             })[];
+            whatsappLogs: {
+                id: string;
+                status: string;
+                event: string;
+                errorMessage: string | null;
+                sentAt: Date | null;
+            }[];
         } & {
             id: string;
             receiptId: string;
@@ -154,6 +163,15 @@ export declare class TransactionService {
             reference: string | null;
             method: string;
             amount: number;
+        }[];
+        whatsappLogs: {
+            id: string;
+            status: string;
+            event: string;
+            recipientPhone: string;
+            recipientName: string;
+            errorMessage: string | null;
+            sentAt: Date | null;
         }[];
     } & {
         id: string;

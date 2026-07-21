@@ -40,7 +40,7 @@ export class TransactionController {
   }
 
   @Patch(':id/refund')
-  @Roles('OWNER', 'SUPER_ADMIN')
+  @Roles('OWNER', 'SUPER_ADMIN', 'CASHIER')
   refund(@Param('id') id: string, @CurrentUser() user: any) {
     return this.transactionService.refund(id, user.tenantId);
   }

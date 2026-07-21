@@ -33,13 +33,13 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Date filter */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-center">
         <BarChart3 size={18} className="text-teal-700" />
         <span className="text-sm font-semibold text-slate-900">Laporan Penjualan</span>
-        <div className="ml-auto flex items-center gap-2">
-          <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:items-center">
+          <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           <span className="text-xs text-slate-400">sampai</span>
-          <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
         </div>
       </div>
 

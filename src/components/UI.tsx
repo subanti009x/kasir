@@ -11,7 +11,7 @@ import {
 import React from "react";
 
 export function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-lg border border-slate-200 bg-white p-4 shadow-sm ${className}`}>{children}</div>;
+  return <div className={`rounded-lg border border-slate-200 bg-white p-3 shadow-sm sm:p-4 ${className}`}>{children}</div>;
 }
 
 export function SectionHeader({
@@ -25,7 +25,7 @@ export function SectionHeader({
 }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <div>
+      <div className="min-w-0">
         <h2 className="text-lg font-bold">{title}</h2>
         <p className="text-sm text-slate-500">{subtitle}</p>
       </div>
@@ -149,7 +149,7 @@ export function IconButton({
   return (
     <button
       aria-label={label}
-      className={`grid size-8 place-items-center rounded-md ${dark ? "bg-slate-950 text-white" : "border border-slate-200 bg-white"}`}
+      className={`grid size-10 place-items-center rounded-md sm:size-8 ${dark ? "bg-slate-950 text-white" : "border border-slate-200 bg-white"}`}
       onClick={onClick}
       type="button"
     >

@@ -22,9 +22,9 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-500">{users.length} karyawan</p>
-        <button className="flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800" onClick={() => { setForm({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" }); setEditing(null); setModal("create"); }}>
+        <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { setForm({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" }); setEditing(null); setModal("create"); }}>
           <UserPlus size={16} /> Tambah Karyawan
         </button>
       </div>
@@ -33,7 +33,7 @@ export default function EmployeesPage() {
         <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-sm">
+          <table className="responsive-table w-full text-sm">
             <thead><tr className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Karyawan</th><th className="px-4 py-3">Email</th><th className="px-4 py-3">Peran</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Tanggal Bergabung</th><th className="px-4 py-3 text-right">Aksi</th>
             </tr></thead>
@@ -63,14 +63,14 @@ export default function EmployeesPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setModal(null)}>
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setModal(null)}>
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Karyawan Baru" : "Ubah Data Karyawan"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); const data: any = { ...form }; if (!data.password) delete data.password; if (modal === "edit") updateMut.mutate({ id: editing.id, data }); else createMut.mutate(data); }}>
               <div><label className="text-xs font-medium text-slate-600">Nama Karyawan *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div><label className="text-xs font-medium text-slate-600">Alamat Email *</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
               <div><label className="text-xs font-medium text-slate-600">{modal === "create" ? "Kata Sandi *" : "Kata Sandi (kosongkan jika tidak ingin diubah)"}</label><input type="password" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={modal === "create"} minLength={6} /></div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div><label className="text-xs font-medium text-slate-600">Peran</label><select className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option value="CASHIER">Kasir</option><option value="OWNER">Pemilik (Owner)</option></select></div>
                 <div><label className="text-xs font-medium text-slate-600">Status</label><select className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="ACTIVE">Aktif</option><option value="INACTIVE">Nonaktif</option></select></div>
               </div>

@@ -77,6 +77,13 @@ export declare class TransactionController {
                 transactionId: string;
                 productId: string;
             })[];
+            whatsappLogs: {
+                id: string;
+                status: string;
+                event: string;
+                errorMessage: string | null;
+                sentAt: Date | null;
+            }[];
         } & {
             id: string;
             receiptId: string;
@@ -149,6 +156,15 @@ export declare class TransactionController {
             reference: string | null;
             method: string;
             amount: number;
+        }[];
+        whatsappLogs: {
+            id: string;
+            status: string;
+            event: string;
+            recipientPhone: string;
+            recipientName: string;
+            errorMessage: string | null;
+            sentAt: Date | null;
         }[];
     } & {
         id: string;

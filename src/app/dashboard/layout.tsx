@@ -9,7 +9,7 @@ import { getNotificationSocketConfig } from "@/lib/realtime";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
   Settings, LogOut, Menu, X, Shield, Bell, User as UserIcon, CheckCheck, Trash2,
-  FileBox, Calculator,
+  FileBox, Calculator, Sparkles,
 } from "lucide-react";
 
 const navItems = [
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white shadow-xl shadow-slate-900/5 transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(18rem,calc(100vw-2rem))] flex-col border-r border-slate-200 bg-white shadow-xl shadow-slate-900/5 transition-transform lg:static lg:w-72 lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -171,12 +171,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-md" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-950">Admin Solutions Inovatif</p>
+              <p className="line-clamp-2 text-sm font-bold text-slate-950">Admin Solutions Inovatif</p>
               <p className="text-sm text-slate-500">Sistem Manajemen Bisnis & POS</p>
             </div>
           </div>
           <button
-            className="grid size-8 place-items-center rounded-lg border border-slate-200 lg:hidden"
+            className="grid size-10 place-items-center rounded-lg border border-slate-200 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           >
             <X size={16} />
@@ -213,18 +213,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-1">
             {isSuperAdmin && (
-              <Link
-                href="/dashboard/admin"
-                className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
-                  pathname === "/dashboard/admin"
-                    ? "bg-slate-950 text-white"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
-                }`}
-                onClick={() => setSidebarOpen(false)}
-              >
-                <Shield size={18} />
-                Platform Admin
-              </Link>
+              <>
+                <Link
+                  href="/dashboard/admin"
+                  className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+                    pathname === "/dashboard/admin"
+                      ? "bg-slate-950 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Shield size={18} />
+                  Platform Admin
+                </Link>
+                <Link
+                  href="/dashboard/exclusive-features"
+                  className={`flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition ${
+                    pathname === "/dashboard/exclusive-features" || pathname.startsWith("/dashboard/exclusive-features/")
+                      ? "bg-slate-950 text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  }`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Sparkles size={18} />
+                  Fitur Eksklusif
+                </Link>
+              </>
             )}
             {visibleItems.map((item) => {
               const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href + "/"));
@@ -266,17 +280,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/90 px-4 backdrop-blur lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-3 backdrop-blur sm:gap-4 sm:px-4 lg:px-6">
           <button
             className="grid size-10 place-items-center rounded-lg border border-slate-200 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu size={18} />
           </button>
-          <div className="flex-1">
-            <h1 className="text-lg font-bold text-slate-950">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-base font-bold text-slate-950 sm:text-lg">
               {navItems.find((i) => pathname === i.href || (i.href !== "/dashboard" && pathname.startsWith(i.href)))?.label ||
-                (pathname.includes("/admin") ? "Platform Admin" : "Dashboard")}
+                (pathname.includes("/admin") ? "Platform Admin" : pathname.includes("/exclusive-features") ? "Fitur Eksklusif" : "Dashboard")}
             </h1>
           </div>
           <div className="flex items-center gap-2">
@@ -296,7 +310,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-900/10">
+                <div className="fixed left-3 right-3 top-16 z-50 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-900/10 sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[min(22rem,calc(100vw-2rem))]">
                   <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
                     <div>
                       <p className="text-sm font-bold text-slate-950">Notifikasi</p>
@@ -352,7 +366,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="mobile-safe-area flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

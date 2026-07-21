@@ -3,14 +3,109 @@
 @layer base {
   * {
     border-color: theme(colors.slate.200);
+    min-width: 0;
+  }
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
   }
   body {
     @apply bg-white text-slate-950 antialiased;
+  }
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+  button,
+  input,
+  select,
+  textarea,
+  a {
+    touch-action: manipulation;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
+  }
+  .mobile-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (min-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .responsive-table {
+    display: block;
+    width: 100%;
+  }
+  .responsive-table thead {
+    display: none;
+  }
+  .responsive-table tbody {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  .responsive-table tr {
+    display: grid;
+    gap: 0.5rem;
+    border: 1px solid theme(colors.slate.200);
+    border-radius: 0.75rem;
+    background: white;
+    padding: 0.75rem;
+  }
+  .responsive-table td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 0;
+    padding: 0;
+    text-align: right;
+  }
+  .responsive-table td::before {
+    content: attr(data-label);
+    flex: 0 0 42%;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: theme(colors.slate.500);
+  }
+  .responsive-table td:not([data-label]) {
+    display: block;
+    text-align: left;
+  }
+  .responsive-table td:not([data-label])::before {
+    content: none;
+  }
+  .responsive-table td[colspan] {
+    display: block;
+    text-align: center;
+  }
+  .responsive-table td[colspan]::before {
+    content: none;
+  }
+  .responsive-table .mobile-actions {
+    justify-content: flex-end;
+  }
+  .responsive-table .mobile-actions::before {
+    align-self: center;
   }
 }

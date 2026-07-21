@@ -73,7 +73,7 @@ __decorate([
 ], TransactionController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id/refund'),
-    (0, roles_decorator_1.Roles)('OWNER', 'SUPER_ADMIN'),
+    (0, roles_decorator_1.Roles)('OWNER', 'SUPER_ADMIN', 'CASHIER'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),

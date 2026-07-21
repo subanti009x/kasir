@@ -23,12 +23,12 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-slate-500">{lowStock.length > 0 ? `${lowStock.length} produk di bawah batas minimum stok` : "Semua produk memiliki stok yang cukup"}</p>
         </div>
         {canManage && (
-          <button className="flex h-10 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800" onClick={() => { setForm({ type: "STOCK_IN", productId: "", quantity: 1, note: "" }); setModal(true); }}>
+          <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { setForm({ type: "STOCK_IN", productId: "", quantity: 1, note: "" }); setModal(true); }}>
             <Plus size={16} /> Mutasi Stok
           </button>
         )}
@@ -52,7 +52,7 @@ export default function InventoryPage() {
         <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full text-sm">
+          <table className="responsive-table w-full text-sm">
             <thead><tr className="border-b bg-slate-50 text-left text-xs uppercase text-slate-500">
               <th className="px-4 py-3">Jenis Mutasi</th><th className="px-4 py-3">Produk</th><th className="px-4 py-3 text-right">Jumlah</th><th className="px-4 py-3 text-right">Stok Saat Ini</th><th className="px-4 py-3">Keterangan</th><th className="px-4 py-3">Tanggal</th>
             </tr></thead>
@@ -77,8 +77,8 @@ export default function InventoryPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={() => setModal(false)}>
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setModal(false)}>
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between"><h3 className="text-lg font-bold">Mutasi Stok Baru</h3><button onClick={() => setModal(false)}><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); createMut.mutate({ ...form, quantity: +form.quantity }); }}>
               <div><label className="text-xs font-medium text-slate-600">Jenis Mutasi *</label>

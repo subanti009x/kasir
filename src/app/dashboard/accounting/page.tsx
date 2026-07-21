@@ -112,13 +112,13 @@ export default function AccountingPage() {
       {tab === "profit-loss" && (
         <>
           {/* Date filter */}
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-center">
             <BarChart3 size={18} className="text-teal-700" />
             <span className="text-sm font-semibold text-slate-900">Laporan Laba Rugi</span>
-            <div className="ml-auto flex items-center gap-2">
-              <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={plStart} onChange={(e) => setPlStart(e.target.value)} />
+            <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:items-center">
+              <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={plStart} onChange={(e) => setPlStart(e.target.value)} />
               <span className="text-xs text-slate-400">sampai</span>
-              <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={plEnd} onChange={(e) => setPlEnd(e.target.value)} />
+              <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={plEnd} onChange={(e) => setPlEnd(e.target.value)} />
             </div>
           </div>
 
@@ -193,12 +193,12 @@ export default function AccountingPage() {
       {tab === "balance-sheet" && (
         <>
           {/* Date filter */}
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-center">
             <Landmark size={18} className="text-teal-700" />
             <span className="text-sm font-semibold text-slate-900">Neraca Keuangan</span>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:items-center">
               <span className="text-xs text-slate-400">Per tanggal</span>
-              <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={bsDate} onChange={(e) => setBsDate(e.target.value)} />
+              <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={bsDate} onChange={(e) => setBsDate(e.target.value)} />
             </div>
           </div>
 
@@ -277,16 +277,16 @@ export default function AccountingPage() {
       {tab === "expenses" && (
         <>
           {/* Header with date filter and Add button */}
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-center">
             <Receipt size={18} className="text-teal-700" />
             <span className="text-sm font-semibold text-slate-900">Biaya Operasional</span>
-            <div className="ml-auto flex items-center gap-2">
-              <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={expStart} onChange={(e) => setExpStart(e.target.value)} />
+            <div className="flex w-full flex-col gap-2 sm:ml-auto sm:w-auto sm:flex-row sm:items-center">
+              <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={expStart} onChange={(e) => setExpStart(e.target.value)} />
               <span className="text-xs text-slate-400">sampai</span>
-              <input type="date" className="h-9 rounded-lg border border-slate-200 px-3 text-sm" value={expEnd} onChange={(e) => setExpEnd(e.target.value)} />
+              <input type="date" className="h-11 rounded-lg border border-slate-200 px-3 text-sm sm:h-9" value={expEnd} onChange={(e) => setExpEnd(e.target.value)} />
               <button
                 onClick={() => setShowExpenseForm(true)}
-                className="ml-2 flex items-center gap-1.5 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                className="flex h-11 items-center justify-center gap-1.5 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 sm:ml-2 sm:h-9"
               >
                 <Plus size={16} />
                 Catat Pengeluaran
@@ -296,8 +296,8 @@ export default function AccountingPage() {
 
           {/* Add expense modal */}
           {showExpenseForm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowExpenseForm(false)}>
-              <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" onClick={() => setShowExpenseForm(false)}>
+              <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-slate-950">Catat Pengeluaran Baru</h3>
                   <button onClick={() => setShowExpenseForm(false)} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100">
@@ -388,7 +388,7 @@ export default function AccountingPage() {
               ) : (
                 <div className="divide-y divide-slate-100">
                   {/* Table header */}
-                  <div className="grid grid-cols-[1fr_120px_1fr_140px_48px] gap-3 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  <div className="hidden grid-cols-[1fr_120px_1fr_140px_48px] gap-3 px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 md:grid">
                     <span>Keterangan</span>
                     <span>Kategori</span>
                     <span>Dicatat oleh</span>
@@ -398,7 +398,7 @@ export default function AccountingPage() {
                   {expenses.map((exp: any) => {
                     const meta = EXPENSE_CATEGORIES.find((c) => c.value === exp.category) || EXPENSE_CATEGORIES[5];
                     return (
-                      <div key={exp.id} className="grid grid-cols-[1fr_120px_1fr_140px_48px] items-center gap-3 px-5 py-3 text-sm hover:bg-slate-50">
+                      <div key={exp.id} className="grid gap-3 px-4 py-4 text-sm hover:bg-slate-50 md:grid-cols-[1fr_120px_1fr_140px_48px] md:items-center md:px-5 md:py-3">
                         <div>
                           <p className="font-semibold text-slate-900">{exp.description}</p>
                           <p className="text-[11px] text-slate-400">{new Date(exp.date).toLocaleDateString("id-ID", { dateStyle: "medium" })}</p>
