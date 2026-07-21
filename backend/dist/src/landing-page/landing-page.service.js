@@ -14,14 +14,17 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const notification_gateway_1 = require("../notification/notification.gateway");
 const accounting_service_1 = require("../accounting/accounting.service");
+const whatsapp_service_1 = require("../whatsapp/whatsapp.service");
 let LandingPageService = class LandingPageService {
     prisma;
     notifications;
     accounting;
-    constructor(prisma, notifications, accounting) {
+    whatsapp;
+    constructor(prisma, notifications, accounting, whatsapp) {
         this.prisma = prisma;
         this.notifications = notifications;
         this.accounting = accounting;
+        this.whatsapp = whatsapp;
     }
     async getStoreInfo(tenantId) {
         const tenant = await this.prisma.tenant.findUnique({
@@ -214,6 +217,7 @@ let LandingPageService = class LandingPageService {
             paymentMethod: transaction.paymentMethod,
         });
         this.generateSaleAccounting(tenantId, transaction);
+        this.whatsapp.enqueueNotification(tenantId, 'CHECKOUT_SUCCESS', transaction);
         return {
             success: true,
             transaction: {
@@ -254,6 +258,7 @@ exports.LandingPageService = LandingPageService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         notification_gateway_1.NotificationGateway,
-        accounting_service_1.AccountingService])
+        accounting_service_1.AccountingService,
+        whatsapp_service_1.WhatsappService])
 ], LandingPageService);
 //# sourceMappingURL=landing-page.service.js.map

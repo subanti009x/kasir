@@ -14,12 +14,13 @@ const landing_page_guard_1 = require("./landing-page.guard");
 const prisma_module_1 = require("../prisma/prisma.module");
 const notification_module_1 = require("../notification/notification.module");
 const accounting_module_1 = require("../accounting/accounting.module");
+const whatsapp_module_1 = require("../whatsapp/whatsapp.module");
 let LandingPageModule = class LandingPageModule {
 };
 exports.LandingPageModule = LandingPageModule;
 exports.LandingPageModule = LandingPageModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule, accounting_module_1.AccountingModule],
+        imports: [prisma_module_1.PrismaModule, notification_module_1.NotificationModule, accounting_module_1.AccountingModule, whatsapp_module_1.WhatsappModule],
         controllers: [landing_page_controller_1.LandingPageController],
         providers: [landing_page_service_1.LandingPageService, landing_page_guard_1.LandingPageGuard],
     })

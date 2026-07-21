@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LandingPageCheckoutDto } from './dto/landing-page.dto';
 import { NotificationGateway } from '../notification/notification.gateway';
 import { AccountingService } from '../accounting/accounting.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class LandingPageService {
@@ -10,6 +11,7 @@ export class LandingPageService {
     private prisma: PrismaService,
     private notifications: NotificationGateway,
     private accounting: AccountingService,
+    private whatsapp: WhatsappService,
   ) {}
 
   /**
@@ -253,6 +255,9 @@ export class LandingPageService {
 
     // Generate accounting journal entry (fire-and-forget)
     this.generateSaleAccounting(tenantId, transaction);
+
+    // Send WhatsApp notification to customer (fire-and-forget)
+    this.whatsapp.enqueueNotification(tenantId, 'CHECKOUT_SUCCESS', transaction);
 
     return {
       success: true,
