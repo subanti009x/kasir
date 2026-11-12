@@ -54,6 +54,14 @@ export default function POSPage() {
   // ── Exclusive feature: RECEIPT_OPTIONS / WHATSAPP_RECEIPT ──
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
 
+  useEffect(() => {
+    if (cart.size === 0) {
+      setCashAmount("");
+      setSecondaryAmount("");
+      setSplitPayment(false);
+    }
+  }, [cart.size]);
+
   // Barcode scanner refs
   const barcodeBuffer = useRef("");
   const lastKeyTime = useRef(0);
