@@ -42,10 +42,15 @@ export default function SettingsPage() {
   const { data: paymentMethods = [] } = useQuery({ queryKey: ["payment-methods"], queryFn: () => settingsApi.paymentMethods(token!), enabled: !!token });
 
   const [form, setForm] = useState({ name: "", address: "", phone: "", email: "", businessHours: "", currency: "IDR", taxRate: 0, receiptTemplate: "" });
+  const [logoLoadFailed, setLogoLoadFailed] = useState(false);
 
   useEffect(() => {
     if (settings) setForm({ name: settings.name || "", address: settings.address || "", phone: settings.phone || "", email: settings.email || "", businessHours: settings.businessHours || "", currency: settings.currency || "IDR", taxRate: settings.taxRate || 0, receiptTemplate: settings.receiptTemplate || "" });
   }, [settings]);
+
+  useEffect(() => {
+    setLogoLoadFailed(false);
+  }, [settings?.logo]);
 
   const updateMut = useMutation({ mutationFn: (d: any) => settingsApi.update(token!, d), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }) });
   const logoMut = useMutation({
@@ -195,7 +200,7 @@ export default function SettingsPage() {
         </div>
         <div className="mb-5 flex items-center gap-4 rounded-lg border border-slate-100 bg-slate-50 p-3">
           <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-slate-950 text-sm font-bold text-white">
-            {settings?.logo ? <img src={settings.logo} alt="" className="h-full w-full object-cover" /> : (settings?.name || "S").charAt(0)}
+            {settings?.logo && !logoLoadFailed ? <img src={settings.logo} alt="" className="h-full w-full object-cover" onError={() => setLogoLoadFailed(true)} /> : (settings?.name || "S").charAt(0)}
           </div>
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-teal-300 hover:text-teal-700">
             {logoMut.isPending ? <Loader2 className="animate-spin" size={15} /> : <ImageUp size={15} />}
