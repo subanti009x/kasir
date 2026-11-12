@@ -15,8 +15,7 @@ type NotificationTokenPayload = {
 };
 
 function getSocketPath(): string {
-  const prefix = process.env.BACKEND_ROUTE_PREFIX || (process.env.VERCEL ? '/_/backend' : '');
-  return prefix ? `${prefix.replace(/\/$/, '')}/socket.io` : '/socket.io';
+  return '/socket.io';
 }
 
 @Injectable()

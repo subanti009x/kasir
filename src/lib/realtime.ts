@@ -28,7 +28,7 @@ export function getNotificationSocketConfig(): NotificationSocketConfig | null {
   if (backendRoutePrefix) {
     return {
       path: `${backendRoutePrefix.replace(/\/$/, "")}/socket.io`,
-      transports: ["websocket", "polling"],
+      transports: ["websocket"],
       url: window.location.origin,
     };
   }
