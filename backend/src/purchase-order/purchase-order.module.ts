@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PurchaseOrderService } from './purchase-order.service';
-import { PurchaseOrderController } from './purchase-order.controller';
-import { PrismaModule } from '../prisma/prisma.module';
-import { AccountingModule } from '../accounting/accounting.module';
+import { PurchaseOrderService } from './purchase-order.service.js';
+import { PurchaseOrderController } from './purchase-order.controller.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
+import { AccountingModule } from '../accounting/accounting.module.js';
 
 @Module({
   imports: [PrismaModule, AccountingModule],

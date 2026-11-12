@@ -1,7 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { NotificationGateway } from './notification.gateway';
-import { getJwtSecret } from '../config/secrets';
+import { NotificationGateway } from './notification.gateway.js';
+import { getJwtSecret } from '../config/secrets.js';
 
 @Global()
 @Module({

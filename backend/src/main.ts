@@ -3,8 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { AppModule } from './app.module';
-import { getCorsOrigin } from './config/cors';
+import { AppModule } from './app.module.js';
+import { getCorsOrigin } from './config/cors.js';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

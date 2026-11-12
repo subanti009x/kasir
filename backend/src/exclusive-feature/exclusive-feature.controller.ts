@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { ExclusiveFeatureService } from './exclusive-feature.service';
+import { ExclusiveFeatureService } from './exclusive-feature.service.js';
 import {
   CreateExclusiveFeatureDto,
   UpdateExclusiveFeatureDto,
   AssignFeatureDto,
   UpdateAssignmentDto,
-} from './dto/exclusive-feature.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
+} from './dto/exclusive-feature.dto.js';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
+import { RolesGuard } from '../auth/roles.guard.js';
 
 @ApiTags('exclusive-features')
 @ApiBearerAuth()

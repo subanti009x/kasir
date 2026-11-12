@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { WhatsappService } from './whatsapp.service';
-import { WhatsappController } from './whatsapp.controller';
-import { WhatsappSessionManager } from './whatsapp-session.manager';
-import { PrismaModule } from '../prisma/prisma.module';
+import { WhatsappService } from './whatsapp.service.js';
+import { WhatsappController } from './whatsapp.controller.js';
+import { WhatsappSessionManager } from './whatsapp-session.manager.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
   imports: [PrismaModule],

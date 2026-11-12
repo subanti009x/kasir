@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { CreateProductDto, UpdateProductDto } from './dto/product.dto.js';
 
 type UploadedProductImage = {
   originalname: string;

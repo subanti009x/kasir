@@ -7,7 +7,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { getCorsOrigin } from '../config/cors';
+import { getCorsOrigin } from '../config/cors.js';
 
 type NotificationTokenPayload = {
   sub: string;

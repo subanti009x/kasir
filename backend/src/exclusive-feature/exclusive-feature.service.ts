@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service.js';
 import {
   CreateExclusiveFeatureDto,
   UpdateExclusiveFeatureDto,
   AssignFeatureDto,
   UpdateAssignmentDto,
-} from './dto/exclusive-feature.dto';
+} from './dto/exclusive-feature.dto.js';
 
 @Injectable()
 export class ExclusiveFeatureService {

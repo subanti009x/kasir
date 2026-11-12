@@ -2,8 +2,8 @@ import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/commo
 import { join } from 'path';
 import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import { PrismaService } from '../prisma/prisma.service';
-import { NotificationGateway } from '../notification/notification.gateway';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 // Detect serverless environment (Vercel) — Baileys requires persistent
 // WebSocket connections and filesystem access which are not available

@@ -1,9 +1,9 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CheckoutDto } from './dto/transaction.dto';
-import { NotificationGateway } from '../notification/notification.gateway';
-import { AccountingService } from '../accounting/accounting.service';
-import { WhatsappService } from '../whatsapp/whatsapp.service';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { CheckoutDto } from './dto/transaction.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
+import { AccountingService } from '../accounting/accounting.service.js';
+import { WhatsappService } from '../whatsapp/whatsapp.service.js';
 
 @Injectable()
 export class TransactionService {

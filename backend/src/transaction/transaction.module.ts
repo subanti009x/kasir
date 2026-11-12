@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TransactionService } from './transaction.service';
-import { TransactionController } from './transaction.controller';
-import { PrismaModule } from '../prisma/prisma.module';
-import { NotificationModule } from '../notification/notification.module';
-import { AccountingModule } from '../accounting/accounting.module';
-import { WhatsappModule } from '../whatsapp/whatsapp.module';
+import { TransactionService } from './transaction.service.js';
+import { TransactionController } from './transaction.controller.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
+import { NotificationModule } from '../notification/notification.module.js';
+import { AccountingModule } from '../accounting/accounting.module.js';
+import { WhatsappModule } from '../whatsapp/whatsapp.module.js';
 
 @Module({
   imports: [PrismaModule, NotificationModule, AccountingModule, WhatsappModule],

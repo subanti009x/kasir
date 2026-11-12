@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
-import { LandingPageService } from './landing-page.service';
-import { LandingPageGuard } from './landing-page.guard';
-import { LandingPageCheckoutDto } from './dto/landing-page.dto';
+import { LandingPageService } from './landing-page.service.js';
+import { LandingPageGuard } from './landing-page.guard.js';
+import { LandingPageCheckoutDto } from './dto/landing-page.dto.js';
 
 @ApiTags('landing-page')
 @Controller('landing')

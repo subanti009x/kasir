@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateExpenseDto } from './dto/accounting.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { CreateExpenseDto } from './dto/accounting.dto.js';
 
 // Account category constants
 const ACCOUNT = {

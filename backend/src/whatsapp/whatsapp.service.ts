@@ -1,9 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
-import { PrismaService } from '../prisma/prisma.service';
-import { NotificationGateway } from '../notification/notification.gateway';
-import { WhatsappSessionManager } from './whatsapp-session.manager';
-import { UpdateWhatsappConfigDto } from './dto/whatsapp.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
+import { WhatsappSessionManager } from './whatsapp-session.manager.js';
+import { UpdateWhatsappConfigDto } from './dto/whatsapp.dto.js';
 
 @Injectable()
 export class WhatsappService {

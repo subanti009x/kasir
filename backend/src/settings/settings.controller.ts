@@ -3,12 +3,12 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { mkdir, writeFile } from 'fs/promises';
 import { extname, join } from 'path';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { PrismaService } from '../prisma/prisma.service';
-import { UpdateTenantDto } from '../tenant/dto/tenant.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/roles.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
+import { CurrentUser } from '../auth/current-user.decorator.js';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { UpdateTenantDto } from '../tenant/dto/tenant.dto.js';
 
 type UploadedLogo = {
   originalname: string;

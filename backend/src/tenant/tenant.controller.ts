@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { TenantService } from './tenant.service';
-import { CreateTenantDto, UpdateTenantDto } from './dto/tenant.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Roles } from '../auth/roles.decorator';
-import { RolesGuard } from '../auth/roles.guard';
+import { TenantService } from './tenant.service.js';
+import { CreateTenantDto, UpdateTenantDto } from './dto/tenant.dto.js';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
+import { RolesGuard } from '../auth/roles.guard.js';
 
 @ApiTags('tenants')
 @ApiBearerAuth()
