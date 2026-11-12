@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 
 @Injectable()
 export class CustomerService {
   constructor(private prisma: PrismaService) {}
+
+  private async assertWholesaleFeature(tenantId: string, isWholesale?: boolean) {
+    if (!isWholesale) return;
+    const feature = await this.prisma.tenantFeature.findFirst({
+      where: { tenantId, enabled: true, feature: { code: 'WHOLESALE_PRICING', isActive: true } },
+      select: { id: true },
+    });
+    if (!feature) throw new BadRequestException('Harga bakul belum diaktifkan untuk toko ini');
+  }
 
   async findAll(tenantId: string, search?: string) {
     const where: any = { tenantId };
@@ -46,12 +55,14 @@ export class CustomerService {
   }
 
   async create(dto: CreateCustomerDto, tenantId: string) {
+    await this.assertWholesaleFeature(tenantId, dto.isWholesale);
     return this.prisma.customer.create({
       data: { ...dto, tenantId },
     });
   }
 
   async update(id: string, dto: UpdateCustomerDto, tenantId: string) {
+    await this.assertWholesaleFeature(tenantId, dto.isWholesale);
     await this.findOne(id, tenantId);
     return this.prisma.customer.update({ where: { id }, data: dto });
   }

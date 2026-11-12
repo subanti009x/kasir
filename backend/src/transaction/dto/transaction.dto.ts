@@ -7,6 +7,11 @@ export class TransactionItemDto {
   @IsString()
   productId: string;
 
+  @ApiPropertyOptional({ description: 'ID satuan alternatif produk; kosong berarti satuan dasar.' })
+  @IsOptional()
+  @IsString()
+  unitId?: string;
+
   @ApiProperty({ example: 2 })
   @IsInt()
   @Min(1)

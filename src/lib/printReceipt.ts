@@ -17,6 +17,7 @@ export interface ReceiptData {
     id: string;
     quantity: number;
     subtotal: number;
+    unitName?: string;
     product?: { name?: string; sku?: string };
   }[];
   subtotal: number;
@@ -73,7 +74,7 @@ function buildReceiptHTML(receipt: ReceiptData, store: StoreInfo): string {
     .map(
       (item) => `
       <tr>
-        <td class="item-name" colspan="3">${esc(item.product?.name || "Item")}</td>
+        <td class="item-name" colspan="3">${esc(item.product?.name || "Item")}${item.unitName ? ` (${esc(item.unitName)})` : ""}</td>
       </tr>
       <tr>
         <td class="item-detail">${item.quantity} x ${fmtCurrency(item.subtotal / (item.quantity || 1))}</td>

@@ -1,12 +1,13 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { NotificationGateway } from './notification.gateway';
+import { getJwtSecret } from '../config/secrets';
 
 @Global()
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'fallback-secret-for-dev',
+      secret: getJwtSecret(),
       signOptions: { expiresIn: '7d' },
     }),
   ],

@@ -34,7 +34,7 @@ async function bootstrap() {
 
   // Swagger / OpenAPI documentation
   const config = new DocumentBuilder()
-    .setTitle('Admin Solutions Inovatif API')
+    .setTitle('Portal Kasir RSI API')
     .setDescription('Business Management & POS System Platform API')
     .setVersion('1.0')
     .addBearerAuth()
@@ -60,7 +60,7 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`🚀 Admin Solutions Inovatif API running on http://localhost:${port}`);
+  console.log(`🚀 Portal Kasir RSI API running on http://localhost:${port}`);
   console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
 bootstrap();

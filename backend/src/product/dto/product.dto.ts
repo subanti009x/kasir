@@ -1,5 +1,28 @@
-import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumber, Min, IsArray, ValidateNested, IsInt, IsDateString } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+
+export class ProductUnitDto {
+  @ApiProperty({ example: 'Renteng' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ example: 10, description: 'Jumlah unit dasar dalam satu satuan ini.' })
+  @IsInt()
+  @Min(1)
+  conversionFactor: number;
+
+  @ApiProperty({ example: 25000 })
+  @IsNumber()
+  @Min(0)
+  sellingPrice: number;
+
+  @ApiPropertyOptional({ example: 23500 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  wholesalePrice?: number;
+}
 
 export class CreateProductDto {
   @ApiProperty({ example: 'Sourdough Loaf' })
@@ -29,6 +52,29 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   sellingPrice: number;
+
+  @ApiPropertyOptional({ example: 26500, description: 'Harga reseller untuk pelanggan bakul.' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  wholesalePrice?: number;
+
+  @ApiPropertyOptional({ example: 'pcs', description: 'Satuan dasar stok, misalnya pcs atau gram.' })
+  @IsOptional()
+  @IsString()
+  baseUnit?: string;
+
+  @ApiPropertyOptional({ example: '2027-12-31' })
+  @IsOptional()
+  @IsDateString()
+  expiresAt?: string | null;
+
+  @ApiPropertyOptional({ type: [ProductUnitDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductUnitDto)
+  units?: ProductUnitDto[];
 
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()

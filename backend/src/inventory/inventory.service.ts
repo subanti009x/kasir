@@ -94,7 +94,11 @@ export class InventoryService {
     });
   }
 
-  async getLowStockProducts(tenantId: string) {
+  async getLowStockProducts(tenantId: string | null) {
+    // A platform account has no tenant. Keep its result empty instead of
+    // querying Prisma with null or exposing stock across every store.
+    if (!tenantId) return [];
+
     // Raw query to compare stock <= minStock
     const products = await this.prisma.product.findMany({
       where: { tenantId, status: 'ACTIVE' },

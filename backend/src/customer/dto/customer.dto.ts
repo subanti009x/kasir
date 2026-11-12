@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEmail } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 
 export class CreateCustomerDto {
@@ -20,6 +20,11 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @ApiPropertyOptional({ description: 'True jika pelanggan adalah pembeli bakul/reseller.' })
+  @IsOptional()
+  @IsBoolean()
+  isWholesale?: boolean;
 }
 
 export class UpdateCustomerDto extends PartialType(CreateCustomerDto) {}

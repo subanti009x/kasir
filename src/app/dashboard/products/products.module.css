@@ -1,0 +1,65 @@
+.tableViewport {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+.tableViewport:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+@media (min-width: 641px) {
+  .productsTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .productsTable th,
+  .productsTable td {
+    vertical-align: middle;
+  }
+
+  .productsTable th {
+    white-space: nowrap;
+  }
+
+  .fullFeatureTable {
+    min-width: 1420px;
+    table-layout: fixed;
+  }
+
+  .fullFeatureTable .productColumn { width: 16%; }
+  .fullFeatureTable .skuColumn { width: 8%; }
+  .fullFeatureTable .categoryColumn { width: 9%; }
+  .fullFeatureTable .priceColumn { width: 7.5%; }
+  .fullFeatureTable .unitColumn { width: 16%; }
+  .fullFeatureTable .expiryColumn { width: 9%; }
+  .fullFeatureTable .stockColumn { width: 5%; }
+  .fullFeatureTable .statusColumn { width: 7%; }
+  .fullFeatureTable .actionsColumn { width: 7.5%; }
+
+  .compactTable {
+    min-width: 1040px;
+    table-layout: auto;
+  }
+
+  .productColumn { min-width: 210px; }
+  .skuColumn { min-width: 110px; white-space: nowrap; }
+  .categoryColumn { min-width: 120px; overflow-wrap: anywhere; }
+  .priceColumn { min-width: 108px; white-space: nowrap; }
+  .unitColumn { min-width: 210px; overflow-wrap: break-word; }
+  .expiryColumn { min-width: 126px; white-space: nowrap; }
+  .stockColumn { min-width: 78px; white-space: nowrap; }
+  .statusColumn { min-width: 92px; white-space: nowrap; }
+  .actionsColumn { min-width: 96px; white-space: nowrap; }
+}
+
+@media (max-width: 640px) {
+  .tableViewport {
+    overflow: visible;
+  }
+}

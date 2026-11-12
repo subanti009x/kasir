@@ -80,22 +80,21 @@ export default function LoginPage() {
               <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-lg" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Admin Solutions Inovatif</h1>
+              <h1 className="text-xl font-bold text-white">Portal Kasir RSI</h1>
               <p className="text-sm text-slate-400">Sistem Manajemen Bisnis & POS</p>
             </div>
           </div>
         </div>
         <div>
           <h2 className="text-4xl font-bold leading-tight text-white">
-            POS Modern
+            Kelola Toko
             <br />
             <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
-              untuk Semua Bisnis
+              Jadi Lebih Mudah
             </span>
           </h2>
           <p className="mt-4 max-w-lg text-lg leading-relaxed text-slate-400">
-            Kelola produk, proses transaksi, pantau stok, dan lihat laporan — semua dalam satu
-            sistem yang aman, dirancang khusus untuk UMKM Indonesia.
+            Catat transaksi, atur produk, cek stok, dan pantau hasil penjualan langsung dari satu aplikasi. Semua kebutuhan operasional toko bisa dikelola di satu tempat.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4">
             {stats.map((s) => (
@@ -106,7 +105,7 @@ export default function LoginPage() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-slate-600">© 2026 Admin Solutions Inovatif. Didukung oleh RSI (Ray Solutions Inovatif)</p>
+        <p className="text-xs text-slate-600">© 2026 Portal Kasir RSI. Didukung oleh RSI (Ray Solutions Inovatif)</p>
       </div>
 
       {/* Right - Form */}
@@ -116,7 +115,7 @@ export default function LoginPage() {
             <div className="grid size-10 place-items-center overflow-hidden rounded-lg bg-white border border-slate-200 p-0.5 shadow-sm">
               <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-md" />
             </div>
-            <span className="text-lg font-bold">Admin Solutions Inovatif</span>
+            <span className="text-lg font-bold">Portal Kasir RSI</span>
           </div>
 
           <h2 className="text-2xl font-bold text-slate-950">
@@ -125,7 +124,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-slate-500">
             {mode === "login"
               ? "Masuk untuk mengelola bisnis Anda"
-              : "Daftar dan mulai kelola bisnis Anda di Admin Solutions Inovatif"}
+              : "Daftar dan mulai kelola bisnis Anda di Portal Kasir RSI"}
           </p>
 
           {error && (

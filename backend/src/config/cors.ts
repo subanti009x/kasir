@@ -18,18 +18,6 @@ export function getCorsOrigin() {
       return;
     }
 
-    if (process.env.VERCEL) {
-      try {
-        if (new URL(origin).hostname.endsWith('.vercel.app')) {
-          callback(null, true);
-          return;
-        }
-      } catch {
-        callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
-        return;
-      }
-    }
-
     callback(new Error(`Origin ${origin} is not allowed by CORS`), false);
   };
 }

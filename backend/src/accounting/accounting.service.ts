@@ -129,13 +129,13 @@ export class AccountingService {
       receiptId: string;
       total: number;
       createdAt: Date;
-      items: { quantity: number; unitPrice: number; product: { purchasePrice?: number | null } }[];
+      items: { quantity: number; conversionFactor?: number; unitPrice: number; product: { purchasePrice?: number | null } }[];
     },
   ) {
     // Calculate COGS
     let totalCogs = 0;
     for (const item of transaction.items) {
-      totalCogs += (item.product.purchasePrice || 0) * item.quantity;
+      totalCogs += (item.product.purchasePrice || 0) * item.quantity * (item.conversionFactor || 1);
     }
 
     const lines: { accountCategory: string; debit: number; credit: number; label?: string }[] = [
@@ -171,12 +171,12 @@ export class AccountingService {
       receiptId: string;
       total: number;
       createdAt: Date;
-      items: { quantity: number; unitPrice: number; product: { purchasePrice?: number | null } }[];
+      items: { quantity: number; conversionFactor?: number; unitPrice: number; product: { purchasePrice?: number | null } }[];
     },
   ) {
     let totalCogs = 0;
     for (const item of transaction.items) {
-      totalCogs += (item.product.purchasePrice || 0) * item.quantity;
+      totalCogs += (item.product.purchasePrice || 0) * item.quantity * (item.conversionFactor || 1);
     }
 
     const lines: { accountCategory: string; debit: number; credit: number; label?: string }[] = [

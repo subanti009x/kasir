@@ -171,7 +171,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <img src="/logo.jpg" alt="RSI Logo" className="h-full w-full object-contain rounded-md" />
             </div>
             <div>
-              <p className="line-clamp-2 text-sm font-bold text-slate-950">Admin Solutions Inovatif</p>
+              <p className="line-clamp-2 text-sm font-bold text-slate-950">Portal Kasir RSI</p>
               <p className="text-sm text-slate-500">Sistem Manajemen Bisnis & POS</p>
             </div>
           </div>

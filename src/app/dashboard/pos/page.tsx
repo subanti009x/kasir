@@ -12,7 +12,7 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 }
 
-type CartItem = { product: any; quantity: number };
+type CartItem = { product: any; quantity: number; cartKey: string; unitId?: string; unitName: string; conversionFactor: number };
 
 const paymentIcons: Record<string, typeof Banknote> = {
   Cash: Banknote,
@@ -87,11 +87,11 @@ export default function POSPage() {
     enabled: !!token,
   });
 
-  // Customer list for WhatsApp receipt
+  // Customer list for receipts and automatic wholesale pricing
   const { data: customers = [] } = useQuery({
     queryKey: ["customers"],
     queryFn: () => customerApi.list(token!),
-    enabled: !!token && (hasFeature("RECEIPT_OPTIONS") || hasFeature("WHATSAPP_RECEIPT")),
+    enabled: !!token && (hasFeature("RECEIPT_OPTIONS") || hasFeature("WHATSAPP_RECEIPT") || hasFeature("WHOLESALE_PRICING")),
   });
 
   const enabledPayments = useMemo(
@@ -129,14 +129,16 @@ export default function POSPage() {
     },
   });
 
-  function addToCart(product: any) {
+  function addToCart(product: any, unit?: any) {
+    const cartKey = `${product.id}:${unit?.id || "base"}`;
+    const conversionFactor = unit?.conversionFactor || 1;
     setCart((prev) => {
       const next = new Map(prev);
-      const existing = next.get(product.id);
+      const existing = next.get(cartKey);
       if (existing) {
-        if (existing.quantity < product.stock) next.set(product.id, { ...existing, quantity: existing.quantity + 1 });
+        if ((existing.quantity + 1) * conversionFactor <= product.stock) next.set(cartKey, { ...existing, quantity: existing.quantity + 1 });
       } else if (product.stock > 0) {
-        next.set(product.id, { product, quantity: 1 });
+        if (conversionFactor <= product.stock) next.set(cartKey, { product, quantity: 1, cartKey, unitId: unit?.id, unitName: unit?.name || product.baseUnit || "pcs", conversionFactor });
       }
       return next;
     });
@@ -276,28 +278,35 @@ export default function POSPage() {
     setSearch("");
   }
 
-  function updateQty(productId: string, delta: number) {
+  function updateQty(cartKey: string, delta: number) {
     setCart((prev) => {
       const next = new Map(prev);
-      const item = next.get(productId);
+      const item = next.get(cartKey);
       if (!item) return prev;
       const newQty = item.quantity + delta;
-      if (newQty <= 0) next.delete(productId);
-      else if (newQty <= item.product.stock) next.set(productId, { ...item, quantity: newQty });
+      if (newQty <= 0) next.delete(cartKey);
+      else if (newQty * item.conversionFactor <= item.product.stock) next.set(cartKey, { ...item, quantity: newQty });
       return next;
     });
   }
 
-  function removeFromCart(productId: string) {
+  function removeFromCart(cartKey: string) {
     setCart((prev) => {
       const next = new Map(prev);
-      next.delete(productId);
+      next.delete(cartKey);
       return next;
     });
   }
 
   const cartItems = Array.from(cart.values());
-  const subtotal = cartItems.reduce((sum, item) => sum + item.product.sellingPrice * item.quantity, 0);
+  const wholesaleCustomer = customers.find((c: any) => c.id === selectedCustomerId)?.isWholesale === true;
+  const useWholesalePrice = hasFeature("WHOLESALE_PRICING") && wholesaleCustomer;
+  const itemPrice = (item: CartItem) => {
+    const unit = item.unitId ? item.product.units?.find((u: any) => u.id === item.unitId) : item.product;
+    const wholesale = unit?.wholesalePrice;
+    return useWholesalePrice && wholesale != null ? wholesale : (unit?.sellingPrice ?? item.product.sellingPrice);
+  };
+  const subtotal = cartItems.reduce((sum, item) => sum + itemPrice(item) * item.quantity, 0);
 
   // ── Exclusive feature: PAYMENT_SYSTEM — discount calculation ──
   const discountNum = Number(discountValue || 0);
@@ -327,7 +336,7 @@ export default function POSPage() {
       `--- Item ---`,
     ];
     receiptData.items?.forEach((item: any) => {
-      lines.push(`${item.product?.name} x${item.quantity} = ${formatCurrency(item.subtotal)}`);
+      lines.push(`${item.product?.name} (${item.unitName || "unit"}) x${item.quantity} = ${formatCurrency(item.subtotal)}`);
     });
     lines.push(``);
     lines.push(`Subtotal: ${formatCurrency(receiptData.subtotal)}`);
@@ -357,6 +366,7 @@ export default function POSPage() {
     const base: any = {
       items: cartItems.map((item) => ({
         productId: item.product.id,
+        ...(item.unitId ? { unitId: item.unitId } : {}),
         quantity: item.quantity,
       })),
       paymentMethod,
@@ -640,12 +650,7 @@ export default function POSPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {products.map((product: any) => (
-              <button
-                key={product.id}
-                className="group min-h-32 rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md disabled:opacity-50"
-                onClick={() => addToCart(product)}
-                disabled={product.stock === 0}
-              >
+              <div key={product.id} className="group min-h-32 rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold text-slate-900 group-hover:text-teal-700">{product.name}</p>
@@ -659,12 +664,14 @@ export default function POSPage() {
                   </span>
                 )}
                 <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
-                  <p className="text-base font-bold text-slate-950 sm:text-lg">{formatCurrency(product.sellingPrice)}</p>
+                  <p className="text-base font-bold text-slate-950 sm:text-lg">{formatCurrency(useWholesalePrice && product.wholesalePrice != null ? product.wholesalePrice : product.sellingPrice)} <span className="text-xs font-normal text-slate-500">/ {product.baseUnit || "pcs"}</span></p>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${product.stock <= (product.minStock || 0) ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}>
                     Stok: {product.stock}
                   </span>
                 </div>
-              </button>
+                <button className="mt-2 h-8 rounded-md bg-slate-950 px-3 text-xs font-semibold text-white disabled:opacity-50" onClick={() => addToCart(product)} disabled={product.stock < 1}>Tambah {product.baseUnit || "pcs"}</button>
+                {hasFeature("MULTI_UNIT") && product.units?.map((unit: any) => <button key={unit.id} className="ml-2 mt-2 h-8 rounded-md border border-teal-300 px-3 text-xs font-semibold text-teal-800 disabled:opacity-50" onClick={() => addToCart(product, unit)} disabled={product.stock < unit.conversionFactor}>+ {unit.name} · {formatCurrency(useWholesalePrice && unit.wholesalePrice != null ? unit.wholesalePrice : unit.sellingPrice)}</button>)}
+              </div>
             ))}
           </div>
         )}
@@ -683,22 +690,22 @@ export default function POSPage() {
           <div className="mt-4 max-h-[45vh] space-y-2 overflow-y-auto xl:max-h-[34vh]">
             {cartItems.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Pilih produk untuk dimasukkan ke keranjang</p>}
             {cartItems.map((item) => (
-              <div key={item.product.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-100 p-3">
+              <div key={item.cartKey} className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-100 p-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{item.product.name}</p>
-                  <p className="text-xs text-slate-500">{formatCurrency(item.product.sellingPrice)}</p>
+                  <p className="truncate text-sm font-semibold">{item.product.name} · {item.unitName}</p>
+                  <p className="text-xs text-slate-500">{item.unitName} · {formatCurrency(itemPrice(item))}</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button className="grid size-9 place-items-center rounded-md border border-slate-200 hover:bg-slate-50" onClick={() => updateQty(item.product.id, -1)}>
+                  <button className="grid size-9 place-items-center rounded-md border border-slate-200 hover:bg-slate-50" onClick={() => updateQty(item.cartKey, -1)}>
                     <Minus size={14} />
                   </button>
                   <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                  <button className="grid size-9 place-items-center rounded-md bg-slate-950 text-white hover:bg-slate-800" onClick={() => updateQty(item.product.id, 1)}>
+                  <button className="grid size-9 place-items-center rounded-md bg-slate-950 text-white hover:bg-slate-800" onClick={() => updateQty(item.cartKey, 1)}>
                     <Plus size={14} />
                   </button>
                 </div>
-                <p className="ml-auto min-w-24 text-right text-sm font-bold">{formatCurrency(item.product.sellingPrice * item.quantity)}</p>
-                <button className="grid size-9 place-items-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500" onClick={() => removeFromCart(item.product.id)}>
+                <p className="ml-auto min-w-24 text-right text-sm font-bold">{formatCurrency(itemPrice(item) * item.quantity)}</p>
+                <button className="grid size-9 place-items-center rounded-md text-slate-400 hover:bg-red-50 hover:text-red-500" onClick={() => removeFromCart(item.cartKey)}>
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -743,7 +750,7 @@ export default function POSPage() {
           )}
 
           {/* ── Exclusive feature: RECEIPT_OPTIONS — Customer selector ── */}
-          {(hasFeature("RECEIPT_OPTIONS") || hasFeature("WHATSAPP_RECEIPT")) && (
+          {(hasFeature("RECEIPT_OPTIONS") || hasFeature("WHATSAPP_RECEIPT") || hasFeature("WHOLESALE_PRICING")) && (
             <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-emerald-700">
                 <MessageCircle size={13} />
@@ -756,9 +763,10 @@ export default function POSPage() {
               >
                 <option value="">— Tanpa member —</option>
                 {customers.map((c: any) => (
-                  <option key={c.id} value={c.id}>{c.name}{c.phone ? ` (${c.phone})` : ""}</option>
+                  <option key={c.id} value={c.id}>{c.name}{c.isWholesale && hasFeature("WHOLESALE_PRICING") ? " — Bakul" : ""}{c.phone ? ` (${c.phone})` : ""}</option>
                 ))}
               </select>
+              {useWholesalePrice && <p className="mt-2 text-xs font-semibold text-amber-800">Harga bakul otomatis diterapkan untuk pelanggan ini.</p>}
             </div>
           )}
 
@@ -836,7 +844,7 @@ export default function POSPage() {
             <div className="mt-4 space-y-2">
               {receipt.items?.map((item: any) => (
                 <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
-                  <span>{item.product?.name} x {item.quantity}</span>
+                  <span>{item.product?.name}{item.unitName ? ` (${item.unitName})` : ""} x {item.quantity}</span>
                   <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
                 </div>
               ))}

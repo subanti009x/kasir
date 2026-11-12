@@ -7,7 +7,7 @@ import { Providers } from "../lib/providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Admin Solutions Inovatif — Sistem Manajemen Bisnis & POS",
+  title: "Portal Kasir RSI — Sistem Manajemen Bisnis & POS",
   description: "Platform Point of Sale untuk UMKM Indonesia dengan data terisolasi, kontrol akses berbasis peran, dan operasional real-time.",
 };
 

@@ -118,6 +118,9 @@ model Product {
   description   String?
   purchasePrice Float
   sellingPrice  Float
+  wholesalePrice Float?
+  baseUnit      String   @default("pcs")
+  expiresAt     DateTime?
   stock         Int      @default(0)
   minStock      Int      @default(0)
   image         String?
@@ -132,6 +135,7 @@ model Product {
   inventoryLogs    InventoryLog[]
   transactionItems TransactionItem[]
   purchaseOrderItems PurchaseOrderItem[]
+  units            ProductUnit[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -140,6 +144,23 @@ model Product {
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([categoryId])
+}
+
+model ProductUnit {
+  id                String   @id @default(uuid())
+  name              String
+  conversionFactor  Int
+  sellingPrice      Float
+  wholesalePrice    Float?
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, name])
+  @@index([productId])
 }
 
 model InventoryLog {
@@ -168,6 +189,7 @@ model Customer {
   phone          String?
   email          String?
   address        String?
+  isWholesale    Boolean  @default(false)
 
   tenantId       String
   tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -300,6 +322,8 @@ model TransactionPayment {
 model TransactionItem {
   id            String   @id @default(uuid())
   quantity      Int
+  unitName      String   @default("unit")
+  conversionFactor Int  @default(1)
   unitPrice     Float
   subtotal      Float
 

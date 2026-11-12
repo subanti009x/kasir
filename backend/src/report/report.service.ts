@@ -5,7 +5,24 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportService {
   constructor(private prisma: PrismaService) {}
 
-  async getDashboard(tenantId: string) {
+  async getDashboard(tenantId: string | null) {
+    // Super admins are platform accounts and do not belong to a tenant.
+    // Never send a null tenantId to Prisma or aggregate across all stores.
+    if (!tenantId) {
+      return {
+        todaySales: 0,
+        todayTransactions: 0,
+        monthlySales: 0,
+        monthlyTransactions: 0,
+        totalProducts: 0,
+        totalCustomers: 0,
+        totalEmployees: 0,
+        lowStockCount: 0,
+        lowStockProducts: [],
+        recentTransactions: [],
+      };
+    }
+
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -72,7 +89,24 @@ export class ReportService {
     };
   }
 
-  async getSalesReport(tenantId: string, startDate: string, endDate: string) {
+  async getSalesReport(tenantId: string | null, startDate: string, endDate: string) {
+    if (!tenantId) {
+      return {
+        period: { startDate, endDate },
+        summary: {
+          totalRevenue: 0,
+          totalProfit: 0,
+          totalDiscount: 0,
+          totalTax: 0,
+          transactionCount: 0,
+          averageTransaction: 0,
+        },
+        bestSellers: [],
+        dailyBreakdown: [],
+        paymentMethods: [],
+      };
+    }
+
     const start = new Date(startDate);
     const end = new Date(endDate + 'T23:59:59.999Z');
 
@@ -99,7 +133,7 @@ export class ReportService {
 
     for (const tx of transactions) {
       for (const item of tx.items) {
-        const profit = (item.unitPrice - (item.product.purchasePrice || 0)) * item.quantity;
+          const profit = (item.unitPrice - (item.product.purchasePrice || 0) * item.conversionFactor) * item.quantity;
         totalProfit += profit;
 
         const existing = productSalesMap.get(item.productId) || { name: item.product.name, quantity: 0, revenue: 0 };

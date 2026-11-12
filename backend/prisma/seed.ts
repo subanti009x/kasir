@@ -4,6 +4,10 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('The demo seed is disabled in production. Use the production setup instructions instead.');
+  }
+
   console.log('🌱 Seeding database...');
 
   // Create Super Admin (no tenant)
@@ -297,19 +301,23 @@ async function main() {
     },
   });
 
-  // Assign all exclusive features to Nusantara Bakery (tenant1)
-  for (const feature of [feature1, feature2, feature3]) {
-    await prisma.tenantFeature.upsert({
-      where: { tenantId_featureId: { tenantId: tenant1.id, featureId: feature.id } },
-      update: {},
-      create: {
-        tenantId: tenant1.id,
-        featureId: feature.id,
-        enabled: true,
-      },
-    });
-  }
-  // Toko Sembako Maju (tenant2) does NOT get any exclusive features → uses default system
+  const featureWholesale = await prisma.exclusiveFeature.upsert({
+    where: { code: 'WHOLESALE_PRICING' },
+    update: { name: 'Harga Umum dan Harga Bakul', description: 'Atur harga umum dan harga khusus pelanggan bakul/reseller; harga bakul diterapkan otomatis saat pelanggan bakul dipilih di kasir.' },
+    create: { code: 'WHOLESALE_PRICING', name: 'Harga Umum dan Harga Bakul', description: 'Atur harga umum dan harga khusus pelanggan bakul/reseller; harga bakul diterapkan otomatis saat pelanggan bakul dipilih di kasir.', category: 'POS', isActive: true },
+  });
+  const featureMultiUnit = await prisma.exclusiveFeature.upsert({
+    where: { code: 'MULTI_UNIT' },
+    update: { name: 'Multi-Satuan Produk', description: 'Jual produk dalam satuan berbeda dengan konversi stok, seperti pcs, renteng, dus, gram, dan kilogram.' },
+    create: { code: 'MULTI_UNIT', name: 'Multi-Satuan Produk', description: 'Jual produk dalam satuan berbeda dengan konversi stok, seperti pcs, renteng, dus, gram, dan kilogram.', category: 'POS', isActive: true },
+  });
+  const featureExpiry = await prisma.exclusiveFeature.upsert({
+    where: { code: 'EXPIRY_DATE' },
+    update: { name: 'Expired Date Produk', description: 'Simpan dan pantau tanggal kedaluwarsa produk.' },
+    create: { code: 'EXPIRY_DATE', name: 'Expired Date Produk', description: 'Simpan dan pantau tanggal kedaluwarsa produk.', category: 'INVENTORY', isActive: true },
+  });
+
+  // Exclusive features are master records only. Super Admin assigns them per tenant.
 
   // --- Tenant 3: Aderose Glowing Salon ---
   const tenant3 = await prisma.tenant.upsert({
@@ -433,26 +441,11 @@ async function main() {
     ],
   });
 
-  // Assign exclusive features to Aderose Glowing Salon (tenant3)
-  // All POS features + LANDING_PAGE
-  for (const feature of [feature1, feature2, feature3, featureLandingPage]) {
-    await prisma.tenantFeature.upsert({
-      where: { tenantId_featureId: { tenantId: tenant3.id, featureId: feature.id } },
-      update: {},
-      create: {
-        tenantId: tenant3.id,
-        featureId: feature.id,
-        enabled: true,
-      },
-    });
-  }
-
   console.log(`✅ Tenant 1: ${tenant1.name}`);
   console.log(`✅ Tenant 2: ${tenant2.name}`);
   console.log(`✅ Tenant 3: ${tenant3.name}`);
-  console.log(`✅ Exclusive Features: ${feature1.name}, ${feature2.name}, ${feature3.name}, ${featureLandingPage.name}`);
-  console.log(`   → POS Features assigned to: ${tenant1.name}, ${tenant3.name}`);
-  console.log(`   → Landing Page assigned to: ${tenant3.name}`);
+  console.log(`✅ Exclusive Features: ${feature1.name}, ${feature2.name}, ${feature3.name}, ${featureLandingPage.name}, ${featureWholesale.name}, ${featureMultiUnit.name}, ${featureExpiry.name}`);
+  console.log('   → Tidak ada fitur eksklusif yang otomatis di-assign ke toko.');
   console.log('');
   console.log('🔑 Login credentials:');
   console.log('   Super Admin: admin@kasirpro.com / admin123');

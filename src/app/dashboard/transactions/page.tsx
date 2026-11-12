@@ -134,7 +134,7 @@ export default function TransactionsPage() {
             <div className="mt-4 space-y-2">
               {detail.items?.map((item: any) => (
                 <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
-                  <span>{item.product?.name || "Produk"} × {item.quantity}</span>
+                  <span>{item.product?.name || "Produk"}{item.unitName ? ` (${item.unitName})` : ""} × {item.quantity}</span>
                   <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
                 </div>
               ))}

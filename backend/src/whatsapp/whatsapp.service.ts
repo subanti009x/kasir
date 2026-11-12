@@ -90,7 +90,7 @@ export class WhatsappService {
     const items = (transaction.items || [])
       .map(
         (item: any) =>
-          `• ${item.product?.name || 'Item'} x${item.quantity} = ${this.formatCurrency(item.subtotal)}`,
+          `• ${item.product?.name || 'Item'} (${item.unitName || 'unit'}) x${item.quantity} = ${this.formatCurrency(item.subtotal)}`,
       )
       .join('\n');
 

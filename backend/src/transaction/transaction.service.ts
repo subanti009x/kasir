@@ -18,35 +18,74 @@ export class TransactionService {
     const transaction = await this.prisma.$transaction(async (tx) => {
       // 1. Validate all products and calculate totals
       let subtotal = 0;
-      const validatedItems: { productId: string; quantity: number; unitPrice: number; subtotal: number; product: { id: string; name: string; stock: number; minStock: number } }[] = [];
+      const validatedItems: { productId: string; quantity: number; unitName: string; conversionFactor: number; unitPrice: number; subtotal: number; product: { id: string; name: string; stock: number; minStock: number } }[] = [];
+      const reservedStock = new Map<string, number>();
+
+      const enabledFeatures = await tx.tenantFeature.findMany({
+        where: {
+          tenantId,
+          enabled: true,
+          feature: {
+            isActive: true,
+            code: { in: ['WHOLESALE_PRICING', 'MULTI_UNIT'] },
+          },
+        },
+        select: { feature: { select: { code: true } } },
+      });
+      const featureCodes = new Set(enabledFeatures.map((assignment) => assignment.feature.code));
+      let wholesaleCustomerActive = false;
 
       if (dto.customerId) {
         const customer = await tx.customer.findFirst({
           where: { id: dto.customerId, tenantId },
+          select: { isWholesale: true },
         });
         if (!customer) {
           throw new BadRequestException('Customer not found in this tenant');
         }
+        wholesaleCustomerActive = featureCodes.has('WHOLESALE_PRICING') && customer.isWholesale;
       }
 
       for (const item of dto.items) {
         const product = await tx.product.findFirst({
           where: { id: item.productId, tenantId, status: 'ACTIVE' },
+          include: { units: true },
         });
 
         if (!product) {
           throw new BadRequestException(`Product ${item.productId} not found or inactive`);
         }
-        if (product.stock < item.quantity) {
-          throw new BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
+        let unitName = product.baseUnit;
+        let conversionFactor = 1;
+        let generalPrice = product.sellingPrice;
+        let wholesalePrice = product.wholesalePrice;
+        if (item.unitId) {
+          if (!featureCodes.has('MULTI_UNIT')) {
+            throw new BadRequestException('Multi-satuan belum diaktifkan untuk toko ini');
+          }
+          const unit = product.units.find((candidate) => candidate.id === item.unitId);
+          if (!unit) throw new BadRequestException(`Unit ${item.unitId} is not valid for ${product.name}`);
+          unitName = unit.name;
+          conversionFactor = unit.conversionFactor;
+          generalPrice = unit.sellingPrice;
+          wholesalePrice = unit.wholesalePrice;
         }
 
-        const unitPrice = product.sellingPrice;
+        const stockRequired = item.quantity * conversionFactor;
+        const alreadyReserved = reservedStock.get(product.id) || 0;
+        if (product.stock - alreadyReserved < stockRequired) {
+          throw new BadRequestException(`Insufficient stock for ${product.name}. Available: ${product.stock}`);
+        }
+        reservedStock.set(product.id, alreadyReserved + stockRequired);
+
+        const unitPrice = wholesaleCustomerActive && wholesalePrice != null ? wholesalePrice : generalPrice;
         const itemSubtotal = unitPrice * item.quantity;
         subtotal += itemSubtotal;
         validatedItems.push({
           productId: item.productId,
           quantity: item.quantity,
+          unitName,
+          conversionFactor,
           unitPrice,
           subtotal: itemSubtotal,
           product,
@@ -103,6 +142,8 @@ export class TransactionService {
             create: validatedItems.map((item) => ({
               productId: item.productId,
               quantity: item.quantity,
+              unitName: item.unitName,
+              conversionFactor: item.conversionFactor,
               unitPrice: item.unitPrice,
               subtotal: item.subtotal,
             })),
@@ -126,12 +167,12 @@ export class TransactionService {
       for (const item of validatedItems) {
         await tx.product.update({
           where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
+          data: { stock: { decrement: item.quantity * item.conversionFactor } },
         });
         await tx.inventoryLog.create({
           data: {
             type: 'STOCK_OUT',
-            quantity: -item.quantity,
+            quantity: -(item.quantity * item.conversionFactor),
             note: `Sale ${receiptId}`,
             reference: transaction.id,
             productId: item.productId,
@@ -254,12 +295,12 @@ export class TransactionService {
       for (const item of transaction.items) {
         await tx.product.update({
           where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
+          data: { stock: { increment: item.quantity * item.conversionFactor } },
         });
         await tx.inventoryLog.create({
           data: {
             type: 'STOCK_IN',
-            quantity: item.quantity,
+            quantity: item.quantity * item.conversionFactor,
             note: `Refund ${transaction.receiptId}`,
             reference: transaction.id,
             productId: item.productId,
