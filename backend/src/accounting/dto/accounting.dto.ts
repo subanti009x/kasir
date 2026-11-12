@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsDateString, IsOptional, IsIn, Min } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsDateString,
+  IsOptional,
+  IsIn,
+  Min,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export const EXPENSE_CATEGORIES = [
@@ -23,8 +30,8 @@ export class CreateExpenseDto {
   description: string;
 
   @ApiProperty({ example: 1500000 })
-  @IsNumber()
-  @Min(0)
+  @IsInt()
+  @Min(1)
   amount: number;
 
   @ApiProperty({ example: '2026-07-01' })

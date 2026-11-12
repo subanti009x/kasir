@@ -308,11 +308,13 @@ export default function AccountingPage() {
                   className="mt-5 space-y-4"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (!expenseForm.description || !expenseForm.amount) return;
+                    const description = expenseForm.description.trim();
+                    const amount = Number(expenseForm.amount);
+                    if (!description || !Number.isInteger(amount) || amount <= 0) return;
                     createExpense.mutate({
                       category: expenseForm.category,
-                      description: expenseForm.description,
-                      amount: parseFloat(expenseForm.amount),
+                      description,
+                      amount,
                       date: expenseForm.date,
                     });
                   }}
@@ -335,6 +337,7 @@ export default function AccountingPage() {
                       type="text"
                       className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm"
                       placeholder="Contoh: Sewa ruko bulanan"
+                      required
                       value={expenseForm.description}
                       onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
                     />
@@ -343,10 +346,11 @@ export default function AccountingPage() {
                     <label className="mb-1 block text-xs font-semibold text-slate-700">Nominal (IDR)</label>
                     <input
                       type="number"
-                      min="0"
-                      step="1000"
+                      min="1"
+                      step="1"
                       className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm"
                       placeholder="0"
+                      required
                       value={expenseForm.amount}
                       onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
                     />
