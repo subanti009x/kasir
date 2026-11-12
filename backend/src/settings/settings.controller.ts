@@ -27,6 +27,10 @@ type UploadedLogo = {
   buffer: Buffer;
 };
 
+type TenantUser = {
+  tenantId: string;
+};
+
 @ApiTags('settings')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,7 +40,7 @@ export class SettingsController {
 
   @Get()
   @Roles('OWNER')
-  async getSettings(@CurrentUser() user: any) {
+  async getSettings(@CurrentUser() user: TenantUser) {
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: user.tenantId },
       include: { paymentMethods: true },
@@ -46,7 +50,7 @@ export class SettingsController {
 
   @Get('pos')
   @Roles('OWNER', 'CASHIER')
-  async getPosSettings(@CurrentUser() user: any) {
+  async getPosSettings(@CurrentUser() user: TenantUser) {
     return this.prisma.tenant.findUnique({
       where: { id: user.tenantId },
       select: {
@@ -61,7 +65,10 @@ export class SettingsController {
 
   @Patch()
   @Roles('OWNER')
-  async updateSettings(@Body() dto: UpdateTenantDto, @CurrentUser() user: any) {
+  async updateSettings(
+    @Body() dto: UpdateTenantDto,
+    @CurrentUser() user: TenantUser,
+  ) {
     return this.prisma.tenant.update({
       where: { id: user.tenantId },
       data: dto,
@@ -74,7 +81,7 @@ export class SettingsController {
   @UseInterceptors(FileInterceptor('logo'))
   async uploadLogo(
     @UploadedFile() file: UploadedLogo,
-    @CurrentUser() user: any,
+    @CurrentUser() user: TenantUser,
   ) {
     if (!file) {
       throw new BadRequestException('Logo file is required');
@@ -111,7 +118,7 @@ export class SettingsController {
 
   @Get('payment-methods')
   @Roles('OWNER', 'CASHIER')
-  async getPaymentMethods(@CurrentUser() user: any) {
+  async getPaymentMethods(@CurrentUser() user: TenantUser) {
     return this.prisma.paymentMethod.findMany({
       where: { tenantId: user.tenantId },
       orderBy: { name: 'asc' },
@@ -122,7 +129,7 @@ export class SettingsController {
   @Roles('OWNER')
   async updatePaymentMethod(
     @Body() dto: { id: string; enabled: boolean },
-    @CurrentUser() user: any,
+    @CurrentUser() user: TenantUser,
   ) {
     return this.prisma.paymentMethod.updateMany({
       where: { id: dto.id, tenantId: user.tenantId },
