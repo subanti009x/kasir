@@ -173,6 +173,7 @@ export const accountingApi = {
 // ---- Settings ----
 export const settingsApi = {
   get: (token: string) => api<any>("/settings", { token }),
+  pos: (token: string) => api<any>("/settings/pos", { token }),
   update: (token: string, data: any) => api<any>("/settings", { method: "PATCH", body: data, token }),
   uploadLogo: (token: string, file: File) => uploadFile<any>("/settings/logo", file, token, "logo"),
   paymentMethods: (token: string) => api<any[]>("/settings/payment-methods", { token }),

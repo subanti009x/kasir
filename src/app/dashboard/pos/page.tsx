@@ -78,7 +78,7 @@ export default function POSPage() {
 
   const { data: settings } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => settingsApi.get(token!),
+    queryFn: () => settingsApi.pos(token!),
     enabled: !!token,
   });
   const { data: configuredPayments = [] } = useQuery({

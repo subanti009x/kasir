@@ -50,7 +50,7 @@ export default function TransactionsPage() {
 
   const { data: settings } = useQuery({
     queryKey: ["settings"],
-    queryFn: () => settingsApi.get(token!),
+    queryFn: () => settingsApi.pos(token!),
     enabled: !!token,
   });
 

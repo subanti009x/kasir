@@ -49,6 +49,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!loading && !user) router.replace("/");
   }, [loading, user, router]);
 
+  const isPlatformRoute = pathname === "/dashboard/admin" || pathname.startsWith("/dashboard/admin/") ||
+    pathname === "/dashboard/exclusive-features" || pathname.startsWith("/dashboard/exclusive-features/");
+  const ownerOnlyRoutes = ["/dashboard/suppliers", "/dashboard/reports", "/dashboard/accounting", "/dashboard/employees", "/dashboard/settings"];
+  const isOwnerOnlyRoute = ownerOnlyRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  const roleBlocked = !!user && (isSuperAdmin ? !isPlatformRoute : !canManage && isOwnerOnlyRoute);
+
+  useEffect(() => {
+    if (!user || !roleBlocked) return;
+    router.replace(isSuperAdmin ? "/dashboard/admin" : "/dashboard");
+  }, [user, roleBlocked, isSuperAdmin, router]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -123,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
   }, [user?.tenantId, token]);
 
-  if (loading || !user) {
+  if (loading || !user || roleBlocked) {
     return (
       <div className="grid min-h-screen place-items-center bg-slate-50">
         <div className="flex items-center gap-3 text-slate-400">
@@ -134,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  const visibleItems = navItems.filter((item) => {
+  const visibleItems = (isSuperAdmin ? [] : navItems).filter((item) => {
     if (item.href === "/dashboard/employees" && !canManage) return false;
     if (item.href === "/dashboard/suppliers" && !canManage) return false;
     if (item.href === "/dashboard/settings" && !canManage) return false;
