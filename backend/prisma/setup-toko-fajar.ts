@@ -51,7 +51,42 @@ async function main() {
     });
   }
 
-  console.log(`Toko Fajar setup completed for tenant "${tenant.slug}".`);
+  const fajarReceipt = await prisma.exclusiveFeature.upsert({
+    where: { code: 'FAJAR_CLIENT_RECEIPT' },
+    update: {
+      name: 'Struk for Client Fajar',
+      description: 'Format struk khusus Toko Fajar dengan identitas toko, rincian transaksi, pembayaran, kembalian, dan tautan kritik dan saran.',
+      category: 'POS',
+      isActive: true,
+    },
+    create: {
+      code: 'FAJAR_CLIENT_RECEIPT',
+      name: 'Struk for Client Fajar',
+      description: 'Format struk khusus Toko Fajar dengan identitas toko, rincian transaksi, pembayaran, kembalian, dan tautan kritik dan saran.',
+      category: 'POS',
+      isActive: true,
+    },
+  });
+
+  // This client-specific feature is restricted to the Fajar tenant only.
+  await prisma.tenantFeature.deleteMany({
+    where: { featureId: fajarReceipt.id, tenantId: { not: tenant.id } },
+  });
+  await prisma.tenantFeature.upsert({
+    where: { tenantId_featureId: { tenantId: tenant.id, featureId: fajarReceipt.id } },
+    update: { enabled: true },
+    create: { tenantId: tenant.id, featureId: fajarReceipt.id, enabled: true },
+  });
+
+  const fajarReceiptAssignments = await prisma.tenantFeature.findMany({
+    where: { featureId: fajarReceipt.id },
+    include: { tenant: { select: { slug: true } } },
+  });
+  if (fajarReceiptAssignments.length !== 1 || fajarReceiptAssignments[0].tenant.slug !== tenantSlug) {
+    throw new Error('Struk for Client Fajar must only be assigned to the Toko Fajar tenant.');
+  }
+
+  console.log(`Toko Fajar setup completed for tenant "${tenant.slug}". Struk for Client Fajar assignments: ${fajarReceiptAssignments.length}.`);
 }
 
 main()

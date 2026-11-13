@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import {
   CreateExclusiveFeatureDto,
@@ -9,6 +9,9 @@ import {
 
 @Injectable()
 export class ExclusiveFeatureService {
+  private readonly fajarReceiptCode = 'FAJAR_CLIENT_RECEIPT';
+  private readonly fajarTenantSlug = 'toko-fajar';
+
   constructor(private prisma: PrismaService) {}
 
   // ─── Master Feature CRUD ────────────────────────────────
@@ -86,8 +89,12 @@ export class ExclusiveFeatureService {
     // Check tenant exists
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: dto.tenantId },
+      select: { id: true, name: true, slug: true },
     });
     if (!tenant) throw new NotFoundException('Tenant not found');
+    if (feature.code === this.fajarReceiptCode && tenant.slug !== this.fajarTenantSlug) {
+      throw new ForbiddenException('Struk for Client Fajar hanya dapat di-assign ke Toko Fajar.');
+    }
 
     // Check for existing assignment
     const existing = await this.prisma.tenantFeature.findUnique({
@@ -106,8 +113,18 @@ export class ExclusiveFeatureService {
   }
 
   async updateAssignment(id: string, dto: UpdateAssignmentDto) {
-    const assignment = await this.prisma.tenantFeature.findUnique({ where: { id } });
+    const assignment = await this.prisma.tenantFeature.findUnique({
+      where: { id },
+      include: { feature: true, tenant: { select: { slug: true } } },
+    });
     if (!assignment) throw new NotFoundException('Assignment not found');
+    if (
+      assignment.feature.code === this.fajarReceiptCode &&
+      assignment.tenant.slug !== this.fajarTenantSlug &&
+      dto.enabled
+    ) {
+      throw new ForbiddenException('Struk for Client Fajar hanya dapat diaktifkan untuk Toko Fajar.');
+    }
 
     return this.prisma.tenantFeature.update({
       where: { id },

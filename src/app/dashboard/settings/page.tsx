@@ -43,7 +43,6 @@ export default function SettingsPage() {
 
   const [form, setForm] = useState({ name: "", address: "", phone: "", email: "", businessHours: "", currency: "IDR", taxRate: 0, receiptTemplate: "" });
   const [logoLoadFailed, setLogoLoadFailed] = useState(false);
-
   useEffect(() => {
     if (settings) setForm({ name: settings.name || "", address: settings.address || "", phone: settings.phone || "", email: settings.email || "", businessHours: settings.businessHours || "", currency: settings.currency || "IDR", taxRate: settings.taxRate || 0, receiptTemplate: settings.receiptTemplate || "" });
   }, [settings]);
@@ -227,6 +226,20 @@ export default function SettingsPage() {
           </button>
           {updateMut.isSuccess && <p className="text-xs text-emerald-600">Pengaturan berhasil disimpan!</p>}
         </form>
+      </div>
+
+      {/* Receipt Print Settings */}
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-2 flex items-center gap-2">
+          <Receipt size={18} className="text-teal-700" />
+          <h2 className="text-lg font-bold text-slate-950">Pengaturan Cetak Struk</h2>
+        </div>
+        <p className="text-sm leading-relaxed text-slate-600">
+          Tombol <strong>Cetak Struk</strong> akan membuka pratinjau PDF struk. Dari pratinjau, Anda dapat memeriksa hasilnya, mengunduh PDF, atau membuka tombol cetak pada penampil PDF untuk memilih printer.
+        </p>
+        <p className="mt-3 text-xs leading-relaxed text-slate-500">
+          PDF menggunakan lebar struk yang tersimpan di browser (default 80 mm), sementara panjangnya mengikuti isi transaksi. Ukuran kertas yang tersedia saat mencetak tetap mengikuti printer dan driver Windows.
+        </p>
       </div>
 
       {/* Payment Methods */}
@@ -587,3 +600,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

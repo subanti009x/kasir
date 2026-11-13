@@ -317,6 +317,23 @@ async function main() {
     create: { code: 'EXPIRY_DATE', name: 'Expired Date Produk', description: 'Simpan dan pantau tanggal kedaluwarsa produk.', category: 'INVENTORY', isActive: true },
   });
 
+  await prisma.exclusiveFeature.upsert({
+    where: { code: 'FAJAR_CLIENT_RECEIPT' },
+    update: {
+      name: 'Struk for Client Fajar',
+      description: 'Format struk khusus Toko Fajar dengan identitas toko, rincian transaksi, pembayaran, kembalian, dan tautan kritik dan saran.',
+      category: 'POS',
+      isActive: true,
+    },
+    create: {
+      code: 'FAJAR_CLIENT_RECEIPT',
+      name: 'Struk for Client Fajar',
+      description: 'Format struk khusus Toko Fajar dengan identitas toko, rincian transaksi, pembayaran, kembalian, dan tautan kritik dan saran.',
+      category: 'POS',
+      isActive: true,
+    },
+  });
+
   // Exclusive features are master records only. Super Admin assigns them per tenant.
 
   // --- Tenant 3: Aderose Glowing Salon ---

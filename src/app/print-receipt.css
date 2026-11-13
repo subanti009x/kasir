@@ -14,7 +14,7 @@
 
   /* Reset page for thermal receipt */
   @page {
-    size: 80mm auto;
+    size: auto;
     margin: 0;
   }
 
@@ -24,3 +24,4 @@
     background: white;
   }
 }
+

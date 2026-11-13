@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ExclusiveFeatureService } from './exclusive-feature.service.js';
 import {
@@ -10,6 +10,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { Roles } from '../auth/roles.decorator.js';
 import { RolesGuard } from '../auth/roles.guard.js';
+import { CurrentUser } from '../auth/current-user.decorator.js';
 
 @ApiTags('exclusive-features')
 @ApiBearerAuth()
@@ -73,7 +74,10 @@ export class ExclusiveFeatureController {
   // ─── Feature Check (All Roles) ─────────────────────────
 
   @Get('check/:tenantId')
-  checkTenantFeatures(@Param('tenantId') tenantId: string) {
+  checkTenantFeatures(@Param('tenantId') tenantId: string, @CurrentUser() currentUser: any) {
+    if (currentUser.role !== 'SUPER_ADMIN' && currentUser.tenantId !== tenantId) {
+      throw new ForbiddenException('Anda hanya dapat memeriksa fitur untuk toko sendiri.');
+    }
     return this.service.checkTenantFeatures(tenantId);
   }
 }

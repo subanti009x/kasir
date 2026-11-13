@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { transactionApi, settingsApi } from "@/lib/api";
-import { printReceipt } from "@/lib/printReceipt";
+import { ReceiptPdfPreview } from "@/components/ReceiptPdfPreview";
 import { Loader2, Eye, RotateCcw, X, Printer, MessageCircle, CheckCircle2, Clock, AlertCircle, Send } from "lucide-react";
 
 function formatCurrency(n: number) {
@@ -41,6 +41,7 @@ export default function TransactionsPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [detail, setDetail] = useState<any>(null);
+  const [receiptPreview, setReceiptPreview] = useState<{ receipt: any; store: any } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["transactions", page, startDate, endDate],
@@ -63,11 +64,14 @@ export default function TransactionsPage() {
   const totalPages = data?.totalPages || 1;
 
   const handlePrint = (tx: any) => {
-    printReceipt(tx, {
-      name: settings?.name,
-      address: settings?.address,
-      phone: settings?.phone,
-      logo: settings?.logo,
+    setReceiptPreview({
+      receipt: tx,
+      store: {
+        name: settings?.name,
+        address: settings?.address,
+        phone: settings?.phone,
+        logo: settings?.logo,
+      },
     });
   };
 
@@ -193,6 +197,8 @@ export default function TransactionsPage() {
           </div>
         </div>
       )}
+
+      {receiptPreview && <ReceiptPdfPreview receipt={receiptPreview.receipt} store={receiptPreview.store} onClose={() => setReceiptPreview(null)} />}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { productApi, settingsApi, transactionApi, customerApi } from "@/lib/api";
-import { printReceipt } from "@/lib/printReceipt";
+import { ReceiptPdfPreview } from "@/components/ReceiptPdfPreview";
 import { useFeatures } from "@/lib/useFeatures";
 import { Search, Minus, Plus, Trash2, ShoppingCart, Printer, QrCode, Banknote, CreditCard, Wallet, Loader2, Check, SplitSquareHorizontal, ScanLine, X, MessageCircle, Percent, Tag } from "lucide-react";
 
@@ -38,6 +38,7 @@ export default function POSPage() {
   const [secondaryMethod, setSecondaryMethod] = useState("QRIS");
   const [secondaryAmount, setSecondaryAmount] = useState("");
   const [receipt, setReceipt] = useState<any>(null);
+  const [receiptPreview, setReceiptPreview] = useState<{ receipt: any; store: any } | null>(null);
   const [scanFeedback, setScanFeedback] = useState<{ message: string; type: "success" | "error" | "warn" } | null>(null);
   const [scannerActive, setScannerActive] = useState(false);
   const [simulatorOpen, setSimulatorOpen] = useState(false);
@@ -127,13 +128,6 @@ export default function POSPage() {
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
 
-      // Auto-print the receipt to the connected thermal printer
-      printReceipt(data, {
-        name: settings?.name,
-        address: settings?.address,
-        phone: settings?.phone,
-        logo: settings?.logo,
-      });
     },
   });
 
@@ -873,11 +867,9 @@ export default function POSPage() {
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
               <button
                 className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
-                onClick={() => printReceipt(receipt, {
-                  name: settings?.name,
-                  address: settings?.address,
-                  phone: settings?.phone,
-                  logo: settings?.logo,
+                onClick={() => setReceiptPreview({
+                  receipt,
+                  store: { name: settings?.name, address: settings?.address, phone: settings?.phone, logo: settings?.logo },
                 })}
               >
                 <Printer size={16} />
@@ -900,6 +892,7 @@ export default function POSPage() {
           </div>
         </div>
       )}
+      {receiptPreview && <ReceiptPdfPreview receipt={receiptPreview.receipt} store={receiptPreview.store} onClose={() => setReceiptPreview(null)} />}
     </div>
   );
 }

@@ -35,6 +35,7 @@ export default function ExclusiveFeaturesPage() {
     enabled: !!token && isSuperAdmin,
   });
   const tenants = tenantsData?.data || [];
+  const selectedTenant = tenants.find((tenant: any) => tenant.id === selectedTenantId);
 
   const { data: tenantFeatures = [], isLoading: tenantFeaturesLoading } = useQuery({
     queryKey: ["tenant-features-admin", selectedTenantId],
@@ -372,6 +373,8 @@ export default function ExclusiveFeaturesPage() {
                     const assignment = tenantFeatures.find((tf: any) => tf.featureId === feature.id);
                     const isAssigned = !!assignment;
                     const isEnabled = assignment?.enabled ?? false;
+                    const isFajarReceiptFeature = feature.code === "FAJAR_CLIENT_RECEIPT";
+                    const isFajarTenant = selectedTenant?.slug === "toko-fajar";
 
                     return (
                       <div key={feature.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
@@ -387,6 +390,9 @@ export default function ExclusiveFeaturesPage() {
                           {feature.description && (
                             <p className="mt-0.5 text-xs text-slate-500">{feature.description}</p>
                           )}
+                          {isFajarReceiptFeature && (
+                            <p className="mt-1 text-xs font-semibold text-amber-700">Fitur ini hanya dapat diaktifkan untuk Toko Fajar.</p>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -394,7 +400,7 @@ export default function ExclusiveFeaturesPage() {
                             <>
                               <button
                                 onClick={() => toggleAssignMut.mutate({ id: assignment.id, enabled: !isEnabled })}
-                                disabled={toggleAssignMut.isPending}
+                                disabled={toggleAssignMut.isPending || (isFajarReceiptFeature && !isFajarTenant && !isEnabled)}
                                 className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition ${
                                   isEnabled
                                     ? "border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
@@ -417,14 +423,18 @@ export default function ExclusiveFeaturesPage() {
                               </button>
                             </>
                           ) : (
-                            <button
-                              onClick={() => assignMut.mutate({ tenantId: selectedTenantId, featureId: feature.id })}
-                              disabled={assignMut.isPending || !feature.isActive}
-                              className="flex h-9 items-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-4 text-xs font-semibold text-teal-700 transition hover:bg-teal-100 disabled:opacity-40"
-                            >
-                              <Plus size={14} />
-                              Assign
-                            </button>
+                            isFajarReceiptFeature && !isFajarTenant ? (
+                              <span className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500">Khusus Toko Fajar</span>
+                            ) : (
+                              <button
+                                onClick={() => assignMut.mutate({ tenantId: selectedTenantId, featureId: feature.id })}
+                                disabled={assignMut.isPending || !feature.isActive}
+                                className="flex h-9 items-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-4 text-xs font-semibold text-teal-700 transition hover:bg-teal-100 disabled:opacity-40"
+                              >
+                                <Plus size={14} />
+                                Assign
+                              </button>
+                            )
                           )}
                         </div>
                       </div>
