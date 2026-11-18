@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { expenseRelatedKeys, invalidateQueries } from "@/lib/queryInvalidation";
 import { accountingApi } from "@/lib/api";
 import {
   Loader2, TrendingUp, TrendingDown, DollarSign, BarChart3, Receipt,
@@ -62,10 +63,8 @@ export default function AccountingPage() {
   const createExpense = useMutation({
     mutationFn: (data: { category: string; description: string; amount: number; date: string }) =>
       accountingApi.createExpense(token!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["profit-loss"] });
-      queryClient.invalidateQueries({ queryKey: ["balance-sheet"] });
+    onSuccess: async () => {
+      await invalidateQueries(queryClient, expenseRelatedKeys);
       setShowExpenseForm(false);
       setExpenseForm({ category: "OTHER", description: "", amount: "", date: today });
     },
@@ -73,10 +72,8 @@ export default function AccountingPage() {
 
   const deleteExpense = useMutation({
     mutationFn: (id: string) => accountingApi.deleteExpense(token!, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses"] });
-      queryClient.invalidateQueries({ queryKey: ["profit-loss"] });
-      queryClient.invalidateQueries({ queryKey: ["balance-sheet"] });
+    onSuccess: async () => {
+      await invalidateQueries(queryClient, expenseRelatedKeys);
     },
   });
 

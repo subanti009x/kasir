@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries } from "@/lib/queryInvalidation";
 import { tenantApi } from "@/lib/api";
 import { Loader2, Building2, Users, ShoppingCart, CircleDollarSign, ToggleLeft, ToggleRight, BadgeDollarSign } from "lucide-react";
 
@@ -19,11 +20,11 @@ export default function AdminPage() {
 
   const toggleMut = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => tenantApi.update(token!, id, { status }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-tenants"] }); queryClient.invalidateQueries({ queryKey: ["admin-stats"] }); },
+    onSuccess: async () => invalidateQueries(queryClient, [["admin-tenants"], ["admin-stats"]]),
   });
   const planMut = useMutation({
     mutationFn: ({ id, plan }: { id: string; plan: string }) => tenantApi.update(token!, id, { plan }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-tenants"] }); queryClient.invalidateQueries({ queryKey: ["admin-stats"] }); },
+    onSuccess: async () => invalidateQueries(queryClient, [["admin-tenants"], ["admin-stats"]]),
   });
 
   if (!isSuperAdmin) return <p className="py-20 text-center text-slate-500">Akses ditolak. Halaman ini hanya untuk Super Admin.</p>;

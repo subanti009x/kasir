@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 @Injectable()
 export class CustomerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   private async assertWholesaleFeature(tenantId: string, isWholesale?: boolean) {
     if (!isWholesale) return;
@@ -56,19 +57,25 @@ export class CustomerService {
 
   async create(dto: CreateCustomerDto, tenantId: string) {
     await this.assertWholesaleFeature(tenantId, dto.isWholesale);
-    return this.prisma.customer.create({
+    const customer = await this.prisma.customer.create({
       data: { ...dto, tenantId },
     });
+    this.notifications?.notifyDataChanged(tenantId, 'customers');
+    return customer;
   }
 
   async update(id: string, dto: UpdateCustomerDto, tenantId: string) {
     await this.assertWholesaleFeature(tenantId, dto.isWholesale);
     await this.findOne(id, tenantId);
-    return this.prisma.customer.update({ where: { id }, data: dto });
+    const customer = await this.prisma.customer.update({ where: { id }, data: dto });
+    this.notifications?.notifyDataChanged(tenantId, 'customers');
+    return customer;
   }
 
   async remove(id: string, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.customer.delete({ where: { id } });
+    const customer = await this.prisma.customer.delete({ where: { id } });
+    this.notifications?.notifyDataChanged(tenantId, 'customers');
+    return customer;
   }
 }

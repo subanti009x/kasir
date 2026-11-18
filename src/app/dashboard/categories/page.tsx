@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { categoryRelatedKeys, invalidateQueries } from "@/lib/queryInvalidation";
 import { categoryApi } from "@/lib/api";
 import { Plus, Pencil, Trash2, X, Loader2, Palette } from "lucide-react";
 
@@ -15,9 +16,9 @@ export default function CategoriesPage() {
 
   const { data: categories = [], isLoading } = useQuery({ queryKey: ["categories"], queryFn: () => categoryApi.list(token!), enabled: !!token });
 
-  const createMut = useMutation({ mutationFn: (d: any) => categoryApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); closeModal(); } });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => categoryApi.update(token!, id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); closeModal(); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => categoryApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["categories"] }) });
+  const createMut = useMutation({ mutationFn: (d: any) => categoryApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, categoryRelatedKeys); closeModal(); } });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => categoryApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, categoryRelatedKeys); closeModal(); } });
+  const deleteMut = useMutation({ mutationFn: (id: string) => categoryApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, categoryRelatedKeys) });
 
   function closeModal() { setModal(null); setEditing(null); }
 

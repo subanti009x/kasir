@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries, transactionRelatedKeys } from "@/lib/queryInvalidation";
 import { productApi, settingsApi, transactionApi, customerApi } from "@/lib/api";
 import { ReceiptPdfPreview } from "@/components/ReceiptPdfPreview";
 import { useFeatures } from "@/lib/useFeatures";
@@ -119,14 +120,12 @@ export default function POSPage() {
 
   const checkoutMutation = useMutation({
     mutationFn: (data: any) => transactionApi.checkout(token!, data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setReceipt(data);
       setCart(new Map());
       setCashAmount("");
       setSecondaryAmount("");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      await invalidateQueries(queryClient, transactionRelatedKeys);
 
     },
   });

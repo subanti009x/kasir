@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries } from "@/lib/queryInvalidation";
 import { userApi } from "@/lib/api";
 import { Pencil, Trash2, X, Loader2, UserPlus } from "lucide-react";
 
@@ -14,9 +15,10 @@ export default function EmployeesPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" });
 
   const { data: users = [], isLoading } = useQuery({ queryKey: ["users"], queryFn: () => userApi.list(token!), enabled: !!token });
-  const createMut = useMutation({ mutationFn: (d: any) => userApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["users"] }); setModal(null); } });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => userApi.update(token!, id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["users"] }); setModal(null); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => userApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["users"] }) });
+  const userKeys = [["users"], ["admin-stats"]];
+  const createMut = useMutation({ mutationFn: (d: any) => userApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, userKeys); setModal(null); } });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => userApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, userKeys); setModal(null); } });
+  const deleteMut = useMutation({ mutationFn: (id: string) => userApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, userKeys) });
 
   const roleColors: Record<string, string> = { OWNER: "bg-violet-50 text-violet-700", CASHIER: "bg-sky-50 text-sky-700", SUPER_ADMIN: "bg-rose-50 text-rose-700" };
 

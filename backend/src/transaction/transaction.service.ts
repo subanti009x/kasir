@@ -193,6 +193,7 @@ export class TransactionService {
       total: transaction.total,
       paymentMethod: transaction.paymentMethod,
     });
+    this.notifications.notifyDataChanged(tenantId, 'transactions');
     this.notifications.notifyPayment(tenantId, {
       receiptId: transaction.receiptId,
       method: transaction.paymentMethod,
@@ -320,6 +321,9 @@ export class TransactionService {
       transactionId: transaction.id,
       timestamp: new Date().toISOString(),
     });
+    this.notifications.notifyDataChanged(tenantId, 'transactions');
+    this.notifications.notifyDataChanged(tenantId, 'products');
+    this.notifications.notifyDataChanged(tenantId, 'inventory');
 
     // Generate refund journal entry (fire-and-forget)
     try {

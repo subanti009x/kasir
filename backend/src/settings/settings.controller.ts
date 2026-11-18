@@ -8,6 +8,7 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
+  Optional,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -19,6 +20,7 @@ import { Roles } from '../auth/roles.decorator.js';
 import { CurrentUser } from '../auth/current-user.decorator.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UpdateTenantDto } from '../tenant/dto/tenant.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 type UploadedLogo = {
   originalname: string;
@@ -36,7 +38,7 @@ type TenantUser = {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('settings')
 export class SettingsController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   @Get()
   @Roles('OWNER')
@@ -69,11 +71,13 @@ export class SettingsController {
     @Body() dto: UpdateTenantDto,
     @CurrentUser() user: TenantUser,
   ) {
-    return this.prisma.tenant.update({
+    const settings = await this.prisma.tenant.update({
       where: { id: user.tenantId },
       data: dto,
       include: { paymentMethods: true },
     });
+    this.notifications?.notifyDataChanged(user.tenantId, 'settings');
+    return settings;
   }
 
   @Post('logo')
@@ -110,10 +114,12 @@ export class SettingsController {
     await mkdir(directory, { recursive: true });
     await writeFile(join(directory, filename), file.buffer);
 
-    return this.prisma.tenant.update({
+    const settings = await this.prisma.tenant.update({
       where: { id: user.tenantId },
       data: { logo: `/uploads/logos/${user.tenantId}/${filename}` },
     });
+    this.notifications?.notifyDataChanged(user.tenantId, 'settings');
+    return settings;
   }
 
   @Get('payment-methods')
@@ -131,9 +137,11 @@ export class SettingsController {
     @Body() dto: { id: string; enabled: boolean },
     @CurrentUser() user: TenantUser,
   ) {
-    return this.prisma.paymentMethod.updateMany({
+    const result = await this.prisma.paymentMethod.updateMany({
       where: { id: dto.id, tenantId: user.tenantId },
       data: { enabled: dto.enabled },
     });
+    this.notifications?.notifyDataChanged(user.tenantId, 'settings');
+    return result;
   }
 }

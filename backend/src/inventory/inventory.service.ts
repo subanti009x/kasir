@@ -80,6 +80,8 @@ export class InventoryService {
       });
     }
 
+    this.notifications.notifyDataChanged(tenantId, 'inventory');
+
     return log;
   }
 

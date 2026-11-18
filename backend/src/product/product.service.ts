@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { ConflictException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 type UploadedProductImage = {
   originalname: string;
@@ -13,7 +14,7 @@ type UploadedProductImage = {
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   private handleWriteError(error: unknown): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
@@ -95,7 +96,7 @@ export class ProductService {
 
     const { units, expiresAt, ...data } = dto;
     try {
-      return await this.prisma.product.create({
+      const product = await this.prisma.product.create({
         data: {
           ...data,
           tenantId,
@@ -104,6 +105,8 @@ export class ProductService {
         },
         include: { category: true, units: true },
       });
+      this.notifications?.notifyDataChanged(tenantId, 'products');
+      return product;
     } catch (error) {
       this.handleWriteError(error);
     }
@@ -120,7 +123,7 @@ export class ProductService {
     }
     const { units, expiresAt, ...data } = dto;
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      const product = await this.prisma.$transaction(async (tx) => {
         if (units !== undefined) {
           await tx.productUnit.deleteMany({ where: { productId: id } });
         }
@@ -134,6 +137,8 @@ export class ProductService {
           include: { category: true, units: true },
         });
       });
+      this.notifications?.notifyDataChanged(tenantId, 'products');
+      return product;
     } catch (error) {
       this.handleWriteError(error);
     }
@@ -141,7 +146,9 @@ export class ProductService {
 
   async remove(id: string, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.product.delete({ where: { id } });
+    const product = await this.prisma.product.delete({ where: { id } });
+    this.notifications?.notifyDataChanged(tenantId, 'products');
+    return product;
   }
 
   async uploadImage(id: string, tenantId: string, file: UploadedProductImage) {
@@ -158,10 +165,12 @@ export class ProductService {
     }
 
     const image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-    return this.prisma.product.update({
+    const product = await this.prisma.product.update({
       where: { id },
       data: { image },
       include: { category: true },
     });
+    this.notifications?.notifyDataChanged(tenantId, 'products');
+    return product;
   }
 }

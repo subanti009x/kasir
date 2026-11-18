@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { SupplierService } from './supplier.service.js';
 import { SupplierController } from './supplier.controller.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { NotificationModule } from '../notification/notification.module.js';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationModule],
   controllers: [SupplierController],
   providers: [SupplierService],
   exports: [SupplierService],

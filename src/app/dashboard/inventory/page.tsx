@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { inventoryApi, productApi } from "@/lib/api";
+import { invalidateQueries, productRelatedKeys } from "@/lib/queryInvalidation";
 import { Plus, X, Loader2, ArrowDownToLine, ArrowUpFromLine, RefreshCcw, Package } from "lucide-react";
 
 export default function InventoryPage() {
@@ -16,7 +17,7 @@ export default function InventoryPage() {
   const { data: lowStock = [] } = useQuery({ queryKey: ["low-stock"], queryFn: () => inventoryApi.lowStock(token!), enabled: !!token });
   const { data: products = [] } = useQuery({ queryKey: ["products-all"], queryFn: () => productApi.list(token!), enabled: !!token });
 
-  const createMut = useMutation({ mutationFn: (d: any) => inventoryApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["inventory"] }); queryClient.invalidateQueries({ queryKey: ["products"] }); queryClient.invalidateQueries({ queryKey: ["low-stock"] }); setModal(false); } });
+  const createMut = useMutation({ mutationFn: (d: any) => inventoryApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, productRelatedKeys); setModal(false); } });
 
   const typeIcons: Record<string, any> = { STOCK_IN: ArrowDownToLine, STOCK_OUT: ArrowUpFromLine, ADJUSTMENT: RefreshCcw };
   const typeColors: Record<string, string> = { STOCK_IN: "text-emerald-600 bg-emerald-50", STOCK_OUT: "text-rose-600 bg-rose-50", ADJUSTMENT: "text-amber-600 bg-amber-50" };

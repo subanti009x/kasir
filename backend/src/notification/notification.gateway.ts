@@ -79,6 +79,19 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
     this.server.to(`tenant:${tenantId}`).emit(event, data);
   }
 
+  notifyDataChanged(tenantId: string, resource: string) {
+    if (!this.server) return;
+    try {
+      this.sendToTenant(tenantId, 'tenant-data-changed', {
+        resource,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      // A websocket outage must not turn a successful database write into an API error.
+      console.error('Failed to broadcast tenant data update:', error);
+    }
+  }
+
   notifyLowStock(tenantId: string, product: { id: string; name: string; stock: number; minStock: number }) {
     this.sendToTenant(tenantId, 'low-stock', {
       type: 'LOW_STOCK',

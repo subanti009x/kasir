@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto.js';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   async findAll(tenantId: string) {
     return this.prisma.user.findMany({
@@ -51,7 +52,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 12);
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         ...dto,
         password: hashedPassword,
@@ -67,6 +68,8 @@ export class UserService {
         createdAt: true,
       },
     });
+    this.notifications?.notifyDataChanged(tenantId, 'users');
+    return user;
   }
 
   async update(id: string, dto: UpdateUserDto, tenantId: string) {
@@ -77,7 +80,7 @@ export class UserService {
       data.password = await bcrypt.hash(dto.password, 12);
     }
 
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data,
       select: {
@@ -90,10 +93,14 @@ export class UserService {
         updatedAt: true,
       },
     });
+    this.notifications?.notifyDataChanged(tenantId, 'users');
+    return user;
   }
 
   async remove(id: string, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.user.delete({ where: { id } });
+    const user = await this.prisma.user.delete({ where: { id } });
+    this.notifications?.notifyDataChanged(tenantId, 'users');
+    return user;
   }
 }

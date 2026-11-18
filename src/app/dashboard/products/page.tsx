@@ -5,6 +5,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { productApi, categoryApi } from "@/lib/api";
 import { useFeatures } from "@/lib/useFeatures";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { invalidateQueries, productRelatedKeys } from "@/lib/queryInvalidation";
 import { Plus, Search, Pencil, Trash2, X, Loader2, Package, ImageUp } from "lucide-react";
 import styles from "./products.module.css";
 
@@ -40,6 +42,8 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [formError, setFormError] = useState("");
+  const [productToDelete, setProductToDelete] = useState<any>(null);
+  const [deleteError, setDeleteError] = useState("");
   const [draftKey, setDraftKey] = useState<string | null>(null);
   const emptyForm = (): ProductForm => ({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, wholesalePrice: "", baseUnit: "pcs", units: [], expiresAt: "", stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" });
   const [form, setForm] = useState<ProductForm>(emptyForm);
@@ -47,10 +51,21 @@ export default function ProductsPage() {
   const { data: products = [], isLoading } = useQuery({ queryKey: ["products", search, catFilter], queryFn: () => productApi.list(token!, search || undefined, catFilter || undefined), enabled: !!token });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: () => categoryApi.list(token!), enabled: !!token });
 
-  const createMut = useMutation({ mutationFn: (d: any) => productApi.create(token!, d), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => productApi.update(token!, id, data), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
-  const uploadImageMut = useMutation({ mutationFn: ({ id, file }: { id: string; file: File }) => productApi.uploadImage(token!, id, file), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
-  const deleteMut = useMutation({ mutationFn: (id: string) => productApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
+  const createMut = useMutation({ mutationFn: (d: any) => productApi.create(token!, d), onSuccess: async () => invalidateQueries(queryClient, productRelatedKeys) });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => productApi.update(token!, id, data), onSuccess: async () => invalidateQueries(queryClient, productRelatedKeys) });
+  const uploadImageMut = useMutation({ mutationFn: ({ id, file }: { id: string; file: File }) => productApi.uploadImage(token!, id, file), onSuccess: async () => invalidateQueries(queryClient, productRelatedKeys) });
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => productApi.delete(token!, id),
+    onSuccess: async (_result, id) => {
+      for (const key of [["products"], ["products-all"]]) {
+        queryClient.setQueriesData<any[]>({ queryKey: key }, (current) => current?.filter((product) => product.id !== id));
+      }
+      await invalidateQueries(queryClient, productRelatedKeys);
+      setProductToDelete(null);
+      setDeleteError("");
+    },
+    onError: (error: any) => setDeleteError(error?.message || "Produk gagal dihapus. Silakan coba lagi."),
+  });
 
   function openCreate() {
     if (draftKey !== "create") {
@@ -195,7 +210,7 @@ export default function ProductsPage() {
                   {canManage && (
                     <td className={`mobile-actions px-4 py-3 text-right ${styles.actionsColumn}`} data-label="Aksi">
                       <button className="mr-2 inline-grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-teal-50 hover:text-teal-600" onClick={() => openEdit(p)}><Pencil size={15} /></button>
-                      <button className="inline-grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => { if (confirm("Hapus produk ini?")) deleteMut.mutate(p.id); }}><Trash2 size={15} /></button>
+                      <button aria-label={`Hapus ${p.name}`} className="inline-grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => { setDeleteError(""); setProductToDelete(p); }}><Trash2 size={15} /></button>
                     </td>
                   )}
                 </tr>
@@ -245,6 +260,16 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!productToDelete}
+        title="Hapus produk ini?"
+        description={<>Produk <strong className="font-semibold text-slate-900">{productToDelete?.name}</strong>{productToDelete?.sku ? <> (SKU {productToDelete.sku})</> : null} akan dihapus dari katalog. Tindakan ini tidak dapat dibatalkan.</>}
+        isPending={deleteMut.isPending}
+        error={deleteError}
+        onCancel={() => { if (!deleteMut.isPending) { setProductToDelete(null); setDeleteError(""); } }}
+        onConfirm={() => { if (productToDelete && !deleteMut.isPending) { setDeleteError(""); deleteMut.mutate(productToDelete.id); } }}
+      />
     </div>
   );
 }

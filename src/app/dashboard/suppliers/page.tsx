@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries } from "@/lib/queryInvalidation";
 import { supplierApi } from "@/lib/api";
 import { Plus, Pencil, Trash2, X, Loader2 } from "lucide-react";
 
@@ -14,9 +15,10 @@ export default function SuppliersPage() {
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", contactPerson: "" });
 
   const { data: suppliers = [], isLoading } = useQuery({ queryKey: ["suppliers"], queryFn: () => supplierApi.list(token!), enabled: !!token });
-  const createMut = useMutation({ mutationFn: (d: any) => supplierApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["suppliers"] }); setModal(null); } });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => supplierApi.update(token!, id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["suppliers"] }); setModal(null); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => supplierApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["suppliers"] }) });
+  const supplierKeys = [["suppliers"], ["purchase-orders"]];
+  const createMut = useMutation({ mutationFn: (d: any) => supplierApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, supplierKeys); setModal(null); } });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => supplierApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, supplierKeys); setModal(null); } });
+  const deleteMut = useMutation({ mutationFn: (id: string) => supplierApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, supplierKeys) });
 
   return (
     <div className="space-y-4">

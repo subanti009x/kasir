@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateExpenseDto } from './dto/accounting.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 // Account category constants
 const ACCOUNT = {
@@ -16,7 +17,7 @@ const ACCOUNT = {
 
 @Injectable()
 export class AccountingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   // -------------------------------------------------------
   // Expense Management
@@ -49,6 +50,8 @@ export class AccountingService {
       ],
     });
 
+    this.notifications?.notifyDataChanged(tenantId, 'accounting');
+
     return expense;
   }
 
@@ -80,7 +83,9 @@ export class AccountingService {
       where: { tenantId, referenceType: 'EXPENSE', referenceId: id },
     });
 
-    return this.prisma.expense.delete({ where: { id } });
+    const deletedExpense = await this.prisma.expense.delete({ where: { id } });
+    this.notifications?.notifyDataChanged(tenantId, 'accounting');
+    return deletedExpense;
   }
 
   // -------------------------------------------------------

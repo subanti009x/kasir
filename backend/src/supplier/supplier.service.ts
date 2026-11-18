@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateSupplierDto, UpdateSupplierDto } from './dto/supplier.dto.js';
+import { NotificationGateway } from '../notification/notification.gateway.js';
 
 @Injectable()
 export class SupplierService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, @Optional() private notifications?: NotificationGateway) {}
 
   async findAll(tenantId: string) {
     return this.prisma.supplier.findMany({
@@ -37,16 +38,22 @@ export class SupplierService {
   }
 
   async create(dto: CreateSupplierDto, tenantId: string) {
-    return this.prisma.supplier.create({ data: { ...dto, tenantId } });
+    const supplier = await this.prisma.supplier.create({ data: { ...dto, tenantId } });
+    this.notifications?.notifyDataChanged(tenantId, 'suppliers');
+    return supplier;
   }
 
   async update(id: string, dto: UpdateSupplierDto, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.supplier.update({ where: { id }, data: dto });
+    const supplier = await this.prisma.supplier.update({ where: { id }, data: dto });
+    this.notifications?.notifyDataChanged(tenantId, 'suppliers');
+    return supplier;
   }
 
   async remove(id: string, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.supplier.delete({ where: { id } });
+    const supplier = await this.prisma.supplier.delete({ where: { id } });
+    this.notifications?.notifyDataChanged(tenantId, 'suppliers');
+    return supplier;
   }
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries } from "@/lib/queryInvalidation";
 import { exclusiveFeatureApi, tenantApi } from "@/lib/api";
 import {
   Loader2, Sparkles, Plus, Pencil, Trash2, Building2,
@@ -46,53 +47,46 @@ export default function ExclusiveFeaturesPage() {
   // Mutations
   const createMut = useMutation({
     mutationFn: (data: any) => exclusiveFeatureApi.create(token!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["exclusive-features"] });
+    onSuccess: async () => {
+      await invalidateQueries(queryClient, [["exclusive-features"]]);
       resetForm();
     },
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => exclusiveFeatureApi.update(token!, id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["exclusive-features"] });
+    onSuccess: async () => {
+      await invalidateQueries(queryClient, [["exclusive-features"]]);
       resetForm();
     },
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => exclusiveFeatureApi.delete(token!, id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["exclusive-features"] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["exclusive-features"]]),
   });
 
   const toggleMasterMut = useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       exclusiveFeatureApi.update(token!, id, { isActive }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["exclusive-features"] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["exclusive-features"]]),
   });
 
   const assignMut = useMutation({
     mutationFn: (data: { tenantId: string; featureId: string }) =>
       exclusiveFeatureApi.assign(token!, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tenant-features-admin", selectedTenantId] });
-      queryClient.invalidateQueries({ queryKey: ["exclusive-features"] });
-    },
+    onSuccess: async () => invalidateQueries(queryClient, [["tenant-features-admin", selectedTenantId], ["exclusive-features"]]),
   });
 
   const toggleAssignMut = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) =>
       exclusiveFeatureApi.updateAssignment(token!, id, { enabled }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["tenant-features-admin", selectedTenantId] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["tenant-features-admin", selectedTenantId]]),
   });
 
   const removeAssignMut = useMutation({
     mutationFn: (id: string) => exclusiveFeatureApi.removeAssignment(token!, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tenant-features-admin", selectedTenantId] });
-      queryClient.invalidateQueries({ queryKey: ["exclusive-features"] });
-    },
+    onSuccess: async () => invalidateQueries(queryClient, [["tenant-features-admin", selectedTenantId], ["exclusive-features"]]),
   });
 
   function resetForm() {

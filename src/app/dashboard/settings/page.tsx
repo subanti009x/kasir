@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries } from "@/lib/queryInvalidation";
 import { settingsApi, whatsappApi } from "@/lib/api";
 import { useFeatures } from "@/lib/useFeatures";
 import { useNotifications } from "@/lib/useNotifications";
@@ -51,14 +52,14 @@ export default function SettingsPage() {
     setLogoLoadFailed(false);
   }, [settings?.logo]);
 
-  const updateMut = useMutation({ mutationFn: (d: any) => settingsApi.update(token!, d), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }) });
+  const updateMut = useMutation({ mutationFn: (d: any) => settingsApi.update(token!, d), onSuccess: async () => invalidateQueries(queryClient, [["settings"]]) });
   const logoMut = useMutation({
     mutationFn: (file: File) => settingsApi.uploadLogo(token!, file),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["settings"] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["settings"]]),
   });
   const togglePayment = useMutation({
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => settingsApi.updatePaymentMethod(token!, id, enabled),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["payment-methods"] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["payment-methods"]]),
   });
 
   // ── WhatsApp Feature ──
@@ -141,7 +142,7 @@ export default function SettingsPage() {
 
   const waUpdateMut = useMutation({
     mutationFn: (d: any) => whatsappApi.updateConfig(token!, d),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["whatsapp-config"] }),
+    onSuccess: async () => invalidateQueries(queryClient, [["whatsapp-config"]]),
   });
   const waConnectMut = useMutation({
     mutationFn: () => whatsappApi.connect(token!),
@@ -149,18 +150,15 @@ export default function SettingsPage() {
   });
   const waDisconnectMut = useMutation({
     mutationFn: () => whatsappApi.disconnect(token!),
-    onSuccess: () => {
+    onSuccess: async () => {
       setQrDataUrl(null);
       setIsConnecting(false);
-      queryClient.invalidateQueries({ queryKey: ["whatsapp-config"] });
+      await invalidateQueries(queryClient, [["whatsapp-config"]]);
     },
   });
   const waRetryMut = useMutation({
     mutationFn: (logId: string) => whatsappApi.retryLog(token!, logId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["whatsapp-logs"] });
-      queryClient.invalidateQueries({ queryKey: ["whatsapp-stats"] });
-    },
+    onSuccess: async () => invalidateQueries(queryClient, [["whatsapp-logs"], ["whatsapp-stats"]]),
   });
 
   // Placeholder chips

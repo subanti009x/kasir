@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { customerRelatedKeys, invalidateQueries } from "@/lib/queryInvalidation";
 import { customerApi } from "@/lib/api";
 import { useFeatures } from "@/lib/useFeatures";
 import { Plus, Search, Pencil, Trash2, X, Loader2 } from "lucide-react";
@@ -18,9 +19,9 @@ export default function CustomersPage() {
   const [form, setForm] = useState(blank);
 
   const { data: customers = [], isLoading } = useQuery({ queryKey: ["customers", search], queryFn: () => customerApi.list(token!, search || undefined), enabled: !!token });
-  const createMut = useMutation({ mutationFn: (d: any) => customerApi.create(token!, d), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); setModal(null); } });
-  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => customerApi.update(token!, id, data), onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["customers"] }); setModal(null); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => customerApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["customers"] }) });
+  const createMut = useMutation({ mutationFn: (d: any) => customerApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, customerRelatedKeys); setModal(null); } });
+  const updateMut = useMutation({ mutationFn: ({ id, data }: any) => customerApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, customerRelatedKeys); setModal(null); } });
+  const deleteMut = useMutation({ mutationFn: (id: string) => customerApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, customerRelatedKeys) });
 
   function customerPayload() {
     return {

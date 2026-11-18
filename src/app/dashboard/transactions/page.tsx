@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
+import { invalidateQueries, transactionRelatedKeys } from "@/lib/queryInvalidation";
 import { transactionApi, settingsApi } from "@/lib/api";
 import { ReceiptPdfPreview } from "@/components/ReceiptPdfPreview";
 import { Loader2, Eye, RotateCcw, X, Printer, MessageCircle, CheckCircle2, Clock, AlertCircle, Send } from "lucide-react";
@@ -57,7 +58,7 @@ export default function TransactionsPage() {
 
   const refundMut = useMutation({
     mutationFn: (id: string) => transactionApi.refund(token!, id),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["transactions"] }); queryClient.invalidateQueries({ queryKey: ["dashboard"] }); setDetail(null); },
+    onSuccess: async () => { await invalidateQueries(queryClient, transactionRelatedKeys); setDetail(null); },
   });
 
   const transactions = data?.data || [];

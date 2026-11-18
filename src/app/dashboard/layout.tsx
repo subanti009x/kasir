@@ -6,6 +6,8 @@ import Link from "next/link";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/lib/auth";
 import { getNotificationSocketConfig } from "@/lib/realtime";
+import { useQueryClient } from "@tanstack/react-query";
+import { categoryRelatedKeys, customerRelatedKeys, invalidateQueries, productRelatedKeys, transactionRelatedKeys } from "@/lib/queryInvalidation";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
   Settings, LogOut, Menu, X, Shield, Bell, User as UserIcon, CheckCheck, Trash2,
@@ -39,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const { user, token, loading, logout, canManage, isSuperAdmin } = useAuth();
+  const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -124,15 +127,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setSocketError(error.message || "Tidak dapat terhubung ke pembaruan langsung");
     });
     socket.on("notification-ready", (payload) => addNotification("notification-ready", payload));
-    socket.on("low-stock", (payload) => addNotification("low-stock", payload));
-    socket.on("transaction", (payload) => addNotification("transaction", payload));
+    socket.on("low-stock", (payload) => {
+      addNotification("low-stock", payload);
+      void invalidateQueries(queryClient, productRelatedKeys);
+    });
+    socket.on("transaction", (payload) => {
+      addNotification("transaction", payload);
+      void invalidateQueries(queryClient, transactionRelatedKeys);
+    });
     socket.on("payment", (payload) => addNotification("payment", payload));
     socket.on("transaction-refunded", (payload) => addNotification("transaction-refunded", payload));
+    socket.on("tenant-data-changed", (payload: { resource?: string }) => {
+      const resourceKeys = {
+        products: productRelatedKeys,
+        categories: categoryRelatedKeys,
+        customers: customerRelatedKeys,
+        inventory: productRelatedKeys,
+        transactions: transactionRelatedKeys,
+        suppliers: [["suppliers"], ["purchase-orders"]],
+        users: [["users"], ["admin-stats"]],
+        settings: [["settings"], ["payment-methods"]],
+        accounting: [["expenses"], ["profit-loss"], ["balance-sheet"], ["dashboard"]],
+      };
+      const keys = payload?.resource ? resourceKeys[payload.resource as keyof typeof resourceKeys] : undefined;
+      if (keys) void invalidateQueries(queryClient, keys);
+    });
 
     return () => {
       socket.disconnect();
     };
-  }, [user?.tenantId, token]);
+  }, [user?.tenantId, token, queryClient]);
 
   if (loading || !user || roleBlocked) {
     return (
