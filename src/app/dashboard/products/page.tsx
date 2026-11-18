@@ -12,6 +12,23 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 }
 
+type ProductForm = {
+  name: string;
+  sku: string;
+  barcode: string;
+  description: string;
+  purchasePrice: number | "";
+  sellingPrice: number | "";
+  wholesalePrice: number | "";
+  baseUnit: string;
+  units: any[];
+  expiresAt: string;
+  stock: number | "";
+  minStock: number | "";
+  categoryId: string;
+  status: string;
+};
+
 export default function ProductsPage() {
   const { token, canManage } = useAuth();
   const { hasFeature } = useFeatures();
@@ -23,8 +40,9 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [formError, setFormError] = useState("");
-  const emptyForm = () => ({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, wholesalePrice: "" as number | "", baseUnit: "pcs", units: [] as any[], expiresAt: "", stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" });
-  const [form, setForm] = useState(emptyForm);
+  const [draftKey, setDraftKey] = useState<string | null>(null);
+  const emptyForm = (): ProductForm => ({ name: "", sku: "", barcode: "", description: "", purchasePrice: 0, sellingPrice: 0, wholesalePrice: "", baseUnit: "pcs", units: [], expiresAt: "", stock: 0, minStock: 0, categoryId: "", status: "ACTIVE" });
+  const [form, setForm] = useState<ProductForm>(emptyForm);
 
   const { data: products = [], isLoading } = useQuery({ queryKey: ["products", search, catFilter], queryFn: () => productApi.list(token!, search || undefined, catFilter || undefined), enabled: !!token });
   const { data: categories = [] } = useQuery({ queryKey: ["categories"], queryFn: () => categoryApi.list(token!), enabled: !!token });
@@ -34,9 +52,47 @@ export default function ProductsPage() {
   const uploadImageMut = useMutation({ mutationFn: ({ id, file }: { id: string; file: File }) => productApi.uploadImage(token!, id, file), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
   const deleteMut = useMutation({ mutationFn: (id: string) => productApi.delete(token!, id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ["products"] }) });
 
-  function openCreate() { setForm(emptyForm()); setEditingProduct(null); setImageFile(null); setFormError(""); setModal("create"); }
-  function openEdit(p: any) { setForm({ ...emptyForm(), name: p.name, sku: p.sku, barcode: p.barcode || "", description: p.description || "", purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, wholesalePrice: p.wholesalePrice ?? "", baseUnit: p.baseUnit || "pcs", units: p.units || [], expiresAt: p.expiresAt ? new Date(p.expiresAt).toISOString().slice(0, 10) : "", stock: p.stock, minStock: p.minStock, categoryId: p.categoryId || "", status: p.status }); setEditingProduct(p); setImageFile(null); setFormError(""); setModal("edit"); }
-  function closeModal() { setModal(null); setEditingProduct(null); setImageFile(null); setFormError(""); }
+  function openCreate() {
+    if (draftKey !== "create") {
+      setForm(emptyForm());
+      setImageFile(null);
+      setDraftKey("create");
+    }
+    setEditingProduct(null);
+    setFormError("");
+    setModal("create");
+  }
+
+  function openEdit(p: any) {
+    const nextDraftKey = `edit:${p.id}`;
+    if (draftKey !== nextDraftKey) {
+      setForm({ ...emptyForm(), name: p.name, sku: p.sku, barcode: p.barcode || "", description: p.description || "", purchasePrice: p.purchasePrice, sellingPrice: p.sellingPrice, wholesalePrice: p.wholesalePrice ?? "", baseUnit: p.baseUnit || "pcs", units: p.units || [], expiresAt: p.expiresAt ? new Date(p.expiresAt).toISOString().slice(0, 10) : "", stock: p.stock, minStock: p.minStock, categoryId: p.categoryId || "", status: p.status });
+      setImageFile(null);
+      setDraftKey(nextDraftKey);
+    }
+    setEditingProduct(p);
+    setFormError("");
+    setModal("edit");
+  }
+
+  function closeModal() {
+    if (isSaving) return;
+    setModal(null);
+    setFormError("");
+  }
+
+  function updateNumericField(field: "purchasePrice" | "sellingPrice" | "stock" | "minStock", value: string) {
+    setForm((current) => ({ ...current, [field]: value === "" ? "" : Number(value) }));
+  }
+
+  function clearDraft() {
+    setModal(null);
+    setEditingProduct(null);
+    setImageFile(null);
+    setForm(emptyForm());
+    setDraftKey(null);
+    setFormError("");
+  }
 
   function productPayload(includeStatus: boolean) {
     return {
@@ -44,8 +100,8 @@ export default function ProductsPage() {
       sku: form.sku.trim(),
       barcode: form.barcode.trim() || undefined,
       description: form.description.trim() || undefined,
-      purchasePrice: Number(form.purchasePrice),
-      sellingPrice: Number(form.sellingPrice),
+      purchasePrice: Number(form.purchasePrice || 0),
+      sellingPrice: Number(form.sellingPrice || 0),
       ...(hasFeature("WHOLESALE_PRICING") ? { wholesalePrice: form.wholesalePrice === "" ? null : Number(form.wholesalePrice) } : {}),
       ...(hasFeature("MULTI_UNIT") ? { baseUnit: form.baseUnit, units: form.units.filter((u: any) => u.name.trim()).map((u: any) => ({ name: u.name.trim(), conversionFactor: Number(u.conversionFactor), sellingPrice: Number(u.sellingPrice), wholesalePrice: u.wholesalePrice === "" ? undefined : Number(u.wholesalePrice) })) } : {}),
       ...(hasFeature("EXPIRY_DATE") ? { expiresAt: form.expiresAt || null } : {}),
@@ -60,7 +116,7 @@ export default function ProductsPage() {
     if (imageFile) {
       await uploadImageMut.mutateAsync({ id: product.id, file: imageFile });
     }
-    closeModal();
+    clearDraft();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -152,7 +208,7 @@ export default function ProductsPage() {
 
       {/* Modal */}
       {modal && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={closeModal}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={(event) => { if (event.target === event.currentTarget) closeModal(); }}>
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Produk Baru" : "Ubah Produk"}</h3><button onClick={closeModal}><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
@@ -168,12 +224,12 @@ export default function ProductsPage() {
                 <div><label className="text-xs font-medium text-slate-600">Kategori</label><select className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}><option value="">Tidak ada</option>{categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div><label className="text-xs font-medium text-slate-600">Harga Beli *</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.purchasePrice} onChange={(e) => setForm({ ...form, purchasePrice: +e.target.value })} /></div>
-                <div><label className="text-xs font-medium text-slate-600">Harga Jual *</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.sellingPrice} onChange={(e) => setForm({ ...form, sellingPrice: +e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Harga Beli *</label><input type="number" min="0" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.purchasePrice} onChange={(e) => updateNumericField("purchasePrice", e.target.value)} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Harga Jual *</label><input type="number" min="0" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.sellingPrice} onChange={(e) => updateNumericField("sellingPrice", e.target.value)} /></div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div><label className="text-xs font-medium text-slate-600">Stok Awal</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} /></div>
-                <div><label className="text-xs font-medium text-slate-600">Stok Minimum</label><input type="number" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.minStock} onChange={(e) => setForm({ ...form, minStock: +e.target.value })} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Stok Awal</label><input type="number" min="0" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.stock} onChange={(e) => updateNumericField("stock", e.target.value)} /></div>
+                <div><label className="text-xs font-medium text-slate-600">Stok Minimum</label><input type="number" min="0" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.minStock} onChange={(e) => updateNumericField("minStock", e.target.value)} /></div>
               </div>
               <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-slate-300 p-3 text-sm text-slate-600 hover:border-teal-400 hover:bg-teal-50/40">
                 <ImageUp size={18} className="text-teal-700" />

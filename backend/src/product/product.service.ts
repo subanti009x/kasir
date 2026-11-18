@@ -1,4 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto.js';
 
@@ -12,6 +14,19 @@ type UploadedProductImage = {
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
+
+  private handleWriteError(error: unknown): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = Array.isArray(error.meta?.target)
+        ? error.meta.target.join(',').toLowerCase()
+        : String(error.meta?.target ?? '').toLowerCase();
+      if (target.includes('sku')) {
+        throw new ConflictException('SKU produk sudah digunakan. Gunakan SKU yang berbeda.');
+      }
+      throw new ConflictException('Data produk bentrok dengan data unik yang sudah tersimpan. Periksa SKU dan nama satuan.');
+    }
+    throw error;
+  }
 
   private hasFeature(tenantId: string, code: string) {
     return this.prisma.tenantFeature.findFirst({
@@ -79,15 +94,19 @@ export class ProductService {
     }
 
     const { units, expiresAt, ...data } = dto;
-    return this.prisma.product.create({
-      data: {
-        ...data,
-        tenantId,
-        ...(expiresAt !== undefined ? { expiresAt: expiresAt ? new Date(expiresAt) : null } : {}),
-        ...(units !== undefined ? { units: { create: units } } : {}),
-      },
-      include: { category: true, units: true },
-    });
+    try {
+      return await this.prisma.product.create({
+        data: {
+          ...data,
+          tenantId,
+          ...(expiresAt !== undefined ? { expiresAt: expiresAt ? new Date(expiresAt) : null } : {}),
+          ...(units !== undefined ? { units: { create: units } } : {}),
+        },
+        include: { category: true, units: true },
+      });
+    } catch (error) {
+      this.handleWriteError(error);
+    }
   }
 
   async update(id: string, dto: UpdateProductDto, tenantId: string) {
@@ -100,20 +119,24 @@ export class ProductService {
       if (!category) throw new NotFoundException('Category not found in this tenant');
     }
     const { units, expiresAt, ...data } = dto;
-    return this.prisma.$transaction(async (tx) => {
-      if (units !== undefined) {
-        await tx.productUnit.deleteMany({ where: { productId: id } });
-      }
-      return tx.product.update({
-        where: { id },
-        data: {
-          ...data,
-          ...(expiresAt !== undefined ? { expiresAt: expiresAt ? new Date(expiresAt) : null } : {}),
-          ...(units !== undefined ? { units: { create: units } } : {}),
-        },
-        include: { category: true, units: true },
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        if (units !== undefined) {
+          await tx.productUnit.deleteMany({ where: { productId: id } });
+        }
+        return tx.product.update({
+          where: { id },
+          data: {
+            ...data,
+            ...(expiresAt !== undefined ? { expiresAt: expiresAt ? new Date(expiresAt) : null } : {}),
+            ...(units !== undefined ? { units: { create: units } } : {}),
+          },
+          include: { category: true, units: true },
+        });
       });
-    });
+    } catch (error) {
+      this.handleWriteError(error);
+    }
   }
 
   async remove(id: string, tenantId: string) {
