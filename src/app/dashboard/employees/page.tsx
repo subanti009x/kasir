@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
-import { invalidateQueries } from "@/lib/queryInvalidation";
+import { invalidateQueries, removeItemFromQueries } from "@/lib/queryInvalidation";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { userApi } from "@/lib/api";
 import { Pencil, Trash2, X, Loader2, UserPlus } from "lucide-react";
 
@@ -12,13 +13,22 @@ export default function EmployeesPage() {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<any>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" });
 
   const { data: users = [], isLoading } = useQuery({ queryKey: ["users"], queryFn: () => userApi.list(token!), enabled: !!token });
   const userKeys = [["users"], ["admin-stats"]];
   const createMut = useMutation({ mutationFn: (d: any) => userApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, userKeys); setModal(null); } });
   const updateMut = useMutation({ mutationFn: ({ id, data }: any) => userApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, userKeys); setModal(null); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => userApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, userKeys) });
+  const savePending = createMut.isPending || updateMut.isPending;
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => userApi.delete(token!, id),
+    onSuccess: async (_result, id) => {
+      removeItemFromQueries(queryClient, [["users"]], id);
+      await invalidateQueries(queryClient, userKeys);
+      setEmployeeToDelete(null);
+    },
+  });
 
   const roleColors: Record<string, string> = { OWNER: "bg-violet-50 text-violet-700", CASHIER: "bg-sky-50 text-sky-700", SUPER_ADMIN: "bg-rose-50 text-rose-700" };
 
@@ -26,7 +36,7 @@ export default function EmployeesPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-500">{users.length} karyawan</p>
-        <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { setForm({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" }); setEditing(null); setModal("create"); }}>
+        <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { createMut.reset(); updateMut.reset(); setForm({ name: "", email: "", password: "", role: "CASHIER", status: "ACTIVE" }); setEditing(null); setModal("create"); }}>
           <UserPlus size={16} /> Tambah Karyawan
         </button>
       </div>
@@ -53,8 +63,8 @@ export default function EmployeesPage() {
                   <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${u.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{u.status === "ACTIVE" ? "AKTIF" : "NONAKTIF"}</span></td>
                   <td className="px-4 py-3 text-slate-500">{new Date(u.createdAt).toLocaleDateString("id-ID")}</td>
                   <td className="px-4 py-3 text-right">
-                    <button className="mr-2 text-slate-400 hover:text-teal-600" onClick={() => { setForm({ name: u.name, email: u.email, password: "", role: u.role, status: u.status }); setEditing(u); setModal("edit"); }}><Pencil size={15} /></button>
-                    <button className="text-slate-400 hover:text-red-600" onClick={() => { if (confirm("Hapus karyawan ini?")) deleteMut.mutate(u.id); }}><Trash2 size={15} /></button>
+                    <button aria-label={`Ubah karyawan ${u.name}`} className="mr-2 text-slate-400 hover:text-teal-600" onClick={() => { createMut.reset(); updateMut.reset(); setForm({ name: u.name, email: u.email, password: "", role: u.role, status: u.status }); setEditing(u); setModal("edit"); }}><Pencil size={15} /></button>
+                    <button aria-label={`Hapus karyawan ${u.name}`} className="text-slate-400 hover:text-red-600" onClick={() => { deleteMut.reset(); setEmployeeToDelete(u); }}><Trash2 size={15} /></button>
                   </td>
                 </tr>
               ))}
@@ -65,9 +75,9 @@ export default function EmployeesPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setModal(null)}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => { if (!savePending) setModal(null); }}>
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Karyawan Baru" : "Ubah Data Karyawan"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Karyawan Baru" : "Ubah Data Karyawan"}</h3><button type="button" disabled={savePending} onClick={() => setModal(null)} aria-label="Tutup" className="disabled:opacity-50"><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); const data: any = { ...form }; if (!data.password) delete data.password; if (modal === "edit") updateMut.mutate({ id: editing.id, data }); else createMut.mutate(data); }}>
               <div><label className="text-xs font-medium text-slate-600">Nama Karyawan *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div><label className="text-xs font-medium text-slate-600">Alamat Email *</label><input type="email" className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
@@ -84,6 +94,16 @@ export default function EmployeesPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!employeeToDelete}
+        title="Hapus karyawan ini?"
+        description={<>Akun <strong className="font-semibold text-slate-900">{employeeToDelete?.name}</strong>{employeeToDelete?.email ? <> ({employeeToDelete.email})</> : null} akan dihapus. Tindakan ini tidak dapat dibatalkan.</>}
+        isPending={deleteMut.isPending}
+        error={deleteMut.isError ? (deleteMut.error as any)?.message || "Karyawan gagal dihapus. Silakan coba lagi." : undefined}
+        onCancel={() => { if (!deleteMut.isPending) setEmployeeToDelete(null); }}
+        onConfirm={() => { if (employeeToDelete && !deleteMut.isPending) deleteMut.mutate(employeeToDelete.id); }}
+      />
     </div>
   );
 }

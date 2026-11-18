@@ -5,6 +5,14 @@ export async function invalidateQueries(queryClient: QueryClient, keys: QueryKey
   await Promise.all(keys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }
 
+export function removeItemFromQueries(queryClient: QueryClient, keys: QueryKey[], id: string) {
+  for (const queryKey of keys) {
+    queryClient.setQueriesData<Array<{ id: string }>>({ queryKey }, (current) =>
+      current?.filter((item) => item.id !== id),
+    );
+  }
+}
+
 export const productRelatedKeys: QueryKey[] = [
   ["products"],
   ["products-all"],

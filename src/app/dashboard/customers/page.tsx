@@ -4,7 +4,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { customerRelatedKeys, invalidateQueries } from "@/lib/queryInvalidation";
+import { removeItemFromQueries } from "@/lib/queryInvalidation";
 import { customerApi } from "@/lib/api";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useFeatures } from "@/lib/useFeatures";
 import { Plus, Search, Pencil, Trash2, X, Loader2 } from "lucide-react";
 
@@ -15,13 +17,22 @@ export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<any>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<any>(null);
   const blank = () => ({ name: "", phone: "", email: "", address: "", isWholesale: false });
   const [form, setForm] = useState(blank);
 
   const { data: customers = [], isLoading } = useQuery({ queryKey: ["customers", search], queryFn: () => customerApi.list(token!, search || undefined), enabled: !!token });
   const createMut = useMutation({ mutationFn: (d: any) => customerApi.create(token!, d), onSuccess: async () => { await invalidateQueries(queryClient, customerRelatedKeys); setModal(null); } });
   const updateMut = useMutation({ mutationFn: ({ id, data }: any) => customerApi.update(token!, id, data), onSuccess: async () => { await invalidateQueries(queryClient, customerRelatedKeys); setModal(null); } });
-  const deleteMut = useMutation({ mutationFn: (id: string) => customerApi.delete(token!, id), onSuccess: async () => invalidateQueries(queryClient, customerRelatedKeys) });
+  const savePending = createMut.isPending || updateMut.isPending;
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => customerApi.delete(token!, id),
+    onSuccess: async (_result, id) => {
+      removeItemFromQueries(queryClient, [["customers"]], id);
+      await invalidateQueries(queryClient, customerRelatedKeys);
+      setCustomerToDelete(null);
+    },
+  });
 
   function customerPayload() {
     return {
@@ -41,7 +52,7 @@ export default function CustomersPage() {
           <input className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-4 text-sm outline-none focus:border-teal-600" placeholder="Cari pelanggan..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         {canManage && (
-          <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { setForm(blank()); setEditing(null); setModal("create"); }}>
+          <button className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white hover:bg-slate-800 sm:h-10 sm:w-auto" onClick={() => { createMut.reset(); updateMut.reset(); setForm(blank()); setEditing(null); setModal("create"); }}>
             <Plus size={16} /> Tambah Pelanggan
           </button>
         )}
@@ -64,8 +75,8 @@ export default function CustomersPage() {
                 </div>
                 {canManage && (
                   <div className="flex gap-1">
-                    <button className="grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-teal-50 hover:text-teal-600" onClick={() => { setForm({ ...blank(), name: c.name, phone: c.phone || "", email: c.email || "", address: c.address || "", isWholesale: !!c.isWholesale }); setEditing(c); setModal("edit"); }}><Pencil size={14} /></button>
-                    <button className="grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => { if (confirm("Hapus pelanggan ini?")) deleteMut.mutate(c.id); }}><Trash2 size={14} /></button>
+                    <button aria-label={`Ubah pelanggan ${c.name}`} className="grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-teal-50 hover:text-teal-600" onClick={() => { createMut.reset(); updateMut.reset(); setForm({ ...blank(), name: c.name, phone: c.phone || "", email: c.email || "", address: c.address || "", isWholesale: !!c.isWholesale }); setEditing(c); setModal("edit"); }}><Pencil size={14} /></button>
+                    <button aria-label={`Hapus pelanggan ${c.name}`} className="grid size-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => { deleteMut.reset(); setCustomerToDelete(c); }}><Trash2 size={14} /></button>
                   </div>
                 )}
               </div>
@@ -76,9 +87,9 @@ export default function CustomersPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => setModal(null)}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-3 sm:p-4" onClick={() => { if (!savePending) setModal(null); }}>
           <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Pelanggan Baru" : "Ubah Data Pelanggan"}</h3><button onClick={() => setModal(null)}><X size={20} /></button></div>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-bold">{modal === "create" ? "Tambah Pelanggan Baru" : "Ubah Data Pelanggan"}</h3><button type="button" disabled={savePending} onClick={() => setModal(null)} aria-label="Tutup" className="disabled:opacity-50"><X size={20} /></button></div>
             <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); const data = customerPayload(); if (modal === "edit") updateMut.mutate({ id: editing.id, data }); else createMut.mutate(data); }}>
               <div><label className="text-xs font-medium text-slate-600">Nama Pelanggan *</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -88,11 +99,21 @@ export default function CustomersPage() {
               <div><label className="text-xs font-medium text-slate-600">Alamat</label><input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 text-sm" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
               {hasFeature("WHOLESALE_PRICING") && <label className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-900"><input type="checkbox" checked={form.isWholesale} onChange={(e) => setForm({ ...form, isWholesale: e.target.checked })} /> Pelanggan bakul/reseller (gunakan harga bakul saat transaksi)</label>}
               {(createMut.isError || updateMut.isError) && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">{((createMut.error || updateMut.error) as any)?.message || "Gagal menyimpan pelanggan"}</p>}
-              <button type="submit" className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white">{modal === "create" ? "Tambah Pelanggan" : "Simpan Perubahan"}</button>
+              <button type="submit" disabled={savePending} className="h-10 w-full rounded-lg bg-slate-950 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-60">{savePending ? "Menyimpan…" : modal === "create" ? "Tambah Pelanggan" : "Simpan Perubahan"}</button>
             </form>
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!customerToDelete}
+        title="Hapus pelanggan ini?"
+        description={<>Pelanggan <strong className="font-semibold text-slate-900">{customerToDelete?.name}</strong>{customerToDelete?.phone ? <> ({customerToDelete.phone})</> : null} akan dihapus. Tindakan ini tidak dapat dibatalkan.</>}
+        isPending={deleteMut.isPending}
+        error={deleteMut.isError ? (deleteMut.error as any)?.message || "Pelanggan gagal dihapus. Silakan coba lagi." : undefined}
+        onCancel={() => { if (!deleteMut.isPending) setCustomerToDelete(null); }}
+        onConfirm={() => { if (customerToDelete && !deleteMut.isPending) deleteMut.mutate(customerToDelete.id); }}
+      />
     </div>
   );
 }
