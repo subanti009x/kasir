@@ -43,7 +43,7 @@ export class UserService {
     return user;
   }
 
-  async updateMyAvatar(id: string, tenantId: string, avatar: string) {
+  async updateMyAvatar(id: string, tenantId: string, avatar: string | null) {
     const user = await this.prisma.user.updateMany({
       where: { id, tenantId },
       data: { avatar },

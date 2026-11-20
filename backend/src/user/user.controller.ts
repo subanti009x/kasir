@@ -49,6 +49,12 @@ export class UserController {
     return this.userService.updateMyAvatar(user.userId, user.tenantId, avatar);
   }
 
+  @Delete('me/avatar')
+  @Roles('OWNER', 'CASHIER')
+  removeMyAvatar(@CurrentUser() user: any) {
+    return this.userService.updateMyAvatar(user.userId, user.tenantId, null);
+  }
+
   @Get(':id')
   @Roles('OWNER', 'SUPER_ADMIN')
   findOne(@Param('id') id: string, @CurrentUser() user: any) {

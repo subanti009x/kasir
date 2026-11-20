@@ -186,6 +186,7 @@ export const userApi = {
   list: (token: string) => api<any[]>("/users", { token }),
   me: (token: string) => api<any>("/users/me", { token }),
   uploadAvatar: (token: string, file: File) => uploadFile<any>("/users/me/avatar", file, token, "avatar"),
+  removeAvatar: (token: string) => api<any>("/users/me/avatar", { method: "DELETE", token }),
   get: (token: string, id: string) => api<any>(`/users/${id}`, { token }),
   create: (token: string, data: any) => api<any>("/users", { method: "POST", body: data, token }),
   update: (token: string, id: string, data: any) => api<any>(`/users/${id}`, { method: "PATCH", body: data, token }),

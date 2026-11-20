@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { invalidateQueries } from "@/lib/queryInvalidation";
 import { settingsApi, userApi, whatsappApi } from "@/lib/api";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { useFeatures } from "@/lib/useFeatures";
 import { useNotifications } from "@/lib/useNotifications";
 import {
@@ -45,6 +46,8 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarInputError, setAvatarInputError] = useState("");
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [avatarDeleteOpen, setAvatarDeleteOpen] = useState(false);
   useEffect(() => {
     if (!avatarFile) {
       setAvatarPreview(null);
@@ -61,6 +64,18 @@ export default function SettingsPage() {
       await invalidateQueries(queryClient, [["user-me"], ["users"]]);
       setAvatarFile(null);
       setAvatarInputError("");
+    },
+  });
+  const avatarDeleteMut = useMutation({
+    mutationFn: () => userApi.removeAvatar(token!),
+    onSuccess: async (savedUser) => {
+      queryClient.setQueryData(["user-me", user?.id], savedUser);
+      await invalidateQueries(queryClient, [["user-me"], ["users"]]);
+      setAvatarFile(null);
+      setAvatarInputError("");
+      avatarMut.reset();
+      setAvatarMenuOpen(false);
+      setAvatarDeleteOpen(false);
     },
   });
 
@@ -205,8 +220,36 @@ export default function SettingsPage() {
         <h2 className="text-lg font-bold text-slate-950">Foto Profil</h2>
       </div>
       <form className="flex flex-col gap-4 sm:flex-row sm:items-center" onSubmit={(event) => { event.preventDefault(); if (avatarFile && !avatarMut.isPending) avatarMut.mutate(avatarFile); }}>
-        <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-slate-400">
-          {(avatarPreview || currentUser?.avatar) ? <img src={avatarPreview || currentUser.avatar} alt={`Foto profil ${currentUser?.name || user?.name || "pengguna"}`} className="h-full w-full object-cover" /> : <UserRound size={32} />}
+        <div className="relative size-20 shrink-0">
+          {currentUser?.avatar && !avatarPreview ? (
+            <button
+              type="button"
+              aria-label="Tampilkan opsi foto profil"
+              aria-haspopup="menu"
+              aria-expanded={avatarMenuOpen}
+              disabled={avatarDeleteMut.isPending}
+              onClick={() => setAvatarMenuOpen((open) => !open)}
+              className="grid size-20 place-items-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-slate-400 disabled:opacity-60"
+            >
+              <img src={currentUser.avatar} alt={`Foto profil ${currentUser?.name || user?.name || "pengguna"}`} className="h-full w-full object-cover" />
+            </button>
+          ) : (
+            <div className="grid size-20 place-items-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-slate-400">
+              {(avatarPreview || currentUser?.avatar) ? <img src={avatarPreview || currentUser.avatar} alt={`Foto profil ${currentUser?.name || user?.name || "pengguna"}`} className="h-full w-full object-cover" /> : <UserRound size={32} />}
+            </div>
+          )}
+          {avatarMenuOpen && currentUser?.avatar && !avatarPreview && (
+            <div role="menu" aria-label="Opsi foto profil" className="absolute left-0 top-[calc(100%+0.5rem)] z-20 min-w-36 rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => { setAvatarMenuOpen(false); setAvatarDeleteOpen(true); avatarDeleteMut.reset(); }}
+                className="w-full rounded-md px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50"
+              >
+                Hapus foto
+              </button>
+            </div>
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-900">{currentUser?.name || user?.name}</p>
@@ -249,6 +292,16 @@ export default function SettingsPage() {
           {avatarMut.isSuccess && !avatarFile && <p role="status" className="mt-2 text-xs text-emerald-600">Foto profil berhasil disimpan.</p>}
         </div>
       </form>
+      <ConfirmDialog
+        open={avatarDeleteOpen}
+        title="Hapus foto profil?"
+        description={<>Foto profil <strong className="font-semibold text-slate-900">{currentUser?.name || user?.name}</strong> akan dihapus.</>}
+        confirmLabel="Hapus foto"
+        isPending={avatarDeleteMut.isPending}
+        error={avatarDeleteMut.isError ? (avatarDeleteMut.error as any)?.message || "Foto profil gagal dihapus. Silakan coba lagi." : undefined}
+        onCancel={() => { if (!avatarDeleteMut.isPending) setAvatarDeleteOpen(false); }}
+        onConfirm={() => { if (!avatarDeleteMut.isPending) avatarDeleteMut.mutate(); }}
+      />
     </section>
   );
 
