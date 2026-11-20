@@ -6,7 +6,8 @@ import Link from "next/link";
 import { io, type Socket } from "socket.io-client";
 import { useAuth } from "@/lib/auth";
 import { getNotificationSocketConfig } from "@/lib/realtime";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { userApi } from "@/lib/api";
 import { categoryRelatedKeys, customerRelatedKeys, invalidateQueries, productRelatedKeys, transactionRelatedKeys } from "@/lib/queryInvalidation";
 import {
   LayoutDashboard, ShoppingCart, Tags, Boxes, PackageSearch, Users, Truck, BarChart3,
@@ -42,6 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const { user, token, loading, logout, canManage, isSuperAdmin } = useAuth();
   const queryClient = useQueryClient();
+  const { data: profile } = useQuery({ queryKey: ["user-me", user?.id], queryFn: () => userApi.me(token!), enabled: !!token && !!user?.id });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -54,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isPlatformRoute = pathname === "/dashboard/admin" || pathname.startsWith("/dashboard/admin/") ||
     pathname === "/dashboard/exclusive-features" || pathname.startsWith("/dashboard/exclusive-features/");
-  const ownerOnlyRoutes = ["/dashboard/suppliers", "/dashboard/reports", "/dashboard/accounting", "/dashboard/employees", "/dashboard/settings"];
+  const ownerOnlyRoutes = ["/dashboard/suppliers", "/dashboard/reports", "/dashboard/accounting", "/dashboard/employees"];
   const isOwnerOnlyRoute = ownerOnlyRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const roleBlocked = !!user && (isSuperAdmin ? !isPlatformRoute : !canManage && isOwnerOnlyRoute);
 
@@ -145,7 +147,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         inventory: productRelatedKeys,
         transactions: transactionRelatedKeys,
         suppliers: [["suppliers"], ["purchase-orders"]],
-        users: [["users"], ["admin-stats"]],
+        users: [["users"], ["admin-stats"], ["user-me"]],
         settings: [["settings"], ["payment-methods"]],
         accounting: [["expenses"], ["profit-loss"], ["balance-sheet"], ["dashboard"]],
       };
@@ -172,7 +174,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const visibleItems = (isSuperAdmin ? [] : navItems).filter((item) => {
     if (item.href === "/dashboard/employees" && !canManage) return false;
     if (item.href === "/dashboard/suppliers" && !canManage) return false;
-    if (item.href === "/dashboard/settings" && !canManage) return false;
     if (item.href === "/dashboard/reports" && !canManage) return false;
     if (item.href === "/dashboard/accounting" && !canManage) return false;
     return true;
@@ -221,8 +222,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* User info */}
         <div className="border-b border-slate-100 px-5 py-3">
           <div className="flex items-center gap-3">
-            <div className="grid size-9 shrink-0 place-items-center rounded-full bg-teal-700 text-xs font-bold text-white">
-              {user.name.charAt(0).toUpperCase()}
+            <div className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-teal-700 text-xs font-bold text-white">
+              {profile?.avatar ? <img src={profile.avatar} alt="" className="h-full w-full object-cover" /> : user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>

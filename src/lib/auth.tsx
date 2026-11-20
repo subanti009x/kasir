@@ -10,6 +10,7 @@ interface User {
   email: string;
   role: "SUPER_ADMIN" | "OWNER" | "CASHIER";
   tenantId: string | null;
+  avatar?: string | null;
   tenant?: { id: string; name: string; status: string; plan: string } | null;
 }
 

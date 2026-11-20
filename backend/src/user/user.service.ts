@@ -17,7 +17,6 @@ export class UserService {
         name: true,
         role: true,
         status: true,
-        avatar: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -42,6 +41,17 @@ export class UserService {
     });
     if (!user) throw new NotFoundException('User not found');
     return user;
+  }
+
+  async updateMyAvatar(id: string, tenantId: string, avatar: string) {
+    const user = await this.prisma.user.updateMany({
+      where: { id, tenantId },
+      data: { avatar },
+    });
+    if (!user.count) throw new NotFoundException('User not found');
+
+    this.notifications?.notifyDataChanged(tenantId, 'users');
+    return this.findOne(id, tenantId);
   }
 
   async create(dto: CreateUserDto, tenantId: string) {
