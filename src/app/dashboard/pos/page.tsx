@@ -395,7 +395,7 @@ export default function POSPage() {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-6">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_420px] xl:items-start xl:gap-6">
       {/* Scan feedback toast */}
       {scanFeedback && (
         <div
@@ -415,7 +415,7 @@ export default function POSPage() {
         </div>
       )}
 
-      <div>
+      <div className="flex min-h-0 flex-col xl:h-[calc(100dvh-7rem)]">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           {/* Scanner status badge + simulator toggle */}
           {/* Scanner status indicator */}
@@ -647,9 +647,10 @@ export default function POSPage() {
         )}
 
         {isLoading ? (
-          <div className="flex justify-center py-16"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
+          <div className="flex h-[55dvh] min-h-48 items-center justify-center overflow-y-auto xl:h-auto xl:min-h-0 xl:flex-1"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          <div className="h-[55dvh] min-h-48 overflow-y-auto overscroll-contain pr-1 xl:h-auto xl:min-h-0 xl:flex-1">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {products.map((product: any) => (
               <div key={product.id} className="group min-h-32 rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md">
                 <div className="flex items-start justify-between gap-3">
@@ -674,12 +675,13 @@ export default function POSPage() {
                 {hasFeature("MULTI_UNIT") && product.units?.map((unit: any) => <button key={unit.id} className="ml-2 mt-2 h-8 rounded-md border border-teal-300 px-3 text-xs font-semibold text-teal-800 disabled:opacity-50" onClick={() => addToCart(product, unit)} disabled={product.stock < unit.conversionFactor}>+ {unit.name} · {formatCurrency(useWholesalePrice && unit.wholesalePrice != null ? unit.wholesalePrice : unit.sellingPrice)}</button>)}
               </div>
             ))}
+            </div>
           </div>
         )}
       </div>
 
-      <div className="space-y-4">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-20">
+      <div className="space-y-4 xl:sticky xl:top-20 xl:self-start">
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-teal-700" />
             <h2 className="text-lg font-bold text-slate-950">Keranjang Belanja</h2>

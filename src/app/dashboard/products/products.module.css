@@ -1,7 +1,9 @@
 .tableViewport {
   max-width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  height: calc(100dvh - 12rem);
+  min-height: 16rem;
+  overflow: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: #94a3b8 #f1f5f9;
 }
@@ -9,6 +11,13 @@
 .tableViewport:focus-visible {
   outline: 2px solid #0f766e;
   outline-offset: 2px;
+}
+
+.productsTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
 }
 
 @media (min-width: 641px) {
@@ -60,6 +69,7 @@
 
 @media (max-width: 640px) {
   .tableViewport {
-    overflow: visible;
+    height: calc(100dvh - 17rem);
+    min-height: 12rem;
   }
 }
